@@ -1,7 +1,7 @@
 #include "amk_tester.h"
 #include <QDebug>
 
-int id1 = qRegisterMetaType<QVector<quint16> >("QVector<quint16>");
+int id1 = qRegisterMetaType<QVector<quint16>>("QVector<quint16>");
 
 AmkTester::AmkTester(QObject* parent)
     : QObject(parent)
@@ -42,7 +42,7 @@ bool AmkTester::Ping(const QString& portName, int baud, int addr)
         if (!m_semaphore.tryAcquire(1, 1000))
             break;
 
-        emit Write(Parcel(PING));
+        emit Write(parcel(static_cast<quint8>(PING)));
         if (!m_semaphore.tryAcquire(1, 1000)) {
             emit Close();
             break;
@@ -59,7 +59,7 @@ bool AmkTester::MeasurePin(int pin)
         return false;
     m_result = false;
     m_semaphore.acquire(m_semaphore.available());
-    emit Write(Parcel(MEASURE_PIN, reinterpret_cast<quint8*>(&pin), 1));
+    emit Write(parcel(MEASURE_PIN, static_cast<quint8>(pin)));
     if (m_semaphore.tryAcquire(1, 1000))
         m_result = true;
     return m_result;
@@ -188,7 +188,7 @@ void TesterPort::Read()
             if ((i + m_data[i + 2]) <= m_data.size()) {
                 m_tmpData = m_data.mid(i, m_data[i + 2]);
                 quint8 cmd = *(quint8*)(m_tmpData.constData() + 3);
-                if (CheckData(m_tmpData))
+                if (checkParcel(m_tmpData))
                     (m_t->*m_f[cmd])(m_tmpData);
                 else
                     (m_t->*m_f[CRC_ERROR])(m_tmpData);

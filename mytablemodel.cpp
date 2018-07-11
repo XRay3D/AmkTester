@@ -67,11 +67,11 @@ QVariant MyTableModel::data(const QModelIndex& index, int role) const
         if (val[index.row()][index.column()] > -1)
             return QColor(100, 255, 100);
         else if (index.row() < 6 && index.column() < 6)
-            return QColor(200, 255, 200);
+            return QColor(220, 255, 220);
         else if (index.row() > 5 && index.column() > 5)
-            return QColor(255, 200, 200);
+            return QColor(255, 220, 220);
         else
-            return QColor(255, 255, 200);
+            return QColor(255, 255, 220);
     default:
         return QVariant();
     }

@@ -15,6 +15,18 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="leftMargin">
+     <number>6</number>
+    </property>
+    <property name="topMargin">
+     <number>6</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>6</number>
+    </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
@@ -22,18 +34,18 @@
       </property>
       <widget class="CONNECTION" name="tab">
        <attribute name="title">
-        <string>Tab 1</string>
+        <string>Связь</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Измерение</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QGroupBox" name="groupBox_2">
           <property name="title">
-           <string>GroupBox</string>
+           <string>ИЗМЕРИТЕЛЬ</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <property name="leftMargin">
@@ -63,7 +75,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>GroupBox</string>
+           <string>КДС</string>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="leftMargin">

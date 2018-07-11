@@ -1,7 +1,7 @@
 #include "amk.h"
+#include "hwinterface/interface.h"
 #include <QDebug>
 #include <QSettings>
-#include "hwinterface/interface.h"
 
 AMK::AMK(QWidget* parent)
     : QWidget(parent)
@@ -70,7 +70,7 @@ void AMK::setupUi(QWidget* Form)
 
 void AMK::saveSettings()
 {
-    QSettings settings("KdsSwitcher.ini", QSettings::IniFormat);
+    QSettings settings("AmkTester.ini", QSettings::IniFormat);
     settings.setIniCodec("UTF-8");
 
     settings.beginWriteArray("PointTypes");
@@ -98,10 +98,10 @@ void AMK::saveSettings()
 
 void AMK::loadSettings()
 {
-    QSettings settings("KdsSwitcher.ini", QSettings::IniFormat);
+    QSettings settings("AmkTester.ini", QSettings::IniFormat);
     settings.setIniCodec("UTF-8");
 
-    typedef void (QComboBox::*F)(int);
+    using F = void (QComboBox::*)(int);
     disconnect(cbType, static_cast<F>(&QComboBox::currentIndexChanged), this, &AMK::CbTypeCurrentIndexChanged);
     int size = settings.beginReadArray("PointTypes");
     cbType->clear();
