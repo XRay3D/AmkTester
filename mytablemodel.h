@@ -6,7 +6,7 @@
 class MyTableModel : public QAbstractTableModel {
     Q_OBJECT
 
-    QVector<QVector<int> > val /*[11][11]*/;
+    int m_data[11][11];
 
 public:
     explicit MyTableModel(QObject* parent = nullptr);
@@ -18,11 +18,10 @@ public:
 signals:
 
 public slots:
-    void setValue(const QVector<quint16>& value);
+    void setData(const QVector<quint16>& value);
 
     // QAbstractItemModel interface
 public:
-    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
     int columnCount(const QModelIndex& parent) const override;
     int rowCount(const QModelIndex& parent) const override;
     QVariant data(const QModelIndex& index, int role) const override;

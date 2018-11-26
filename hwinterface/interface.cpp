@@ -3,19 +3,25 @@
 #include <QTimer>
 
 AmkTester* amkTester = nullptr;
-KDS* Kds = nullptr;
+Amk* Kds = nullptr;
+Amk* Hart = nullptr;
 QThread thrd;
 QSemaphore semafore;
 
 Interface::Interface()
 {
     if (!semafore.available()) {
-        amkTester = new AmkTester;
-        Kds = new KDS;
+        Hart = new Amk;
+        Hart->moveToThread(&thrd);
 
-        amkTester->moveToThread(&thrd);
+        Kds = new Amk;
         Kds->moveToThread(&thrd);
 
+        amkTester = new AmkTester;
+        amkTester->moveToThread(&thrd);
+
+        thrd.connect(&thrd, &QThread::finished, Hart, &QObject::deleteLater);
+        thrd.connect(&thrd, &QThread::finished, Kds, &QObject::deleteLater);
         thrd.connect(&thrd, &QThread::finished, amkTester, &QObject::deleteLater);
         thrd.start(QThread::NormalPriority);
     }
@@ -31,12 +37,8 @@ Interface::~Interface()
     }
 }
 
-AmkTester* Interface::tester()
-{
-    return amkTester;
-}
+AmkTester* Interface::tester() { return amkTester; }
 
-KDS* Interface::kds()
-{
-    return Kds;
-}
+Amk* Interface::kds() { return Kds; }
+
+Amk* Interface::hart() { return Hart; }

@@ -5,41 +5,63 @@
 
 MyTableModel::MyTableModel(QObject* parent)
     : QAbstractTableModel(parent)
-    , val(QVector<QVector<int> >(11, QVector<int>(11, -1)))
+    , m_data{
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+        { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+    }
 {
 }
 
-void MyTableModel::setValue(const QVector<quint16>& value)
+void MyTableModel::setData(const QVector<quint16>& value)
 {
-    static QMutex mutex;
-    QMutexLocker mutexLocker(&mutex);
-    int num(value[ColumnCount]);
-    QVector<int> rez(ColumnCount, -1);
-    for (int l = num - 1, r = num + 1; l > -1 || r < ColumnCount; --l, ++r) {
-        float u1 = value[num];
-        if (l > -1 && value[l] > 10) {
-            float u2 = value[l];
-            if (u1 > u2)
-                rez[l] = ((u1 - u2) / u2) * 1000;
+    //static QMutex mutex;
+    //QMutexLocker mutexLocker(&mutex);
+    //qDebug() << value;
+    const int row = value[ColumnCount];
+    int rez[ColumnCount]{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+    for (
+        int column = row - 1, index = row + 1;
+        column > -1 || index < ColumnCount;
+        --column, ++index) {
+
+        float value1 = value[row];
+        if (column > -1 && value[column] > 10) { // 10 this anti-noise
+            float value2 = value[column];
+
+            if (value1 > value2)
+                rez[column] = ((value1 - value2) / value2) * 1000; // 1000 опорное сопротивление
             else
-                rez[l] = ((u2 - u1) / u1) * 1000;
-            if (rez[num] < 0)
-                ++rez[num];
+                rez[column] = ((value2 - value1) / value1) * 1000; // 1000 опорное сопротивление
+
+            if (rez[row] < 0)
+                ++rez[row];
         }
-        if (r < 11 && value[r] > 10) {
-            float u2 = value[r];
-            if (u1 > u2)
-                rez[r] = ((u1 - u2) / u2) * 1000;
+        if (index < 11 && value[index] > 10) { // 10 this anti-noise
+            float value2 = value[index];
+
+            if (value1 > value2)
+                rez[index] = ((value1 - value2) / value2) * 1000; // 1000 опорное сопротивление
             else
-                rez[r] = ((u2 - u1) / u1) * 1000;
-            if (rez[num] < 0)
-                ++rez[num];
+                rez[index] = ((value2 - value1) / value1) * 1000; // 1000 опорное сопротивление
+
+            if (rez[row] < 0)
+                ++rez[row];
         }
     }
-    for (int i = 0; i < ColumnCount; ++i) {
-        setData(createIndex(num, i, nullptr), rez[i]);
-    }
-    dataChanged(createIndex(num, 0, nullptr), createIndex(num, 10, nullptr));
+
+    for (int column = 0; column < ColumnCount; ++column)
+        m_data[row][column] = rez[column];
+
+    dataChanged(createIndex(row, 0), createIndex(row, 10), { Qt::DisplayRole });
 }
 
 int MyTableModel::rowCount(const QModelIndex& /*parent*/) const
@@ -56,15 +78,15 @@ QVariant MyTableModel::data(const QModelIndex& index, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
-        if (val[index.row()][index.column()] > -1)
-            return val[index.row()][index.column()];
+        if (m_data[index.row()][index.column()] > -1)
+            return m_data[index.row()][index.column()];
         else
             return "";
         break;
     case Qt::TextAlignmentRole:
         return Qt::AlignCenter;
     case Qt::BackgroundColorRole:
-        if (val[index.row()][index.column()] > -1)
+        if (m_data[index.row()][index.column()] > -1)
             return QColor(100, 255, 100);
         else if (index.row() < 6 && index.column() < 6)
             return QColor(220, 255, 220);
@@ -79,20 +101,12 @@ QVariant MyTableModel::data(const QModelIndex& index, int role) const
 
 QVariant MyTableModel::headerData(int section, Qt::Orientation /*orientation*/, int role) const
 {
-    const QStringList header({ "K1", "K2", "K3", "K4", "+10V", "-10V", "+I", "-I", "+MV", "+V", "-MV/V" });
+    const QStringList header({ "K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V" });
     if (role == Qt::DisplayRole)
         return header.at(section);
     if (role == Qt::TextAlignmentRole)
         return Qt::AlignCenter;
     return QVariant();
-}
-
-bool MyTableModel::setData(const QModelIndex& index, const QVariant& value, int role)
-{
-    if (role == Qt::EditRole) {
-        val[index.row()][index.column()] = value.toInt();
-    }
-    return true;
 }
 
 Qt::ItemFlags MyTableModel::flags(const QModelIndex& /*index*/) const

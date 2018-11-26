@@ -12,7 +12,6 @@ public:
 
 private:
     void writeSettings();
-
     void readSettings();
 };
 

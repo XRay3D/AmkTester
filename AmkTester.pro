@@ -20,10 +20,8 @@ SOURCES += \
     amk.cpp \
     connection.cpp \
     hwinterface/amk_tester.cpp \
-    hwinterface/elemer.cpp \
     hwinterface/interface.cpp \
     hwinterface/kds.cpp \
-    hwinterface/myprotokol.cpp \
     main.cpp \
     mainwindow.cpp \
     pointedit.cpp \
@@ -38,17 +36,16 @@ HEADERS += \
     connection.h \
     hwinterface/amk_tester.h \
     hwinterface/common_interfaces.h \
-    hwinterface/elemer.h \
     hwinterface/interface.h \
     hwinterface/kds.h \
-    hwinterface/myprotokol.h \
     mainwindow.h \
     pointedit.h \
     tester.h \
     mytablemodel.h
 
 
-
-
 FORMS += \
         mainwindow.ui
+
+include(../mp/myprotokol.pri)
+include(../elemer_ascii/elemer_ascii.pri)

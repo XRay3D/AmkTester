@@ -15,30 +15,14 @@ enum COMMAND {
     MEASURE_PIN,
     GET_CALIBRATION_COEFFICIENTS,
     SET_CALIBRATION_COEFFICIENTS,
-    BUFFER_OVERFLOW = 0xDF,
-    WRONG_COMMAND = 0xEF,
-    CRC_ERROR = 0xFF
+    BUFFER_OVERFLOW,
+    WRONG_COMMAND,
+    CRC_ERROR
 };
-
-//class CallBack {
-//public:
-//    CallBack(QSemaphore* semaphore)
-//        : semaphore(semaphore)
-//    {
-//    }
-//    virtual void RxPing(const QByteArray& data) = 0;
-//    virtual void RxMeasurePin(const QByteArray& data) = 0;
-//    virtual void RxGetCalibrationCoefficients(const QByteArray& data) = 0;
-//    virtual void RxSetCalibrationCoefficients(const QByteArray& data) = 0;
-//    virtual void RxBufferOverflow(const QByteArray& data) = 0;
-//    virtual void RxWrongCommand(const QByteArray& data) = 0;
-//    virtual void RxCrcError(const QByteArray& data) = 0;
-//    QSemaphore* semaphore;
-//};
 
 class TesterPort;
 
-class AmkTester : public QObject, private MyProtokol, /*private CallBack,*/ public COMMON_INTERFACES {
+class AmkTester : public QObject, private MyProtokol, /*private CallBack,*/ public CommonInterfaces {
     Q_OBJECT
     friend class TesterPort;
 
@@ -48,17 +32,18 @@ public:
 
     bool Ping(const QString& portName = QString(), int baud = 9600, int addr = 0);
 
-    bool MeasurePin(int pin);
-    bool SetDefaultCalibrationCoefficients(quint8 Channel);
-    bool GetCalibrationCoefficients(float& GradCoeff, int pin);
-    bool SetCalibrationCoefficients(float& GradCoeff, int pin);
-    bool SaveCalibrationCoefficients(quint8 Channel);
+    bool measurePin(int pin);
+    bool setDefaultCalibrationCoefficients(quint8 pin);
+    bool getCalibrationCoefficients(float& GradCoeff, int pin);
+    bool setCalibrationCoefficients(float& GradCoeff, int pin);
+    bool saveCalibrationCoefficients(quint8 pin);
 
 signals:
-    void Open(int mode);
-    void Close();
-    void SetValue(const QVector<quint16>&);
-    void Write(const QByteArray& data);
+    void open(int mode);
+    void close();
+    void write(const QByteArray& data);
+
+    void measureReady(const QVector<quint16>&);
 
 private:
     bool m_connected = false;
@@ -69,13 +54,15 @@ private:
     QSemaphore m_semaphore;
     QThread m_portThread;
 
-    void RxPing(const QByteArray& data);
-    void RxMeasurePin(const QByteArray& data);
-    void RxGetCalibrationCoefficients(const QByteArray& data);
-    void RxSetCalibrationCoefficients(const QByteArray& data);
-    void RxBufferOverflow(const QByteArray& data);
-    void RxWrongCommand(const QByteArray& data);
-    void RxCrcError(const QByteArray& data);
+    void reset();
+
+    void rxPing(const QByteArray& data);
+    void rxMeasurePin(const QByteArray& data);
+    void rxGetCalibrationCoefficients(const QByteArray& data);
+    void rxSetCalibrationCoefficients(const QByteArray& data);
+    void rxBufferOverflow(const QByteArray& data);
+    void rxWrongCommand(const QByteArray& data);
+    void rxCrcError(const QByteArray& data);
 };
 
 class TesterPort : public QSerialPort, private MyProtokol {
@@ -83,17 +70,16 @@ class TesterPort : public QSerialPort, private MyProtokol {
 
 public:
     TesterPort(AmkTester* t);
-    void Open(int mode);
-    void Close();
-    void Write(const QByteArray& data);
+    void openSlot(int mode);
+    void closeSlot();
+    void writeSlot(const QByteArray& data);
     AmkTester* m_t;
     typedef void (AmkTester::*func)(const QByteArray&);
     QVector<func> m_f;
 
 private:
-    void Read();
+    void readSlot();
     QByteArray m_data;
-    QByteArray m_tmpData;
     QMutex m_mutex;
 };
 

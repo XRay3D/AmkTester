@@ -3,10 +3,10 @@
 
 #include "mytablemodel.h"
 
-#include <QTimer>
-#include <QWidget>
 #include <QSemaphore>
 #include <QTableView>
+#include <QTimer>
+#include <QWidget>
 
 namespace Ui {
 class Tester;
@@ -19,8 +19,8 @@ class TESTER : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TESTER(QWidget* parent = 0);
-    ~TESTER();
+    explicit TESTER(QWidget* parent = nullptr);
+    ~TESTER() override;
 
 signals:
     void MeasurePin(int pin);
@@ -38,12 +38,9 @@ private:
     void retranslateUi(QWidget* Form);
     void SetValue(const QVector<quint16>& value);
 
-    //    void MeasurePin();
-    //    int m_pin = 0;
-
     // QWidget interface
 protected:
-    void resizeEvent(QResizeEvent *event) override;
+    void resizeEvent(QResizeEvent* event) override;
 };
 
 #endif // TESTER_H

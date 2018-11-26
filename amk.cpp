@@ -1,14 +1,17 @@
 #include "amk.h"
 #include "hwinterface/interface.h"
 #include <QDebug>
+#include <QFile>
+#include <QJsonDocument>
 #include <QSettings>
+#include <QToolButton>
 
 AMK::AMK(QWidget* parent)
     : QWidget(parent)
     , le(12, nullptr)
     , pb(12, nullptr)
 {
-    setupUi(this);
+    setupUi();
     loadSettings();
 }
 
@@ -17,7 +20,7 @@ AMK::~AMK()
     saveSettings();
 }
 
-void AMK::setupUi(QWidget* Form)
+void AMK::setupUi()
 {
     if (objectName().isEmpty())
         setObjectName(QStringLiteral("AMK"));
@@ -35,106 +38,139 @@ void AMK::setupUi(QWidget* Form)
     cbType->setEditable(true);
     formLayout->setWidget(0, QFormLayout::SpanningRole, cbType);
 
-    int index;
-    index = 1;
-
-    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    sizePolicy.setHorizontalStretch(0);
-    sizePolicy.setVerticalStretch(0);
-
-    for (int i = 0, i2 = 1; i < pb.size(); ++i, ++i2) {
-        QPushButton*& with = pb[i];
-        with = new QPushButton(this);
-        with->setObjectName(QString("pushButton_%1").arg(i2));
-        sizePolicy.setHeightForWidth(with->sizePolicy().hasHeightForWidth());
-        with->setSizePolicy(sizePolicy);
-        with->setMinimumSize(QSize(62, 0));
-        with->setMaximumSize(QSize(40, 16777215));
-        with->setText(QString("F%1").arg(i2));
-        formLayout->setWidget(i2, QFormLayout::LabelRole, with);
-        with->setShortcut(Qt::Key_F1 + i);
-        connect(with, &QPushButton::clicked, [this, i]() { SwitchSlot(i); });
+    int i = 0;
+    for (QToolButton*& pushButton : pb) {
+        pushButton = new QToolButton(this);
+        pushButton->setObjectName(QString("pushButton_%1").arg(i));
+        pushButton->setCheckable(true);
+        pushButton->setText(QString("F%1").arg(i + 1));
+        pushButton->setShortcut(Qt::Key_F1 + i);
+        connect(pushButton, &QToolButton::clicked, [this, i] { SwitchSlot(i); });
+        formLayout->setWidget(++i, QFormLayout::LabelRole, pushButton);
+    }
+    i = 0;
+    for (QLineEdit*& lineEdit : le) {
+        lineEdit = new QLineEdit(this);
+        lineEdit->setObjectName(QString("lineEdit_%1").arg(i));
+        lineEdit->setEnabled(true);
+        lineEdit->setReadOnly(true);
+        lineEdit->installEventFilter(this);
+        formLayout->setWidget(++i, QFormLayout::FieldRole, lineEdit);
     }
 
-    for (int i = 0, i2 = 1; i < le.size(); ++i, ++i2) {
-        QLineEdit*& with = le[i];
-        with = new QLineEdit(this);
-        with->setObjectName(QString("lineEdit_%1").arg(index));
-        with->setEnabled(true);
-        with->setReadOnly(true);
-        with->installEventFilter(this);
-        formLayout->setWidget(i2, QFormLayout::FieldRole, with);
-    }
     QMetaObject::connectSlotsByName(this);
 }
 
+enum { Json };
+int saveFormat = Json;
 void AMK::saveSettings()
 {
-    QSettings settings("AmkTester.ini", QSettings::IniFormat);
-    settings.setIniCodec("UTF-8");
+    QFile saveFile(saveFormat == Json ? QStringLiteral("data.json") : QStringLiteral("data.dat"));
 
-    settings.beginWriteArray("PointTypes");
-    for (int i = 0; i < cbType->count(); ++i) {
-        settings.setArrayIndex(i);
-        settings.setValue("Type", cbType->itemText(i));
-    }
-    settings.endArray();
-
-    settings.beginGroup(QString("PointType"));
-    settings.setValue("CurrentType", cbType->currentIndex());
-    settings.endGroup();
-
-    settings.beginWriteArray(QString("Points%1").arg(m_lastPointType));
-    for (int i = 0; i < 12; ++i) {
-        settings.setArrayIndex(i);
-        settings.setValue("Parcel", m_points[i].Parcel);
-        settings.setValue("Description", m_points[i].Description);
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return;
     }
 
-    m_lastPointType = cbType->currentIndex() + 1;
+    if (cbType->count() > jsonArray.count()) {
+        QJsonObject levelObject;
+        levelObject["name"] = cbType->itemText(lastIndex);
+        QJsonArray array;
+        for (PointEdit::Point& p : m_points) {
+            QJsonObject jsonObject;
+            jsonObject["name"] = p.Description;
+            jsonObject["value"] = p.Parcel;
+            array.append(jsonObject);
+        }
 
-    settings.endArray();
+        levelObject["data"] = array;
+        jsonArray.append(levelObject);
+    } else {
+        QJsonObject levelObject;
+        levelObject["name"] = cbType->itemText(lastIndex);
+        QJsonArray array;
+        for (PointEdit::Point& p : m_points) {
+            QJsonObject jsonObject;
+            jsonObject["name"] = p.Description;
+            jsonObject["value"] = p.Parcel;
+            array.append(jsonObject);
+        }
+        levelObject["data"] = array;
+        jsonArray[lastIndex] = levelObject;
+    }
+
+    QJsonDocument saveDoc(jsonArray);
+    saveFile.write(saveFormat == Json ? saveDoc.toJson() : saveDoc.toBinaryData());
 }
 
 void AMK::loadSettings()
 {
-    QSettings settings("AmkTester.ini", QSettings::IniFormat);
-    settings.setIniCodec("UTF-8");
+    QFile loadFile(saveFormat == Json ? QStringLiteral("data.json") : QStringLiteral("data.dat"));
+A:
+    if (!loadFile.open(QIODevice::ReadOnly)) {
+        QFile saveFile(saveFormat == Json ? QStringLiteral("data.json") : QStringLiteral("data.dat"));
+        if (!saveFile.open(QIODevice::WriteOnly)) {
+            qWarning("Couldn't open save file.");
+            return;
+        }
+        saveFile.write("[{\"data\":[{\"name\":\"0Ом\",\"value\":\"128\"},{\"name\":\"40Ом\",\"value\":\"256\"},{\"name\":\"80Ом\",\"value\":\"16\"},{\"name\":\"160Ом\",\"value\":\"32\"},{\"name\":\"320Ом\",\"value\":\"64\"},{\"name\":\"+10В\",\"value\":\"512\"},{\"name\":\"-10В\",\"value\":\"1536\"},{\"name\":\"+IРМТ\",\"value\":\"2\"},{\"name\":\"-IРМТ\",\"value\":\"1026\"},{\"name\":\"+UРМТ\",\"value\":\"1\"},{\"name\":\"-UРМТ\",\"value\":\"1025\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"КДС\"},{\"data\":[{\"name\":\"20мА-0Ом\",\"value\":\"640\"},{\"name\":\"20мА-400Ом\",\"value\":\"768\"},{\"name\":\"20мА-500Ом\",\"value\":\"528\"},{\"name\":\"20мА-1кОм\",\"value\":\"544\"},{\"name\":\"20мА-2кОм\",\"value\":\"576\"},{\"name\":\"5мА-0Ом\",\"value\":\"132\"},{\"name\":\"5мА-400Ом\",\"value\":\"260\"},{\"name\":\"5мА-500Ом\",\"value\":\"20\"},{\"name\":\"5мА-1кОм\",\"value\":\"36\"},{\"name\":\"5мА-2кОм\",\"value\":\"68\"},{\"name\":\"0\",\"value\":\"0\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"MN\"},{\"data\":[{\"name\":\"1\",\"value\":\"2\"},{\"name\":\"2\",\"value\":\"4\"},{\"name\":\"3\",\"value\":\"8\"},{\"name\":\"4\",\"value\":\"16\"},{\"name\":\"5\",\"value\":\"32\"},{\"name\":\"6\",\"value\":\"64\"},{\"name\":\"7\",\"value\":\"128\"},{\"name\":\"8\",\"value\":\"256\"},{\"name\":\"9\",\"value\":\"512\"},{\"name\":\"10\",\"value\":\"1024\"},{\"name\":\"11\",\"value\":\"2048\"},{\"name\":\"12\",\"value\":\"4096\"}],\"name\":\"HC\"},{\"data\":[{\"name\":\"+IТМ\",\"value\":\"8\"},{\"name\":\"-IТМ\",\"value\":\"1032\"},{\"name\":\"+UТМ\",\"value\":\"4\"},{\"name\":\"-UТМ\",\"value\":\"1028\"},{\"name\":\"+10В\",\"value\":\"512\"},{\"name\":\"-10В\",\"value\":\"1536\"},{\"name\":\"+IРМТ\",\"value\":\"2\"},{\"name\":\"-IРМТ\",\"value\":\"1026\"},{\"name\":\"+UРМТ\",\"value\":\"1\"},{\"name\":\"-UРМТ\",\"value\":\"1025\"},{\"name\":\"0\",\"value\":\"0\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"КДСстарый\"},{\"data\":[{\"name\":\"1\",\"value\":\"1\"},{\"name\":\"2\",\"value\":\"2\"},{\"name\":\"4\",\"value\":\"4\"},{\"name\":\"8\",\"value\":\"8\"},{\"name\":\"16\",\"value\":\"16\"},{\"name\":\"32\",\"value\":\"32\"},{\"name\":\"64\",\"value\":\"64\"},{\"name\":\"128\",\"value\":\"128\"},{\"name\":\"256\",\"value\":\"256\"},{\"name\":\"512\",\"value\":\"512\"},{\"name\":\"1024\",\"value\":\"1024\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"TEST\"}]");
+        qWarning("Couldn't open save file.");
+        goto A;
+    }
+
+    QByteArray array(loadFile.readAll());
+    QJsonParseError err;
+    QJsonDocument loadDoc(saveFormat == Json ? QJsonDocument::fromJson(array, &err) : QJsonDocument::fromBinaryData(array));
+
+    jsonArray = loadDoc.array();
+    //qDebug() << jsonArray << err.errorString();
+
+    for (const QJsonValue& value : jsonArray) {
+        QJsonObject object(value.toObject());
+        cbType->addItem(object["name"].toString());
+    }
+    int i = 0;
+    for (const QJsonValue& value : jsonArray[lastIndex].toObject()["data"].toArray()) {
+        QJsonObject object2(value.toObject());
+        m_points[i].Parcel = object2["value"].toString();
+        m_points[i].Description = object2["name"].toString();
+        le[i]->setText(m_points[i].Description);
+        ++i;
+    }
 
     using F = void (QComboBox::*)(int);
-    disconnect(cbType, static_cast<F>(&QComboBox::currentIndexChanged), this, &AMK::CbTypeCurrentIndexChanged);
-    int size = settings.beginReadArray("PointTypes");
-    cbType->clear();
-    for (int i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        cbType->addItem(settings.value("Type").toString());
-    }
-    settings.endArray();
-
-    settings.beginGroup(QString("PointType"));
-    cbType->setCurrentIndex(settings.value("CurrentType", 0).toInt());
-    settings.endGroup();
     connect(cbType, static_cast<F>(&QComboBox::currentIndexChanged), this, &AMK::CbTypeCurrentIndexChanged);
-
-    m_lastPointType = cbType->currentIndex() + 1;
-
-    size = settings.beginReadArray(QString("Points%1").arg(m_lastPointType));
-    for (int i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        m_points[i].Parcel = settings.value("Parcel", "").toString();
-        m_points[i].Description = settings.value("Description", "").toString();
-        le[i]->setText(m_points[i].Description);
-    }
-    settings.endArray();
 }
 
 void AMK::SwitchSlot(int pointNum)
 {
+    for (QToolButton*& pushButton : pb)
+        pushButton->setChecked(false);
+
+    pb[pointNum]->setChecked(true);
+
     m_numPoint = pointNum;
-    if (Interface::kds()->setOut(0, m_points[m_numPoint].Parcel.toInt()))
+    Amk* ptr = !fl ? Interface::kds() : Interface::hart();
+    if (ptr->setOut(0, m_points[m_numPoint].Parcel.toInt()))
         qDebug() << "Прибором КДС успешно переключен!";
     else
         qDebug() << "Нет связи с прибором КДС!";
+}
+
+void AMK::setFl(bool value)
+{
+    int i = 0;
+    for (QToolButton*& pushButton : pb) {
+        if (!value) {
+            pushButton->setText(QString("F%1").arg(i + 1));
+            pushButton->setShortcut(Qt::Key_F1 + i);
+        } else {
+            pushButton->setText(QString("Shift+F%1").arg(i + 1));
+            pushButton->setShortcut(QKeySequence(Qt::Key_F1 + i, Qt::Key_Shift));
+        }
+        ++i;
+    }
+    fl = value;
 }
 
 bool AMK::eventFilter(QObject* obj, QEvent* event)
@@ -147,11 +183,20 @@ bool AMK::eventFilter(QObject* obj, QEvent* event)
             return true;
         }
     }
+
     return QWidget::eventFilter(obj, event);
 }
 
 void AMK::CbTypeCurrentIndexChanged(int index)
 {
     saveSettings();
-    loadSettings();
+    lastIndex = index;
+    int i = 0;
+    for (const QJsonValue& value : jsonArray[lastIndex].toObject()["data"].toArray()) {
+        const QJsonObject object2(value.toObject());
+        m_points[i].Parcel = object2["value"].toString();
+        m_points[i].Description = object2["name"].toString();
+        le[i]->setText(m_points[i].Description);
+        ++i;
+    }
 }

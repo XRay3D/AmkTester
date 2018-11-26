@@ -3,27 +3,25 @@
 
 #include "common_interfaces.h"
 #include <QtSerialPort>
+#include <elemer_ascii.h>
 
 using namespace std;
 
-class KdsPort;
+class AmkPort;
 
-class KDS : public QObject, public COMMON_INTERFACES {
+class Amk : public QObject, public CommonInterfaces, public ElemerASCII {
     Q_OBJECT
-    friend class KdsPort;
+    friend class AmkPort;
 
 public:
-    KDS();
+    Amk();
+    ~Amk();
     bool Ping(const QString& portName = QString(), int baud = 9600, int addr = 0);
     int getDev(int addr);
     bool setOut(int addr, int value);
 
 private:
-    uint getUintData(QByteArray data);
-    bool getSuccess(QByteArray data);
-    QString CalcCrc(QByteArray& parcel);
-    QByteArray m_data;
-
+    QList<QByteArray> m_data;
     int dev;
     int serNum;
     int address;
@@ -42,21 +40,21 @@ private:
     bool m_connected = false;
     bool m_result = false;
     int m_counter = 0;
-    KdsPort* m_port;
+    AmkPort* m_port;
     QMutex m_mutex;
     QSemaphore m_semaphore;
     QThread m_portThread;
 };
 
-class KdsPort : public QSerialPort {
+class AmkPort : public QSerialPort, public ElemerASCII {
     Q_OBJECT
 
 public:
-    KdsPort(KDS* kds);
+    AmkPort(Amk* kds);
     void Open(int mode);
     void Close();
     void Write(const QByteArray& data);
-    KDS* m_kds;
+    Amk* m_kds;
 
 private:
     void Read();
