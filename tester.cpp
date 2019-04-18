@@ -17,9 +17,9 @@ TESTER::TESTER(QWidget* parent)
     connect(&timer, &QTimer::timeout, [&]() {
         if (s.tryAcquire()) {
             static int i = 0;
-            if (i > 10)
-                i = 0;
-            emit MeasurePin(i++ /* % 11*/);
+            //            if (i > 10)
+            //                i = 0;
+            emit MeasurePin(i++ % 11);
         }
     });
 

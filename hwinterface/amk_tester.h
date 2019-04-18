@@ -81,6 +81,7 @@ private:
     void readSlot();
     QByteArray m_data;
     QMutex m_mutex;
+    qint64 counter = 0;
 };
 
 #endif // MY_PROTOCOL_H

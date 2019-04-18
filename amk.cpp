@@ -31,7 +31,7 @@ void AMK::setupUi()
     formLayout->setObjectName(QStringLiteral("formLayout"));
     formLayout->setHorizontalSpacing(4);
     formLayout->setVerticalSpacing(4);
-    formLayout->setContentsMargins(6, 6, 6, 6);
+    formLayout->setContentsMargins(0, 0, 0, 0);
 
     cbType = new QComboBox(this);
     cbType->setObjectName(QStringLiteral("cbType"));
@@ -39,30 +39,31 @@ void AMK::setupUi()
     formLayout->setWidget(0, QFormLayout::SpanningRole, cbType);
 
     int i = 0;
-    for (QToolButton*& pushButton : pb) {
-        pushButton = new QToolButton(this);
-        pushButton->setObjectName(QString("pushButton_%1").arg(i));
+    for (QPushButton*& pushButton : pb) {
+        pushButton = new QPushButton(this);
         pushButton->setCheckable(true);
-        pushButton->setText(QString("F%1").arg(i + 1));
-        pushButton->setShortcut(Qt::Key_F1 + i);
-        connect(pushButton, &QToolButton::clicked, [this, i] { SwitchSlot(i); });
+        pushButton->setMinimumSize(0, 0);
+//        pushButton->setSizePolicy(0);
+        pushButton->setObjectName(QString("pushButton_%1").arg(i));
+
+        connect(pushButton, &QToolButton::clicked, this, &AMK::SwitchSlot);
+
         formLayout->setWidget(++i, QFormLayout::LabelRole, pushButton);
     }
     i = 0;
     for (QLineEdit*& lineEdit : le) {
         lineEdit = new QLineEdit(this);
-        lineEdit->setObjectName(QString("lineEdit_%1").arg(i));
-        lineEdit->setEnabled(true);
-        lineEdit->setReadOnly(true);
         lineEdit->installEventFilter(this);
+        lineEdit->setEnabled(true);
+        lineEdit->setObjectName(QString("lineEdit_%1").arg(i));
+        lineEdit->setReadOnly(true);
+
         formLayout->setWidget(++i, QFormLayout::FieldRole, lineEdit);
     }
 
     QMetaObject::connectSlotsByName(this);
 }
 
-enum { Json };
-int saveFormat = Json;
 void AMK::saveSettings()
 {
     QFile saveFile(saveFormat == Json ? QStringLiteral("data.json") : QStringLiteral("data.dat"));
@@ -113,7 +114,71 @@ A:
             qWarning("Couldn't open save file.");
             return;
         }
-        saveFile.write("[{\"data\":[{\"name\":\"0Ом\",\"value\":\"128\"},{\"name\":\"40Ом\",\"value\":\"256\"},{\"name\":\"80Ом\",\"value\":\"16\"},{\"name\":\"160Ом\",\"value\":\"32\"},{\"name\":\"320Ом\",\"value\":\"64\"},{\"name\":\"+10В\",\"value\":\"512\"},{\"name\":\"-10В\",\"value\":\"1536\"},{\"name\":\"+IРМТ\",\"value\":\"2\"},{\"name\":\"-IРМТ\",\"value\":\"1026\"},{\"name\":\"+UРМТ\",\"value\":\"1\"},{\"name\":\"-UРМТ\",\"value\":\"1025\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"КДС\"},{\"data\":[{\"name\":\"20мА-0Ом\",\"value\":\"640\"},{\"name\":\"20мА-400Ом\",\"value\":\"768\"},{\"name\":\"20мА-500Ом\",\"value\":\"528\"},{\"name\":\"20мА-1кОм\",\"value\":\"544\"},{\"name\":\"20мА-2кОм\",\"value\":\"576\"},{\"name\":\"5мА-0Ом\",\"value\":\"132\"},{\"name\":\"5мА-400Ом\",\"value\":\"260\"},{\"name\":\"5мА-500Ом\",\"value\":\"20\"},{\"name\":\"5мА-1кОм\",\"value\":\"36\"},{\"name\":\"5мА-2кОм\",\"value\":\"68\"},{\"name\":\"0\",\"value\":\"0\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"MN\"},{\"data\":[{\"name\":\"1\",\"value\":\"2\"},{\"name\":\"2\",\"value\":\"4\"},{\"name\":\"3\",\"value\":\"8\"},{\"name\":\"4\",\"value\":\"16\"},{\"name\":\"5\",\"value\":\"32\"},{\"name\":\"6\",\"value\":\"64\"},{\"name\":\"7\",\"value\":\"128\"},{\"name\":\"8\",\"value\":\"256\"},{\"name\":\"9\",\"value\":\"512\"},{\"name\":\"10\",\"value\":\"1024\"},{\"name\":\"11\",\"value\":\"2048\"},{\"name\":\"12\",\"value\":\"4096\"}],\"name\":\"HC\"},{\"data\":[{\"name\":\"+IТМ\",\"value\":\"8\"},{\"name\":\"-IТМ\",\"value\":\"1032\"},{\"name\":\"+UТМ\",\"value\":\"4\"},{\"name\":\"-UТМ\",\"value\":\"1028\"},{\"name\":\"+10В\",\"value\":\"512\"},{\"name\":\"-10В\",\"value\":\"1536\"},{\"name\":\"+IРМТ\",\"value\":\"2\"},{\"name\":\"-IРМТ\",\"value\":\"1026\"},{\"name\":\"+UРМТ\",\"value\":\"1\"},{\"name\":\"-UРМТ\",\"value\":\"1025\"},{\"name\":\"0\",\"value\":\"0\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"КДСстарый\"},{\"data\":[{\"name\":\"1\",\"value\":\"1\"},{\"name\":\"2\",\"value\":\"2\"},{\"name\":\"4\",\"value\":\"4\"},{\"name\":\"8\",\"value\":\"8\"},{\"name\":\"16\",\"value\":\"16\"},{\"name\":\"32\",\"value\":\"32\"},{\"name\":\"64\",\"value\":\"64\"},{\"name\":\"128\",\"value\":\"128\"},{\"name\":\"256\",\"value\":\"256\"},{\"name\":\"512\",\"value\":\"512\"},{\"name\":\"1024\",\"value\":\"1024\"},{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"TEST\"}]");
+        saveFile.write("[{\"data\":["
+                       "{\"name\":\"0Ом\",\"value\":\"128\"},"
+                       "{\"name\":\"40Ом\",\"value\":\"256\"},"
+                       "{\"name\":\"80Ом\",\"value\":\"16\"},"
+                       "{\"name\":\"160Ом\",\"value\":\"32\"},"
+                       "{\"name\":\"320Ом\",\"value\":\"64\"},"
+                       "{\"name\":\"+10В\",\"value\":\"512\"},"
+                       "{\"name\":\"-10В\",\"value\":\"1536\"},"
+                       "{\"name\":\"+IРМТ\",\"value\":\"2\"},"
+                       "{\"name\":\"-IРМТ\",\"value\":\"1026\"},"
+                       "{\"name\":\"+UРМТ\",\"value\":\"1\"},"
+                       "{\"name\":\"-UРМТ\",\"value\":\"1025\"},"
+                       "{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"КДС\"},"
+                       "{\"data\":["
+                       "{\"name\":\"20мА-0Ом\",\"value\":\"640\"},"
+                       "{\"name\":\"20мА-400Ом\",\"value\":\"768\"},"
+                       "{\"name\":\"20мА-500Ом\",\"value\":\"528\"},"
+                       "{\"name\":\"20мА-1кОм\",\"value\":\"544\"},"
+                       "{\"name\":\"20мА-2кОм\",\"value\":\"576\"},"
+                       "{\"name\":\"5мА-0Ом\",\"value\":\"132\"},"
+                       "{\"name\":\"5мА-400Ом\",\"value\":\"260\"},"
+                       "{\"name\":\"5мА-500Ом\",\"value\":\"20\"},"
+                       "{\"name\":\"5мА-1кОм\",\"value\":\"36\"},"
+                       "{\"name\":\"5мА-2кОм\",\"value\":\"68\"},"
+                       "{\"name\":\"0\",\"value\":\"0\"},"
+                       "{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"MN\"},"
+                       "{\"data\":["
+                       "{\"name\":\"1\",\"value\":\"2\"},"
+                       "{\"name\":\"2\",\"value\":\"4\"},"
+                       "{\"name\":\"3\",\"value\":\"8\"},"
+                       "{\"name\":\"4\",\"value\":\"16\"},"
+                       "{\"name\":\"5\",\"value\":\"32\"},"
+                       "{\"name\":\"6\",\"value\":\"64\"},"
+                       "{\"name\":\"7\",\"value\":\"128\"},"
+                       "{\"name\":\"8\",\"value\":\"256\"},"
+                       "{\"name\":\"9\",\"value\":\"512\"},"
+                       "{\"name\":\"10\",\"value\":\"1024\"},"
+                       "{\"name\":\"11\",\"value\":\"2048\"},"
+                       "{\"name\":\"12\",\"value\":\"4096\"}],\"name\":\"HC\"},"
+                       "{\"data\":["
+                       "{\"name\":\"+IТМ\",\"value\":\"8\"},"
+                       "{\"name\":\"-IТМ\",\"value\":\"1032\"},"
+                       "{\"name\":\"+UТМ\",\"value\":\"4\"},"
+                       "{\"name\":\"-UТМ\",\"value\":\"1028\"},"
+                       "{\"name\":\"+10В\",\"value\":\"512\"},"
+                       "{\"name\":\"-10В\",\"value\":\"1536\"},"
+                       "{\"name\":\"+IРМТ\",\"value\":\"2\"},"
+                       "{\"name\":\"-IРМТ\",\"value\":\"1026\"},"
+                       "{\"name\":\"+UРМТ\",\"value\":\"1\"},"
+                       "{\"name\":\"-UРМТ\",\"value\":\"1025\"},"
+                       "{\"name\":\"0\",\"value\":\"0\"},"
+                       "{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"КДСстарый\"},"
+                       "{\"data\":["
+                       "{\"name\":\"1\",\"value\":\"1\"},"
+                       "{\"name\":\"2\",\"value\":\"2\"},"
+                       "{\"name\":\"4\",\"value\":\"4\"},"
+                       "{\"name\":\"8\",\"value\":\"8\"},"
+                       "{\"name\":\"16\",\"value\":\"16\"},"
+                       "{\"name\":\"32\",\"value\":\"32\"},"
+                       "{\"name\":\"64\",\"value\":\"64\"},"
+                       "{\"name\":\"128\",\"value\":\"128\"},"
+                       "{\"name\":\"256\",\"value\":\"256\"},"
+                       "{\"name\":\"512\",\"value\":\"512\"},"
+                       "{\"name\":\"1024\",\"value\":\"1024\"},"
+                       "{\"name\":\"0\",\"value\":\"0\"}],\"name\":\"TEST\"}]");
         qWarning("Couldn't open save file.");
         goto A;
     }
@@ -138,39 +203,38 @@ A:
         ++i;
     }
 
-    using F = void (QComboBox::*)(int);
-    connect(cbType, static_cast<F>(&QComboBox::currentIndexChanged), this, &AMK::CbTypeCurrentIndexChanged);
+    connect(cbType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AMK::CbTypeIndexChanged);
 }
 
-void AMK::SwitchSlot(int pointNum)
+void AMK::SwitchSlot()
 {
-    for (QToolButton*& pushButton : pb)
+    for (QPushButton* pushButton : pb)
         pushButton->setChecked(false);
+    QPushButton* pushButton = qobject_cast<QPushButton*>(sender());
+    pushButton /* pb[pointNum]*/->setChecked(true);
 
-    pb[pointNum]->setChecked(true);
-
-    m_numPoint = pointNum;
-    Amk* ptr = !fl ? Interface::kds() : Interface::hart();
+    m_numPoint = pb.indexOf(pushButton); /*pointNum;*/
+    Amk* ptr = !fl ? Interface::kds1() : Interface::kds2();
     if (ptr->setOut(0, m_points[m_numPoint].Parcel.toInt()))
-        qDebug() << "Прибором КДС успешно переключен!";
+        emit message("Прибором КДС успешно переключен!");
     else
-        qDebug() << "Нет связи с прибором КДС!";
+        emit message("Нет связи с прибором КДС!");
 }
 
 void AMK::setFl(bool value)
 {
     int i = 0;
-    for (QToolButton*& pushButton : pb) {
+    fl = value;
+    for (QPushButton* pushButton : pb) {
         if (!value) {
             pushButton->setText(QString("F%1").arg(i + 1));
             pushButton->setShortcut(Qt::Key_F1 + i);
         } else {
             pushButton->setText(QString("Shift+F%1").arg(i + 1));
-            pushButton->setShortcut(QKeySequence(Qt::Key_F1 + i, Qt::Key_Shift));
+            pushButton->setShortcut(QKeySequence(QString("Shift+F%1").arg(i + 1)));
         }
         ++i;
     }
-    fl = value;
 }
 
 bool AMK::eventFilter(QObject* obj, QEvent* event)
@@ -187,7 +251,7 @@ bool AMK::eventFilter(QObject* obj, QEvent* event)
     return QWidget::eventFilter(obj, event);
 }
 
-void AMK::CbTypeCurrentIndexChanged(int index)
+void AMK::CbTypeIndexChanged(int index)
 {
     saveSettings();
     lastIndex = index;

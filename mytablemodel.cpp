@@ -28,6 +28,7 @@ void MyTableModel::setData(const QVector<quint16>& value)
     //qDebug() << value;
     const int row = value[ColumnCount];
     int rez[ColumnCount]{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+    int count = 0;
     for (
         int column = row - 1, index = row + 1;
         column > -1 || index < ColumnCount;
@@ -36,7 +37,7 @@ void MyTableModel::setData(const QVector<quint16>& value)
         float value1 = value[row];
         if (column > -1 && value[column] > 10) { // 10 this anti-noise
             float value2 = value[column];
-
+            ++count;
             if (value1 > value2)
                 rez[column] = ((value1 - value2) / value2) * 1000; // 1000 опорное сопротивление
             else
@@ -47,7 +48,7 @@ void MyTableModel::setData(const QVector<quint16>& value)
         }
         if (index < 11 && value[index] > 10) { // 10 this anti-noise
             float value2 = value[index];
-
+            ++count;
             if (value1 > value2)
                 rez[index] = ((value1 - value2) / value2) * 1000; // 1000 опорное сопротивление
             else
@@ -58,8 +59,11 @@ void MyTableModel::setData(const QVector<quint16>& value)
         }
     }
 
-    for (int column = 0; column < ColumnCount; ++column)
+    for (int column = 0; column < ColumnCount; ++column) {
+        if (count && rez[column] > 0 && column < row)
+            rez[column] /= count;
         m_data[row][column] = rez[column];
+    }
 
     dataChanged(createIndex(row, 0), createIndex(row, 10), { Qt::DisplayRole });
 }
@@ -81,7 +85,7 @@ QVariant MyTableModel::data(const QModelIndex& index, int role) const
         if (m_data[index.row()][index.column()] > -1)
             return m_data[index.row()][index.column()];
         else
-            return "";
+            return QVariant();
         break;
     case Qt::TextAlignmentRole:
         return Qt::AlignCenter;

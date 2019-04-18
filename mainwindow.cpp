@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget* parent)
 {
     setupUi(this);
 
-    widget->setFl(false);
-    widget_3->setFl(true);
+    wAmk1->setFl(false);
+    wAmk2->setFl(true);
 
     for (const QSerialPortInfo& pi : QSerialPortInfo::availablePorts()) {
         cbxAmk->addItem(pi.portName());
@@ -21,17 +21,7 @@ MainWindow::MainWindow(QWidget* parent)
         cbxTester->addItem(pi.portName());
     }
 
-    connect(pbPing, &QPushButton::clicked, [this] {
-        if (!Interface::kds()->Ping(cbxAmk->currentText()))
-            QMessageBox::critical(this, "", "Amk");
-
-        if (!Interface::hart()->Ping(cbxHart->currentText()))
-            QMessageBox::critical(this, "", "Hart");
-
-        if (!Interface::tester()->Ping(cbxTester->currentText()))
-            QMessageBox::critical(this, "", "Tester");
-    });
-
+    connect(wAmk1, &AMK::message, statusBar_, &QStatusBar::showMessage);
     readSettings();
 }
 
@@ -50,18 +40,39 @@ void MainWindow::writeSettings()
     settings.setValue("cbxAmk", cbxAmk->currentIndex());
     settings.setValue("cbxHart", cbxHart->currentIndex());
     settings.setValue("cbxTester", cbxTester->currentIndex());
+
+    settings.setValue("cbType1", wAmk1->cbType->currentIndex());
+    settings.setValue("cbType2", wAmk2->cbType->currentIndex());
     settings.endGroup();
 }
 
 void MainWindow::readSettings()
 {
     QSettings settings;
-
     settings.beginGroup("MainWindow");
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("state").toByteArray());
     cbxAmk->setCurrentIndex(settings.value("cbxAmk").toInt());
     cbxHart->setCurrentIndex(settings.value("cbxHart").toInt());
     cbxTester->setCurrentIndex(settings.value("cbxTester").toInt());
+
+    wAmk1->cbType->setCurrentIndex(settings.value("cbType1").toInt());
+    wAmk2->cbType->setCurrentIndex(settings.value("cbType2").toInt());
     settings.endGroup();
+}
+
+void MainWindow::on_pbPing_clicked()
+{
+    QString str;
+    if (!Interface::kds1()->Ping(cbxAmk->currentText()))
+        str += "Amk!\n";
+
+    if (!Interface::kds2()->Ping(cbxHart->currentText()))
+        str += "Hart!\n";
+
+    if (!Interface::tester()->Ping(cbxTester->currentText()))
+        str += "Tester!\n";
+
+    if (!str.isEmpty())
+        QMessageBox::critical(this, "", str);
 }

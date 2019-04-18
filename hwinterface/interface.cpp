@@ -5,6 +5,7 @@
 AmkTester* amkTester = nullptr;
 Amk* Kds = nullptr;
 Amk* Hart = nullptr;
+
 QThread thrd;
 QSemaphore semafore;
 
@@ -39,6 +40,6 @@ Interface::~Interface()
 
 AmkTester* Interface::tester() { return amkTester; }
 
-Amk* Interface::kds() { return Kds; }
+Amk* Interface::kds1() { return Kds; }
 
-Amk* Interface::hart() { return Hart; }
+Amk* Interface::kds2() { return Hart; }

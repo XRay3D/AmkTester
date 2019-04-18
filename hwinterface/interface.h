@@ -9,8 +9,8 @@ public:
     Interface();
     ~Interface();
     static AmkTester* tester();
-    static Amk *kds();
-    static Amk *hart();
+    static Amk* kds1();
+    static Amk* kds2();
 };
 
 #endif // MEASURINGINTERFACE_H

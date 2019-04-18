@@ -121,9 +121,9 @@ void CONNECTION::CheckConnection()
 
 bool CONNECTION::CheckConnectionAmk()
 {
-    if (!Interface::kds()->Ping(cbxPortAmk->currentText()))
+    if (!Interface::kds1()->Ping(cbxPortAmk->currentText()))
         QMessageBox::warning(0, "kds", "kds");
-    return Interface::kds()->IsConnected();
+    return Interface::kds1()->IsConnected();
 }
 
 bool CONNECTION::CheckConnectionTest()

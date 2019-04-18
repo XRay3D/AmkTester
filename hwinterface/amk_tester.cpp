@@ -177,7 +177,8 @@ void TesterPort::closeSlot()
 void TesterPort::writeSlot(const QByteArray& data)
 {
     QMutexLocker locker(&m_mutex);
-    write(data);
+    counter += write(data);
+    //qDebug() << counter;
 }
 
 void TesterPort::readSlot()
@@ -188,6 +189,7 @@ void TesterPort::readSlot()
         const Parcel_t* const d = reinterpret_cast<const Parcel_t*>(m_data.constData() + i);
         if (d->start == RX && d->len <= m_data.size()) {
             QByteArray tmpData = m_data.mid(i, d->len);
+            counter += tmpData.size();
             if (checkParcel(tmpData))
                 (m_t->*m_f[d->cmd])(tmpData);
             else
