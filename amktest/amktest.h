@@ -1,24 +1,26 @@
-#ifndef AMK_H
-#define AMK_H
+#ifndef AMKTEST_H
+#define AMKTEST_H
 
 #include "pointedit.h"
-
-#include <QComboBox>
-#include <QFormLayout>
 #include <QJsonArray>
+#include <QWidget>
 
-class AMK : public QWidget {
+class QComboBox;
+class QLineEdit;
+class QPushButton;
+
+class AmkTest : public QWidget {
     Q_OBJECT
 
 public:
-    explicit AMK(QWidget* parent = nullptr);
-    ~AMK();
+    explicit AmkTest(QWidget* parent = nullptr);
+    ~AmkTest();
 
-    void CbTypeIndexChanged(int index);
+    void cbxTypeIndexChanged(int index);
     void loadSettings();
     void saveSettings();
     void setupUi();
-    void SwitchSlot();
+    void switchSlot();
 
     PointEdit::Point m_points[12];
     QComboBox* cbType;
@@ -44,4 +46,4 @@ protected:
     bool eventFilter(QObject* obj, QEvent* event);
 };
 
-#endif // AMK_H
+#endif // AMKTEST_H

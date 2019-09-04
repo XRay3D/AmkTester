@@ -1,14 +1,14 @@
 #ifndef MEASURINGINTERFACE_H
 #define MEASURINGINTERFACE_H
 
-#include "amk_tester.h"
+#include "tester.h"
 #include "kds.h"
 
 class Interface {
 public:
     Interface();
     ~Interface();
-    static AmkTester* tester();
+    static Tester* tester();
     static Amk* kds1();
     static Amk* kds2();
 };

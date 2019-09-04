@@ -21,7 +21,7 @@ MyTableModel::MyTableModel(QObject* parent)
 {
 }
 
-void MyTableModel::setData(const QVector<quint16>& value)
+void MyTableModel::setRawData(const QVector<quint16>& value)
 {
     //static QMutex mutex;
     //QMutexLocker mutexLocker(&mutex);
@@ -39,9 +39,9 @@ void MyTableModel::setData(const QVector<quint16>& value)
             float value2 = value[column];
             ++count;
             if (value1 > value2)
-                rez[column] = ((value1 - value2) / value2) * 1000; // 1000 опорное сопротивление
+                rez[column] = static_cast<int>(((value1 - value2) / value2) * 1000); // 1000 опорное сопротивление
             else
-                rez[column] = ((value2 - value1) / value1) * 1000; // 1000 опорное сопротивление
+                rez[column] = static_cast<int>(((value2 - value1) / value1) * 1000); // 1000 опорное сопротивление
 
             if (rez[row] < 0)
                 ++rez[row];
@@ -50,9 +50,9 @@ void MyTableModel::setData(const QVector<quint16>& value)
             float value2 = value[index];
             ++count;
             if (value1 > value2)
-                rez[index] = ((value1 - value2) / value2) * 1000; // 1000 опорное сопротивление
+                rez[index] = static_cast<int>(((value1 - value2) / value2) * 1000); // 1000 опорное сопротивление
             else
-                rez[index] = ((value2 - value1) / value1) * 1000; // 1000 опорное сопротивление
+                rez[index] = static_cast<int>(((value2 - value1) / value1) * 1000); // 1000 опорное сопротивление
 
             if (rez[row] < 0)
                 ++rez[row];
@@ -84,9 +84,7 @@ QVariant MyTableModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
         if (m_data[index.row()][index.column()] > -1)
             return m_data[index.row()][index.column()];
-        else
-            return QVariant();
-        break;
+        return QVariant();
     case Qt::TextAlignmentRole:
         return Qt::AlignCenter;
     case Qt::BackgroundColorRole:

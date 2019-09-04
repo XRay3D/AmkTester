@@ -7,7 +7,7 @@ class MainWindow : public QMainWindow, private Ui::MainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = 0);
+    explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -16,6 +16,9 @@ private slots:
 private:
     void writeSettings();
     void readSettings();
+
+    QTimer timer;
+    QSemaphore s;
 };
 
 #endif // MAINWINDOW_H

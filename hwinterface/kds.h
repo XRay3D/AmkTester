@@ -37,7 +37,6 @@ signals:
     void Write(const QByteArray& data);
 
 private:
-    bool m_connected = false;
     bool m_result = false;
     int m_counter = 0;
     AmkPort* m_port;

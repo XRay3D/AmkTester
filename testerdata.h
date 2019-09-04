@@ -1,7 +1,5 @@
-#ifndef TESTER_H
+﻿#ifndef TESTER_H
 #define TESTER_H
-
-#include "mytablemodel.h"
 
 #include <QSemaphore>
 #include <QTableView>
@@ -9,29 +7,32 @@
 #include <QWidget>
 
 namespace Ui {
-class Tester;
+class TesterData;
 }
 
-class QPushButton;
+class MyTableModel;
 class MyTableWidget;
+class QPushButton;
 
-class TESTER : public QWidget {
+class TesterData : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TESTER(QWidget* parent = nullptr);
-    ~TESTER() override;
+    explicit TesterData(QWidget* parent = nullptr);
+    ~TesterData() override;
+
+    int** data() const;
 
 signals:
     void MeasurePin(int pin);
 
 private:
-    Ui::Tester* ui;
+    Ui::TesterData* ui;
     QTimer timer;
 
     QPushButton* pbStartStop;
     QTableView* tableView;
-    MyTableModel* model;
+    MyTableModel* m_model;
     QSemaphore s;
 
     void setupUi(QWidget* Form);

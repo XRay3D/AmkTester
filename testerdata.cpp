@@ -1,6 +1,6 @@
-#include "tester.h"
-//#include "ui_tester.h"
+#include "testerdata.h"
 #include "hwinterface/interface.h"
+#include "mytablemodel.h"
 
 #include <QDebug>
 #include <QHeaderView>
@@ -8,17 +8,15 @@
 #include <QResizeEvent>
 #include <QVBoxLayout>
 
-TESTER::TESTER(QWidget* parent)
+TesterData::TesterData(QWidget* parent)
     : QWidget(parent)
 {
     setupUi(this);
-    connect(Interface::tester(), &AmkTester::measureReady, this, &TESTER::SetValue);
-    connect(this, &TESTER::MeasurePin, Interface::tester(), &AmkTester::measurePin);
+    connect(Interface::tester(), &Tester::measureReady, this, &TesterData::SetValue);
+    connect(this, &TesterData::MeasurePin, Interface::tester(), &Tester::measurePin);
     connect(&timer, &QTimer::timeout, [&]() {
         if (s.tryAcquire()) {
             static int i = 0;
-            //            if (i > 10)
-            //                i = 0;
             emit MeasurePin(i++ % 11);
         }
     });
@@ -37,12 +35,14 @@ TESTER::TESTER(QWidget* parent)
     });
 }
 
-TESTER::~TESTER()
+TesterData::~TesterData()
 {
     timer.stop();
 }
 
-void TESTER::setupUi(QWidget* Form)
+int** TesterData::data() const { return m_model->getData(); }
+
+void TesterData::setupUi(QWidget* Form)
 {
     if (Form->objectName().isEmpty())
         Form->setObjectName(QStringLiteral("Form"));
@@ -63,31 +63,31 @@ void TESTER::setupUi(QWidget* Form)
     verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
     verticalLayout->addWidget(pbStartStop);
     verticalLayout->addWidget(tableView);
-    model = new MyTableModel(tableView);
-    tableView->setModel(model);
+    m_model = new MyTableModel(tableView);
+    tableView->setModel(m_model);
 
     retranslateUi(Form);
 
     QMetaObject::connectSlotsByName(Form);
 }
 
-void TESTER::retranslateUi(QWidget* Form)
+void TesterData::retranslateUi(QWidget* Form)
 {
     Form->setWindowTitle("Form");
     pbStartStop->setText("pbStartStop");
 }
 
-void TESTER::SetValue(const QVector<quint16>& value)
+void TesterData::SetValue(const QVector<quint16>& value)
 {
-    model->setData(value);
+    m_model->setRawData(value);
     s.release();
 }
 #include <QHeaderView>
 
-void TESTER::resizeEvent(QResizeEvent* event)
+void TesterData::resizeEvent(QResizeEvent* event)
 {
     QFont f;
-    f.setPixelSize(tableView->height() / 24);
+    f.setPixelSize(std::min(tableView->height(), tableView->width()) / 25);
     tableView->setFont(f);
     QWidget::resizeEvent(event);
 }

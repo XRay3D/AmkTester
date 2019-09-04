@@ -122,18 +122,18 @@ void CONNECTION::CheckConnection()
 bool CONNECTION::CheckConnectionAmk()
 {
     if (!Interface::kds1()->Ping(cbxPortAmk->currentText()))
-        QMessageBox::warning(0, "kds", "kds");
+        QMessageBox::warning(nullptr, "kds", "kds");
     return Interface::kds1()->IsConnected();
 }
 
 bool CONNECTION::CheckConnectionTest()
 {
     if (!Interface::tester()->Ping(cbxPortTest->currentText()))
-        QMessageBox::warning(0, "tester", "tester");
+        QMessageBox::warning(nullptr, "tester", "tester");
     return Interface::tester()->IsConnected();
 }
 
-void CONNECTION::showEvent(QShowEvent* event)
+void CONNECTION::showEvent(QShowEvent* /*event*/)
 {
     //    static int i = 0;
     //    if (!i) {

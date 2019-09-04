@@ -22,15 +22,15 @@ enum COMMAND {
 
 class TesterPort;
 
-class AmkTester : public QObject, private MyProtokol, /*private CallBack,*/ public CommonInterfaces {
+class Tester : public QObject, private MyProtokol, /*private CallBack,*/ public CommonInterfaces {
     Q_OBJECT
     friend class TesterPort;
 
 public:
-    AmkTester(QObject* parent = 0);
-    ~AmkTester();
+    Tester(QObject* parent = nullptr);
+    ~Tester() override;
 
-    bool Ping(const QString& portName = QString(), int baud = 9600, int addr = 0);
+    bool Ping(const QString& portName = QString(), int baud = 9600, int addr = 0) override;
 
     bool measurePin(int pin);
     bool setDefaultCalibrationCoefficients(quint8 pin);
@@ -46,7 +46,6 @@ signals:
     void measureReady(const QVector<quint16>&);
 
 private:
-    bool m_connected = false;
     bool m_result = false;
     int m_counter = 0;
     TesterPort* m_port;
@@ -69,12 +68,12 @@ class TesterPort : public QSerialPort, private MyProtokol {
     Q_OBJECT
 
 public:
-    TesterPort(AmkTester* t);
+    TesterPort(Tester* t);
     void openSlot(int mode);
     void closeSlot();
     void writeSlot(const QByteArray& data);
-    AmkTester* m_t;
-    typedef void (AmkTester::*func)(const QByteArray&);
+    Tester* m_t;
+    typedef void (Tester::*func)(const QByteArray&);
     QVector<func> m_f;
 
 private:

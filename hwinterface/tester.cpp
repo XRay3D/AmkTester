@@ -1,9 +1,9 @@
-#include "amk_tester.h"
+#include "tester.h"
 #include <QDebug>
 
-int id1 = qRegisterMetaType<QVector<quint16>>("QVector<quint16>");
+const int id1 = qRegisterMetaType<QVector<quint16>>("QVector<quint16>");
 
-AmkTester::AmkTester(QObject* parent)
+Tester::Tester(QObject* parent)
     : QObject(parent)
     , m_port(new TesterPort(this))
 {
@@ -12,13 +12,13 @@ AmkTester::AmkTester(QObject* parent)
     m_portThread.start(QThread::InheritPriority);
 }
 
-AmkTester::~AmkTester()
+Tester::~Tester()
 {
     m_portThread.quit();
     m_portThread.wait();
 }
 
-bool AmkTester::Ping(const QString& portName, int baud, int addr)
+bool Tester::Ping(const QString& portName, int baud, int addr)
 {
     Q_UNUSED(baud)
     Q_UNUSED(addr)
@@ -48,7 +48,7 @@ bool AmkTester::Ping(const QString& portName, int baud, int addr)
     return m_connected;
 }
 
-bool AmkTester::measurePin(int pin)
+bool Tester::measurePin(int pin)
 {
     QMutexLocker locker(&m_mutex);
     if (!m_connected)
@@ -60,7 +60,7 @@ bool AmkTester::measurePin(int pin)
     return m_result;
 }
 
-bool AmkTester::getCalibrationCoefficients(float& /*GradCoeff*/, int /*pin*/)
+bool Tester::getCalibrationCoefficients(float& /*GradCoeff*/, int /*pin*/)
 {
     QMutexLocker locker(&m_mutex);
     if (!m_connected)
@@ -68,7 +68,7 @@ bool AmkTester::getCalibrationCoefficients(float& /*GradCoeff*/, int /*pin*/)
     return (m_result = false);
 }
 
-bool AmkTester::setCalibrationCoefficients(float& /*GradCoeff*/, int /*pin*/)
+bool Tester::setCalibrationCoefficients(float& /*GradCoeff*/, int /*pin*/)
 {
     QMutexLocker locker(&m_mutex);
     if (!m_connected)
@@ -76,84 +76,84 @@ bool AmkTester::setCalibrationCoefficients(float& /*GradCoeff*/, int /*pin*/)
     return (m_result = false);
 }
 
-void AmkTester::reset()
+void Tester::reset()
 {
     m_result = false;
     m_semaphore.acquire(m_semaphore.available());
 }
 
-void AmkTester::rxPing(const QByteArray& /*data*/)
+void Tester::rxPing(const QByteArray& /*data*/)
 {
     qDebug() << "rxPing";
 }
 
-void AmkTester::rxMeasurePin(const QByteArray& data)
+void Tester::rxMeasurePin(const QByteArray& data)
 {
     const Parcel_t* d = reinterpret_cast<const Parcel_t*>(data.data());
     const quint16* p = reinterpret_cast<const quint16*>(d->data);
     emit measureReady({ p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11] });
 }
 
-void AmkTester::rxGetCalibrationCoefficients(const QByteArray& /*data*/)
+void Tester::rxGetCalibrationCoefficients(const QByteArray& /*data*/)
 {
     qDebug() << "rxGetCalibrationCoefficients";
 }
 
-void AmkTester::rxSetCalibrationCoefficients(const QByteArray& /*data*/)
+void Tester::rxSetCalibrationCoefficients(const QByteArray& /*data*/)
 {
     qDebug() << "rxSetCalibrationCoefficients";
 }
 
-void AmkTester::rxBufferOverflow(const QByteArray& data)
+void Tester::rxBufferOverflow(const QByteArray& data)
 {
     qDebug() << "rxBufferOverflow" << data.toHex().toUpper();
 }
 
-void AmkTester::rxWrongCommand(const QByteArray& data)
+void Tester::rxWrongCommand(const QByteArray& data)
 {
     qDebug() << "rxWrongCommand" << data.toHex().toUpper();
 }
 
-void AmkTester::rxCrcError(const QByteArray& data)
+void Tester::rxCrcError(const QByteArray& data)
 {
     qDebug() << "rxCrcError" << data.toHex().toUpper();
 }
 
 /////////////////////////////////////////
 /// \brief SerialPort::SerialPort
-/// \param amkTester
+/// \param AmkTest
 ///
-TesterPort::TesterPort(AmkTester* t)
+TesterPort::TesterPort(Tester* t)
     : m_t(t)
-    , m_f(QVector<TesterPort::func>(0x100, &AmkTester::rxWrongCommand))
+    , m_f(QVector<TesterPort::func>(0x100, &Tester::rxWrongCommand))
 {
-    m_f[PING] = &AmkTester::rxPing;
-    m_f[MEASURE_PIN] = &AmkTester::rxMeasurePin;
-    m_f[GET_CALIBRATION_COEFFICIENTS] = &AmkTester::rxGetCalibrationCoefficients;
-    m_f[SET_CALIBRATION_COEFFICIENTS] = &AmkTester::rxSetCalibrationCoefficients;
-    m_f[BUFFER_OVERFLOW] = &AmkTester::rxBufferOverflow;
-    m_f[WRONG_COMMAND] = &AmkTester::rxWrongCommand;
-    m_f[CRC_ERROR] = &AmkTester::rxCrcError;
+    m_f[PING] = &Tester::rxPing;
+    m_f[MEASURE_PIN] = &Tester::rxMeasurePin;
+    m_f[GET_CALIBRATION_COEFFICIENTS] = &Tester::rxGetCalibrationCoefficients;
+    m_f[SET_CALIBRATION_COEFFICIENTS] = &Tester::rxSetCalibrationCoefficients;
+    m_f[BUFFER_OVERFLOW] = &Tester::rxBufferOverflow;
+    m_f[WRONG_COMMAND] = &Tester::rxWrongCommand;
+    m_f[CRC_ERROR] = &Tester::rxCrcError;
 
     setBaudRate(Baud115200);
     setDataBits(Data8);
     setFlowControl(NoFlowControl);
     setParity(NoParity);
 
-    connect(t, &AmkTester::open, this, &TesterPort::openSlot);
-    connect(t, &AmkTester::close, this, &TesterPort::closeSlot);
-    connect(t, &AmkTester::write, this, &TesterPort::writeSlot);
+    connect(t, &Tester::open, this, &TesterPort::openSlot);
+    connect(t, &Tester::close, this, &TesterPort::closeSlot);
+    connect(t, &Tester::write, this, &TesterPort::writeSlot);
     //    //get the virtual table pointer of object obj
-    //    int* vptr = *(int**)amkTester;
+    //    int* vptr = *(int**)AmkTest;
     //    // we shall call the function fn, but first the following assembly code
     //    //  is required to make obj as 'this' pointer as we shall call
     //    //  function fn() directly from the virtual table
-    //    //__asm mov ecx, amkTester;
-    //    amkTester;
+    //    //__asm mov ecx, AmkTest;
+    //    AmkTest;
     //    //function fn is the first entry of the virtual table, so it's vptr[0]
     //    ((void (*)(const QByteArray&))vptr[0])(QByteArray("0123456789"));
 
-    //    typedef void (AmkTester::*func)(const QByteArray&);
+    //    typedef void (AmkTest::*func)(const QByteArray&);
     //    CallBack* ptr = t;
     //    func* vptr = *(func**)(ptr);
     //    (t->*vptr[0])(QByteArray("0123456789"));

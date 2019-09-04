@@ -15,13 +15,51 @@ MainWindow::MainWindow(QWidget* parent)
     wAmk1->setFl(false);
     wAmk2->setFl(true);
 
-    for (const QSerialPortInfo& pi : QSerialPortInfo::availablePorts()) {
+    static QList<QSerialPortInfo> pl(QSerialPortInfo::availablePorts());
+    std::sort(pl.begin(), pl.end(), [](const QSerialPortInfo& i1, const QSerialPortInfo& i2) { return i1.portName().mid(3).toInt() < i2.portName().mid(3).toInt(); });
+    for (const QSerialPortInfo& pi : pl) {
         cbxAmk->addItem(pi.portName());
         cbxHart->addItem(pi.portName());
         cbxTester->addItem(pi.portName());
     }
 
-    connect(wAmk1, &AMK::message, statusBar_, &QStatusBar::showMessage);
+    connect(wAmk1, &AmkTest::message, statusBar_, &QStatusBar::showMessage);
+    connect(wAmk2, &AmkTest::message, statusBar_, &QStatusBar::showMessage);
+
+    tableView->initCheckBox();
+    connect(pushButton, &QPushButton::clicked, [this] {
+        tableView->addRow(wAmk1->m_points[wAmk1->m_numPoint].Description);
+    });
+    connect(pushButton_2, &QPushButton::clicked, [this] {
+        tableView->model()->setColumnCount(tableView->model()->columnCount() + 1);
+    });
+    connect(pushButton_3, &QPushButton::clicked, [this] {
+        tableView->setPattern(
+            widget_2->data(),
+            wAmk1->m_points[wAmk1->m_numPoint],
+            wAmk2->m_points[wAmk2->m_numPoint]);
+    });
+
+    //    connect(&timer, &QTimer::timeout, [&]() {
+    //        if (s.tryAcquire()) {
+    //            static int i = 0;
+    //            emit MeasurePin(i++ % 11);
+    //        }
+    //    });
+
+    //    connect(pushButton_4, &QPushButton::clicked, [&](bool checked) {
+    //        if (Interface::tester()->Ping())
+    //            if (checked) {
+    //                s.release();
+    //                timer.start(1);
+    //            } else {
+    //                timer.stop();
+    //            }
+    //        else {
+    //            pushButton_4->setChecked(false);
+    //        }
+    //    });
+
     readSettings();
 }
 

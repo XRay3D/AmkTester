@@ -1,12 +1,15 @@
-#include "amk.h"
-#include "hwinterface/interface.h"
-#include <QDebug>
+#include "amktest.h"
+#include <QComboBox>
 #include <QFile>
+#include <QFormLayout>
 #include <QJsonDocument>
-#include <QSettings>
-#include <QToolButton>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QLineEdit>
+#include <QPushButton>
+#include <hwinterface/interface.h>
 
-AMK::AMK(QWidget* parent)
+AmkTest::AmkTest(QWidget* parent)
     : QWidget(parent)
     , le(12, nullptr)
     , pb(12, nullptr)
@@ -15,96 +18,26 @@ AMK::AMK(QWidget* parent)
     loadSettings();
 }
 
-AMK::~AMK()
+AmkTest::~AmkTest()
 {
     saveSettings();
 }
 
-void AMK::setupUi()
+void AmkTest::cbxTypeIndexChanged(int index)
 {
-    if (objectName().isEmpty())
-        setObjectName(QStringLiteral("AMK"));
-
-    QFormLayout* formLayout = new QFormLayout(this);
-    formLayout->setSpacing(6);
-    formLayout->setContentsMargins(11, 11, 11, 11);
-    formLayout->setObjectName(QStringLiteral("formLayout"));
-    formLayout->setHorizontalSpacing(4);
-    formLayout->setVerticalSpacing(4);
-    formLayout->setContentsMargins(0, 0, 0, 0);
-
-    cbType = new QComboBox(this);
-    cbType->setObjectName(QStringLiteral("cbType"));
-    cbType->setEditable(true);
-    formLayout->setWidget(0, QFormLayout::SpanningRole, cbType);
-
+    saveSettings();
+    lastIndex = index;
     int i = 0;
-    for (QPushButton*& pushButton : pb) {
-        pushButton = new QPushButton(this);
-        pushButton->setCheckable(true);
-        pushButton->setMinimumSize(0, 0);
-//        pushButton->setSizePolicy(0);
-        pushButton->setObjectName(QString("pushButton_%1").arg(i));
-
-        connect(pushButton, &QToolButton::clicked, this, &AMK::SwitchSlot);
-
-        formLayout->setWidget(++i, QFormLayout::LabelRole, pushButton);
+    for (QJsonValue value : jsonArray[lastIndex].toObject()["data"].toArray()) {
+        const QJsonObject object2(value.toObject());
+        m_points[i].Parcel = object2["value"].toString();
+        m_points[i].Description = object2["name"].toString();
+        le[i]->setText(m_points[i].Description);
+        ++i;
     }
-    i = 0;
-    for (QLineEdit*& lineEdit : le) {
-        lineEdit = new QLineEdit(this);
-        lineEdit->installEventFilter(this);
-        lineEdit->setEnabled(true);
-        lineEdit->setObjectName(QString("lineEdit_%1").arg(i));
-        lineEdit->setReadOnly(true);
-
-        formLayout->setWidget(++i, QFormLayout::FieldRole, lineEdit);
-    }
-
-    QMetaObject::connectSlotsByName(this);
 }
 
-void AMK::saveSettings()
-{
-    QFile saveFile(saveFormat == Json ? QStringLiteral("data.json") : QStringLiteral("data.dat"));
-
-    if (!saveFile.open(QIODevice::WriteOnly)) {
-        qWarning("Couldn't open save file.");
-        return;
-    }
-
-    if (cbType->count() > jsonArray.count()) {
-        QJsonObject levelObject;
-        levelObject["name"] = cbType->itemText(lastIndex);
-        QJsonArray array;
-        for (PointEdit::Point& p : m_points) {
-            QJsonObject jsonObject;
-            jsonObject["name"] = p.Description;
-            jsonObject["value"] = p.Parcel;
-            array.append(jsonObject);
-        }
-
-        levelObject["data"] = array;
-        jsonArray.append(levelObject);
-    } else {
-        QJsonObject levelObject;
-        levelObject["name"] = cbType->itemText(lastIndex);
-        QJsonArray array;
-        for (PointEdit::Point& p : m_points) {
-            QJsonObject jsonObject;
-            jsonObject["name"] = p.Description;
-            jsonObject["value"] = p.Parcel;
-            array.append(jsonObject);
-        }
-        levelObject["data"] = array;
-        jsonArray[lastIndex] = levelObject;
-    }
-
-    QJsonDocument saveDoc(jsonArray);
-    saveFile.write(saveFormat == Json ? saveDoc.toJson() : saveDoc.toBinaryData());
-}
-
-void AMK::loadSettings()
+void AmkTest::loadSettings()
 {
     QFile loadFile(saveFormat == Json ? QStringLiteral("data.json") : QStringLiteral("data.dat"));
 A:
@@ -190,12 +123,12 @@ A:
     jsonArray = loadDoc.array();
     //qDebug() << jsonArray << err.errorString();
 
-    for (const QJsonValue& value : jsonArray) {
+    for (QJsonValue value : jsonArray) {
         QJsonObject object(value.toObject());
         cbType->addItem(object["name"].toString());
     }
     int i = 0;
-    for (const QJsonValue& value : jsonArray[lastIndex].toObject()["data"].toArray()) {
+    for (QJsonValue value : jsonArray[lastIndex].toObject()["data"].toArray()) {
         QJsonObject object2(value.toObject());
         m_points[i].Parcel = object2["value"].toString();
         m_points[i].Description = object2["name"].toString();
@@ -203,17 +136,96 @@ A:
         ++i;
     }
 
-    connect(cbType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AMK::CbTypeIndexChanged);
+    connect(cbType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AmkTest::cbxTypeIndexChanged);
 }
 
-void AMK::SwitchSlot()
+void AmkTest::saveSettings()
+{
+    QFile saveFile(saveFormat == Json ? QStringLiteral("data.json") : QStringLiteral("data.dat"));
+
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return;
+    }
+
+    if (cbType->count() > jsonArray.count()) {
+        QJsonObject levelObject;
+        levelObject["name"] = cbType->itemText(lastIndex);
+        QJsonArray array;
+        for (PointEdit::Point& p : m_points) {
+            QJsonObject jsonObject;
+            jsonObject["name"] = p.Description;
+            jsonObject["value"] = p.Parcel;
+            array.append(jsonObject);
+        }
+
+        levelObject["data"] = array;
+        jsonArray.append(levelObject);
+    } else {
+        QJsonObject levelObject;
+        levelObject["name"] = cbType->itemText(lastIndex);
+        QJsonArray array;
+        for (PointEdit::Point& p : m_points) {
+            QJsonObject jsonObject;
+            jsonObject["name"] = p.Description;
+            jsonObject["value"] = p.Parcel;
+            array.append(jsonObject);
+        }
+        levelObject["data"] = array;
+        jsonArray[lastIndex] = levelObject;
+    }
+
+    QJsonDocument saveDoc(jsonArray);
+    saveFile.write(saveFormat == Json ? saveDoc.toJson() : saveDoc.toBinaryData());
+}
+
+void AmkTest::setupUi()
+{
+    if (objectName().isEmpty())
+        setObjectName(QStringLiteral("AMK"));
+
+    QFormLayout* formLayout = new QFormLayout(this);
+    formLayout->setSpacing(6);
+    formLayout->setContentsMargins(11, 11, 11, 11);
+    formLayout->setObjectName(QStringLiteral("formLayout"));
+    formLayout->setHorizontalSpacing(4);
+    formLayout->setVerticalSpacing(4);
+    formLayout->setContentsMargins(0, 0, 0, 0);
+
+    cbType = new QComboBox(this);
+    cbType->setObjectName(QStringLiteral("cbType"));
+    cbType->setEditable(true);
+    formLayout->setWidget(0, QFormLayout::SpanningRole, cbType);
+
+    int i = 0;
+    for (QPushButton*& pushButton : pb) {
+        pushButton = new QPushButton(this);
+        pushButton->setCheckable(true);
+        pushButton->setMinimumSize(0, 0);
+        pushButton->setObjectName(QString("pushButton_%1").arg(i));
+        connect(pushButton, &QPushButton::clicked, this, &AmkTest::switchSlot);
+        formLayout->setWidget(++i, QFormLayout::LabelRole, pushButton);
+    }
+    i = 0;
+    for (QLineEdit*& lineEdit : le) {
+        lineEdit = new QLineEdit(this);
+        lineEdit->installEventFilter(this);
+        lineEdit->setEnabled(true);
+        lineEdit->setObjectName(QString("lineEdit_%1").arg(i));
+        lineEdit->setReadOnly(true);
+        formLayout->setWidget(++i, QFormLayout::FieldRole, lineEdit);
+    }
+
+    QMetaObject::connectSlotsByName(this);
+}
+
+void AmkTest::switchSlot()
 {
     for (QPushButton* pushButton : pb)
         pushButton->setChecked(false);
     QPushButton* pushButton = qobject_cast<QPushButton*>(sender());
-    pushButton /* pb[pointNum]*/->setChecked(true);
-
-    m_numPoint = pb.indexOf(pushButton); /*pointNum;*/
+    pushButton->setChecked(true);
+    m_numPoint = pb.indexOf(pushButton);
     Amk* ptr = !fl ? Interface::kds1() : Interface::kds2();
     if (ptr->setOut(0, m_points[m_numPoint].Parcel.toInt()))
         emit message("Прибором КДС успешно переключен!");
@@ -221,7 +233,7 @@ void AMK::SwitchSlot()
         emit message("Нет связи с прибором КДС!");
 }
 
-void AMK::setFl(bool value)
+void AmkTest::setFl(bool value)
 {
     int i = 0;
     fl = value;
@@ -237,7 +249,7 @@ void AMK::setFl(bool value)
     }
 }
 
-bool AMK::eventFilter(QObject* obj, QEvent* event)
+bool AmkTest::eventFilter(QObject* obj, QEvent* event)
 {
     if (event->type() == QEvent::MouseButtonDblClick) {
         m_numPoint = le.indexOf(reinterpret_cast<QLineEdit*>(obj));
@@ -249,18 +261,4 @@ bool AMK::eventFilter(QObject* obj, QEvent* event)
     }
 
     return QWidget::eventFilter(obj, event);
-}
-
-void AMK::CbTypeIndexChanged(int index)
-{
-    saveSettings();
-    lastIndex = index;
-    int i = 0;
-    for (const QJsonValue& value : jsonArray[lastIndex].toObject()["data"].toArray()) {
-        const QJsonObject object2(value.toObject());
-        m_points[i].Parcel = object2["value"].toString();
-        m_points[i].Description = object2["name"].toString();
-        le[i]->setText(m_points[i].Description);
-        ++i;
-    }
 }

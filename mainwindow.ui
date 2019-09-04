@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>886</width>
-    <height>687</height>
+    <width>719</width>
+    <height>791</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,14 +27,34 @@
     <property name="bottomMargin">
      <number>6</number>
     </property>
-    <item row="0" column="0" colspan="2">
-     <widget class="QPushButton" name="pbPing">
-      <property name="text">
-       <string>Ping</string>
+    <item row="1" column="1">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>ИЗМЕРИТЕЛЬ</string>
       </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="leftMargin">
+        <number>6</number>
+       </property>
+       <property name="topMargin">
+        <number>6</number>
+       </property>
+       <property name="rightMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QComboBox" name="cbxTester"/>
+       </item>
+       <item>
+        <widget class="TesterData" name="widget_2" native="true"/>
+       </item>
+      </layout>
      </widget>
     </item>
-    <item row="1" column="1">
+    <item row="1" column="2">
      <widget class="QGroupBox" name="groupBox">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -58,46 +78,69 @@
        <property name="bottomMargin">
         <number>6</number>
        </property>
-       <item row="1" column="1">
-        <widget class="AMK" name="wAmk2" native="true"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="AMK" name="wAmk1" native="true"/>
-       </item>
        <item row="0" column="0">
         <widget class="QComboBox" name="cbxAmk"/>
        </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="cbxHart"/>
        </item>
+       <item row="1" column="1">
+        <widget class="AmkTest" name="wAmk2" native="true"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="AmkTest" name="wAmk1" native="true"/>
+       </item>
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QGroupBox" name="groupBox_2">
+    <item row="2" column="1" colspan="2">
+     <widget class="QGroupBox" name="groupBox_3">
       <property name="title">
-       <string>ИЗМЕРИТЕЛЬ</string>
+       <string>GroupBox</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="leftMargin">
-        <number>6</number>
-       </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
-       <property name="rightMargin">
-        <number>6</number>
-       </property>
-       <property name="bottomMargin">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QComboBox" name="cbxTester"/>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="0">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>Set Pattern</string>
+         </property>
+        </widget>
        </item>
-       <item>
-        <widget class="TESTER" name="widget_2" native="true"/>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEdit_2"/>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="TableView" name="tableView"/>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>Add Channel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="text">
+          <string>Test</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Add Row</string>
+         </property>
+        </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2">
+     <widget class="QPushButton" name="pbPing">
+      <property name="text">
+       <string>Ping</string>
+      </property>
      </widget>
     </item>
    </layout>
@@ -107,7 +150,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>886</width>
+     <width>719</width>
      <height>21</height>
     </rect>
    </property>
@@ -117,16 +160,21 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>AMK</class>
+   <class>AmkTest</class>
    <extends>QWidget</extends>
-   <header>amk.h</header>
+   <header>amktest/amktest.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>TESTER</class>
+   <class>TesterData</class>
    <extends>QWidget</extends>
-   <header>tester.h</header>
+   <header>testerdata.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TableView</class>
+   <extends>QTableView</extends>
+   <header>autotest/tableview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

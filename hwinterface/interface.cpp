@@ -1,29 +1,28 @@
 #include "interface.h"
 
-#include <QTimer>
+static Amk* Hart = nullptr;
+static Amk* Kds = nullptr;
+static Tester* AmkTest = nullptr;
 
-AmkTester* amkTester = nullptr;
-Amk* Kds = nullptr;
-Amk* Hart = nullptr;
-
-QThread thrd;
-QSemaphore semafore;
+static QThread thrd;
+static QSemaphore semafore;
 
 Interface::Interface()
 {
     if (!semafore.available()) {
+
+        AmkTest = new Tester;
+        AmkTest->moveToThread(&thrd);
+
         Hart = new Amk;
         Hart->moveToThread(&thrd);
 
         Kds = new Amk;
         Kds->moveToThread(&thrd);
 
-        amkTester = new AmkTester;
-        amkTester->moveToThread(&thrd);
-
+        thrd.connect(&thrd, &QThread::finished, AmkTest, &QObject::deleteLater);
         thrd.connect(&thrd, &QThread::finished, Hart, &QObject::deleteLater);
         thrd.connect(&thrd, &QThread::finished, Kds, &QObject::deleteLater);
-        thrd.connect(&thrd, &QThread::finished, amkTester, &QObject::deleteLater);
         thrd.start(QThread::NormalPriority);
     }
     semafore.release();
@@ -38,7 +37,7 @@ Interface::~Interface()
     }
 }
 
-AmkTester* Interface::tester() { return amkTester; }
+Tester* Interface::tester() { return AmkTest; }
 
 Amk* Interface::kds1() { return Kds; }
 
