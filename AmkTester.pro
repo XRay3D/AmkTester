@@ -24,6 +24,7 @@ SOURCES += \
     autotest/model.cpp \
     autotest/tableview.cpp \
     connection.cpp \
+    hwinterface/autotest.cpp \
     hwinterface/interface.cpp \
     hwinterface/kds.cpp \
     hwinterface/tester.cpp \
@@ -43,6 +44,7 @@ HEADERS += \
     autotest/model.h \
     autotest/tableview.h \
     connection.h \
+    hwinterface/autotest.h \
     hwinterface/common_interfaces.h \
     hwinterface/interface.h \
     hwinterface/kds.h \

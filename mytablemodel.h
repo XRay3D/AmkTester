@@ -1,6 +1,7 @@
 #ifndef MYTABLEMODEL_H
 #define MYTABLEMODEL_H
 
+#include "hwinterface/tester.h"
 #include <QAbstractTableModel>
 
 class MyTableModel : public QAbstractTableModel {
@@ -18,7 +19,6 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
-    int** getData() { return reinterpret_cast<int**>(m_data); }
 
 public slots:
     void setRawData(const QVector<quint16>& value);

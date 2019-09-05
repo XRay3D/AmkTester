@@ -8,12 +8,12 @@ Header::Header(Qt::Orientation orientation, QWidget* parent)
     : QHeaderView(orientation, parent)
 
 {
-    QFile file(orientation == Qt::Horizontal ? "Horizontal.data" : "Vertical.data");
-    if (file.open(QFile::ReadOnly)) {
-        QDataStream in(&file);
-        in >> m_checked;
-    }
     connect(this, &QHeaderView::sectionCountChanged, [this, orientation](int /*oldCount*/, int newCount) {
+        QFile file(orientation == Qt::Horizontal ? "Horizontal.data" : "Vertical.data");
+        if (file.open(QFile::ReadOnly)) {
+            QDataStream in(&file);
+            in >> m_checked;
+        }
         m_checked.resize(newCount);
         m_checkRect.resize(newCount);
         emit onCheckedV(m_checked, orientation);
@@ -85,10 +85,10 @@ void Header::mouseMoveEvent(QMouseEvent* event)
             break;
         if (event->buttons() != Qt::RightButton)
             break;
-        if (orientation() == Qt::Horizontal) {
-            //setSingle(index);
-        } else
-            togle(index);
+        //        if (orientation() == Qt::Horizontal) {
+        //            //setSingle(index);
+        //        } else
+        togle(index);
         event->accept();
         return;
     } while (0);
@@ -103,10 +103,10 @@ void Header::mousePressEvent(QMouseEvent* event)
             break;
         if (!m_checkRect[index].contains(event->pos()) && event->buttons() != Qt::RightButton)
             break;
-        if (orientation() == Qt::Horizontal)
-            setSingle(index);
-        else
-            togle(index);
+        //        if (orientation() == Qt::Horizontal)
+        //            setSingle(index);
+        //        else
+        togle(index);
         event->accept();
         return;
     } while (0);
@@ -130,8 +130,8 @@ void Header::paintSection(QPainter* painter, const QRect& rect, int logicalIndex
         ? QStyle::State_Enabled
         : QStyle::State_None;
 
-    if (orientation() == Qt::Horizontal)
-        style()->drawPrimitive(QStyle::PE_IndicatorRadioButton, &option, painter);
-    else
-        style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
+    //    if (orientation() == Qt::Horizontal)
+    //        style()->drawPrimitive(QStyle::PE_IndicatorRadioButton, &option, painter);
+    //    else
+    style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
 }

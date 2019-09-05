@@ -26,6 +26,7 @@ void MyTableModel::setRawData(const QVector<quint16>& value)
     //static QMutex mutex;
     //QMutexLocker mutexLocker(&mutex);
     //qDebug() << value;
+
     const int row = value[ColumnCount];
     int rez[ColumnCount]{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
     int count = 0;

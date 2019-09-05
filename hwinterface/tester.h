@@ -20,6 +20,11 @@ enum COMMAND {
     CRC_ERROR
 };
 
+struct PinsValue {
+    PinsValue() {}
+    int data[11][11];
+};
+
 class TesterPort;
 
 class Tester : public QObject, private MyProtokol, /*private CallBack,*/ public CommonInterfaces {
@@ -33,25 +38,30 @@ public:
     bool Ping(const QString& portName = QString(), int baud = 9600, int addr = 0) override;
 
     bool measurePin(int pin);
+    bool measureAll();
     bool setDefaultCalibrationCoefficients(quint8 pin);
     bool getCalibrationCoefficients(float& GradCoeff, int pin);
     bool setCalibrationCoefficients(float& GradCoeff, int pin);
     bool saveCalibrationCoefficients(quint8 pin);
+    PinsValue pinsValue() const;
 
 signals:
     void open(int mode);
     void close();
     void write(const QByteArray& data);
-
     void measureReady(const QVector<quint16>&);
+    void measureReadyAll(const PinsValue&);
 
 private:
     bool m_result = false;
+    bool all = false;
     int m_counter = 0;
     TesterPort* m_port;
     QMutex m_mutex;
     QSemaphore m_semaphore;
+    mutable QSemaphore m_semPv;
     QThread m_portThread;
+    PinsValue m_pinsValue;
 
     void reset();
 
@@ -82,5 +92,7 @@ private:
     QMutex m_mutex;
     qint64 counter = 0;
 };
+
+Q_DECLARE_METATYPE(QVector<quint16>)
 
 #endif // MY_PROTOCOL_H

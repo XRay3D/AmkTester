@@ -1,6 +1,7 @@
 ﻿#ifndef TESTER_H
 #define TESTER_H
 
+#include "hwinterface/tester.h"
 #include <QSemaphore>
 #include <QTableView>
 #include <QTimer>
@@ -21,12 +22,13 @@ public:
     explicit TesterData(QWidget* parent = nullptr);
     ~TesterData() override;
 
-    int** data() const;
+    const PinsValue& data() const;
 
 signals:
-    void MeasurePin(int pin);
+    void MeasurePin(/*int pin*/);
 
 private:
+    PinsValue m_pv;
     Ui::TesterData* ui;
     QTimer timer;
 
@@ -37,11 +39,11 @@ private:
 
     void setupUi(QWidget* Form);
     void retranslateUi(QWidget* Form);
-    void SetValue(const QVector<quint16>& value);
+    void SetValue(const PinsValue& value);
 
-    // QWidget interface
-protected:
-    void resizeEvent(QResizeEvent* event) override;
+    //    // QWidget interface
+    //protected:
+    //    void resizeEvent(QResizeEvent* event) override;
 };
 
 #endif // TESTER_H

@@ -10,15 +10,17 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
+signals:
+    void start(Model* model);
+    void stop();
+
 private slots:
     void on_pbPing_clicked();
 
 private:
     void writeSettings();
     void readSettings();
-
-    QTimer timer;
-    QSemaphore s;
+    void message(const QString&);
 };
 
 #endif // MAINWINDOW_H

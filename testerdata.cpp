@@ -12,12 +12,12 @@ TesterData::TesterData(QWidget* parent)
     : QWidget(parent)
 {
     setupUi(this);
-    connect(Interface::tester(), &Tester::measureReady, this, &TesterData::SetValue);
-    connect(this, &TesterData::MeasurePin, Interface::tester(), &Tester::measurePin);
+    connect(Interface::tester(), &Tester::measureReadyAll, this, &TesterData::SetValue);
+    connect(this, &TesterData::MeasurePin, Interface::tester(), &Tester::measureAll);
     connect(&timer, &QTimer::timeout, [&]() {
         if (s.tryAcquire()) {
-            static int i = 0;
-            emit MeasurePin(i++ % 11);
+            //            static int i = 0;
+            emit MeasurePin(/*i++ % 11*/);
         }
     });
 
@@ -40,7 +40,7 @@ TesterData::~TesterData()
     timer.stop();
 }
 
-int** TesterData::data() const { return m_model->getData(); }
+const PinsValue& TesterData::data() const { return m_pv; }
 
 void TesterData::setupUi(QWidget* Form)
 {
@@ -77,17 +77,30 @@ void TesterData::retranslateUi(QWidget* Form)
     pbStartStop->setText("pbStartStop");
 }
 
-void TesterData::SetValue(const QVector<quint16>& value)
+void TesterData::SetValue(const PinsValue& value)
 {
-    m_model->setRawData(value);
+    m_pv = value;
+    for (int i = 0; i < 11; ++i)
+        m_model->setRawData({ static_cast<unsigned short>(value.data[i][0]),
+            static_cast<unsigned short>(value.data[i][1]),
+            static_cast<unsigned short>(value.data[i][2]),
+            static_cast<unsigned short>(value.data[i][3]),
+            static_cast<unsigned short>(value.data[i][4]),
+            static_cast<unsigned short>(value.data[i][5]),
+            static_cast<unsigned short>(value.data[i][6]),
+            static_cast<unsigned short>(value.data[i][7]),
+            static_cast<unsigned short>(value.data[i][8]),
+            static_cast<unsigned short>(value.data[i][9]),
+            static_cast<unsigned short>(value.data[i][10]),
+            static_cast<unsigned short>(i) });
     s.release();
 }
-#include <QHeaderView>
+//#include <QHeaderView>
 
-void TesterData::resizeEvent(QResizeEvent* event)
-{
-    QFont f;
-    f.setPixelSize(std::min(tableView->height(), tableView->width()) / 25);
-    tableView->setFont(f);
-    QWidget::resizeEvent(event);
-}
+//void TesterData::resizeEvent(QResizeEvent* event)
+//{
+//    QFont f;
+//    f.setPixelSize(std::min(tableView->height(), tableView->width()) / 25);
+//    tableView->setFont(f);
+//    QWidget::resizeEvent(event);
+//}

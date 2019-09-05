@@ -26,12 +26,9 @@ MainWindow::MainWindow(QWidget* parent)
     connect(wAmk1, &AmkTest::message, statusBar_, &QStatusBar::showMessage);
     connect(wAmk2, &AmkTest::message, statusBar_, &QStatusBar::showMessage);
 
-    tableView->initCheckBox();
+    tableView->initCheckBox2();
     connect(pushButton, &QPushButton::clicked, [this] {
         tableView->addRow(wAmk1->m_points[wAmk1->m_numPoint].Description);
-    });
-    connect(pushButton_2, &QPushButton::clicked, [this] {
-        tableView->model()->setColumnCount(tableView->model()->columnCount() + 1);
     });
     connect(pushButton_3, &QPushButton::clicked, [this] {
         tableView->setPattern(
@@ -40,25 +37,17 @@ MainWindow::MainWindow(QWidget* parent)
             wAmk2->m_points[wAmk2->m_numPoint]);
     });
 
-    //    connect(&timer, &QTimer::timeout, [&]() {
-    //        if (s.tryAcquire()) {
-    //            static int i = 0;
-    //            emit MeasurePin(i++ % 11);
-    //        }
-    //    });
-
-    //    connect(pushButton_4, &QPushButton::clicked, [&](bool checked) {
-    //        if (Interface::tester()->Ping())
-    //            if (checked) {
-    //                s.release();
-    //                timer.start(1);
-    //            } else {
-    //                timer.stop();
-    //            }
-    //        else {
-    //            pushButton_4->setChecked(false);
-    //        }
-    //    });
+    connect(pushButton_2, &QPushButton::clicked, tableView, &TableView::clear);
+    connect(this, &MainWindow::start, Interface::at(), &AutoTest::start, Qt::QueuedConnection);
+    connect(this, &MainWindow::stop, Interface::at(), &AutoTest::stop, Qt::DirectConnection);
+    connect(Interface::at(), &AutoTest::finished, [this] { pushButton_4->setChecked(false); });
+    connect(Interface::at(), &AutoTest::message, this, &MainWindow::message);
+    connect(pushButton_4, &QPushButton::clicked, [&](bool checked) {
+        if (checked)
+            emit start(tableView->model());
+        else
+            emit stop();
+    });
 
     readSettings();
 }
@@ -71,14 +60,12 @@ MainWindow::~MainWindow()
 void MainWindow::writeSettings()
 {
     QSettings settings;
-
     settings.beginGroup("MainWindow");
     settings.setValue("geometry", saveGeometry());
     settings.setValue("state", saveState());
     settings.setValue("cbxAmk", cbxAmk->currentIndex());
     settings.setValue("cbxHart", cbxHart->currentIndex());
     settings.setValue("cbxTester", cbxTester->currentIndex());
-
     settings.setValue("cbType1", wAmk1->cbType->currentIndex());
     settings.setValue("cbType2", wAmk2->cbType->currentIndex());
     settings.endGroup();
@@ -93,10 +80,17 @@ void MainWindow::readSettings()
     cbxAmk->setCurrentIndex(settings.value("cbxAmk").toInt());
     cbxHart->setCurrentIndex(settings.value("cbxHart").toInt());
     cbxTester->setCurrentIndex(settings.value("cbxTester").toInt());
-
     wAmk1->cbType->setCurrentIndex(settings.value("cbType1").toInt());
     wAmk2->cbType->setCurrentIndex(settings.value("cbType2").toInt());
     settings.endGroup();
+}
+
+void MainWindow::message(const QString& msg)
+{
+    if (QMessageBox::information(this, "", msg, QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
+        Interface::at()->sem.release();
+    else
+        Interface::at()->sem.release(2);
 }
 
 void MainWindow::on_pbPing_clicked()

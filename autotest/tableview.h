@@ -15,17 +15,19 @@ public:
     ~TableView();
     Model* model() const;
 
+    void clear();
     void addRow(const QString& name);
-    void setPattern(int** pData, const PointEdit::Point& pt1, const PointEdit::Point& pt2);
+    void setPattern(const PinsValue& pData, const PointEdit::Point& pt1, const PointEdit::Point& pt2);
 
     void init();
     void initCheckBox();
+    void initCheckBox2();
     void initRadioButton();
     void initCheckBoxRadioButton();
 
 private:
     Model* m_model;
-    void createCornerCheckBox(Header* header);
+    void createCornerCheckBox(Header* header, Header* header2 = nullptr);
 };
 
 #endif // TABLE_H

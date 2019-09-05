@@ -1,8 +1,9 @@
 #ifndef MEASURINGINTERFACE_H
 #define MEASURINGINTERFACE_H
 
-#include "tester.h"
+#include "autotest.h"
 #include "kds.h"
+#include "tester.h"
 
 class Interface {
 public:
@@ -11,6 +12,7 @@ public:
     static Tester* tester();
     static Amk* kds1();
     static Amk* kds2();
+    static AutoTest* at();
 };
 
 #endif // MEASURINGINTERFACE_H

@@ -1,15 +1,31 @@
 #ifndef MYTABLEMODEL_H
 #define MYTABLEMODEL_H
 
+#include "hwinterface/tester.h"
 #include <QAbstractTableModel>
 #include <QDataStream>
 
 struct Data {
     Data() {}
+    bool test(const PinsValue& val)
+    {
+        bool ok = true;
+        for (int i = 0; i < 11; ++i) {
+            for (int j = 0; j < 11; ++j) {
+                const int pMax = patern.data[i][j] + 10;
+                const int pMin = patern.data[i][j] - 10;
+                const int v = val.data[i][j];
+                ok &= pMin < v && v < pMax;
+            }
+        }
+        data = ok;
+        return ok;
+    }
+
     QString parcel1;
     QString parcel2;
     QString userMessage;
-    int patern[11][11];
+    PinsValue patern;
     bool check = false;
     int data = 0;
 
@@ -20,7 +36,7 @@ struct Data {
         stream << d.userMessage;
         stream << d.check;
         stream << d.data;
-        stream.writeRawData(reinterpret_cast<const char*>(&d.patern), sizeof(int) * 11 * 11);
+        stream.writeRawData(reinterpret_cast<const char*>(&d.patern), sizeof(PinsValue));
         return stream;
     }
     friend QDataStream& operator>>(QDataStream& stream, Data& d)
@@ -30,7 +46,7 @@ struct Data {
         stream >> d.userMessage;
         stream >> d.check;
         stream >> d.data;
-        stream.readRawData(reinterpret_cast<char*>(&d.patern), sizeof(int) * 11 * 11);
+        stream.readRawData(reinterpret_cast<char*>(&d.patern), sizeof(PinsValue));
         return stream;
     }
 };
@@ -38,6 +54,7 @@ struct Data {
 class Model : public QAbstractTableModel {
     Q_OBJECT
     friend class TableView;
+    friend class AutoTest;
 
 public:
     Model(QObject* parent = nullptr, const QVector<bool>* hChecked = nullptr, const QVector<bool>* vChecked = nullptr);
@@ -59,6 +76,8 @@ public:
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
     bool insertColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
     bool removeColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
+
+    void test(int row, int col, const PinsValue& value);
 
 private:
     QStringList m_verticalHeader;

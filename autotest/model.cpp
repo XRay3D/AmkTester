@@ -1,6 +1,9 @@
 #include "model.h"
 
+#include <QColor>
 #include <QFile>
+
+const int id2 = qRegisterMetaType<QVector<int>>("QVector<int>");
 
 Model::Model(QObject* parent, const QVector<bool>* hChecked, const QVector<bool>* vChecked)
     : QAbstractTableModel(parent)
@@ -46,9 +49,11 @@ QVariant Model::data(const QModelIndex& index, int role) const
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-        return m_data[index.row()][index.column()].data;
+        return static_cast<bool>(m_data[index.row()][index.column()].data);
     case Qt::TextAlignmentRole:
         return Qt::AlignCenter;
+    case Qt::BackgroundColorRole:
+        return m_data[index.row()][index.column()].data ? QColor(220, 255, 220) : QColor(255, 220, 220);
     default:
         return QVariant();
     }
@@ -163,4 +168,10 @@ bool Model::removeColumns(int column, int count, const QModelIndex& parent)
         data.resize(column);
     endRemoveColumns();
     return true;
+}
+
+void Model::test(int row, int col, const PinsValue& value)
+{
+    m_data[row][col].test(value);
+    emit dataChanged(createIndex(row, col), createIndex(row, col), { Qt::DisplayRole });
 }
