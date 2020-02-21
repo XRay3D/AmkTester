@@ -155,7 +155,7 @@ void AmkPort::Close()
 void AmkPort::Write(const QByteArray& data)
 {
     write(data);
-    qDebug() << "Write" << data;
+    //qDebug() << "Write" << data;
 }
 
 void AmkPort::Read()
@@ -163,7 +163,7 @@ void AmkPort::Read()
     QMutexLocker locker(&m_mutex);
     m_data.append(readAll());
     if (m_data[m_data.size() - 1] == '\r' && checkParcel(m_data, m_kds->m_data)) {
-        qDebug() << "Read" << m_data;
+        //qDebug() << "Read" << m_data;
         m_data.clear();
         m_kds->m_semaphore.release();
     }

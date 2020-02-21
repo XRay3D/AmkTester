@@ -41,9 +41,10 @@ void AutoTest::start(Model* model)
             qDebug() << r << c;
             Interface::kds1()->setOut(0, m_model->m_data[r][c].parcel1.toInt());
             Interface::kds2()->setOut(0, m_model->m_data[r][c].parcel2.toInt());
-            thread()->msleep(100);
+            thread()->msleep(500);
+            //Interface::tester()->measureAll();
             Interface::tester()->measureAll();
-            thread()->msleep(100);
+            thread()->msleep(500);
             m_model->test(r, c, Interface::tester()->pinsValue());
             if (thread()->isInterruptionRequested()) {
                 return;

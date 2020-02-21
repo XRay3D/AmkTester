@@ -1,13 +1,14 @@
 #ifndef POINTEDIT_H
 #define POINTEDIT_H
 
-#include <QWidget>
-#include <QLineEdit>
 #include <QDialog>
 #include <QGridLayout>
+#include <QJsonObject>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QWidget>
 
 namespace Ui {
 class PointEdit;
@@ -17,10 +18,16 @@ class PointEdit : public QDialog {
     Q_OBJECT
 
 public:
-    typedef struct {
+    struct Point {
+        Point() {}
+        Point(const QJsonObject& object)
+            : Parcel(object["value"].toString())
+            , Description(object["name"].toString())
+        {
+        }
         QString Parcel;
         QString Description;
-    } Point;
+    };
 
     explicit PointEdit(Point* point, QLineEdit* lineEdit, QWidget* parent = 0);
     ~PointEdit();

@@ -17,10 +17,10 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 win32:RC_FILE = main_icon/myapp.rc
 
 SOURCES += \
-    amktest/amktest.cpp \
+#    amktest/amktest.cpp \
     amktest/pointedit.cpp \
     autotest/header.cpp \
-    autotest/main.cpp \
+#    autotest/main.cpp \
     autotest/model.cpp \
     autotest/tableview.cpp \
     connection.cpp \
@@ -38,7 +38,7 @@ SOURCES += \
 
 
 HEADERS += \
-    amktest/amktest.h \
+#    amktest/amktest.h \
     amktest/pointedit.h \
     autotest/header.h \
     autotest/model.h \
