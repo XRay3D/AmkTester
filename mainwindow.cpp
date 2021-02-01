@@ -16,24 +16,21 @@ MainWindow::MainWindow(QWidget* parent)
 {
     setupUi(this);
 
-    //    wAmk1->setFl(false);
-    //    wAmk2->setFl(true);
-
     auto pbSetter = [this](QPushButton* pb, int i, const QString objName, bool fl) {
         pb->setObjectName(QString(objName).arg(i));
         pb->setCheckable(true);
         pb->setMinimumSize(0, 0);
-        pb->setShortcut(fl ? QKeySequence{ QString("Shift+F%1").arg(i + 1) } : QKeySequence{ Qt::Key_F1 + i });
+        pb->setShortcut(fl ? QKeySequence { QString("Shift+F%1").arg(i + 1) } : QKeySequence { Qt::Key_F1 + i });
         pb->setText(pb->shortcut().toString());
         connect(pb, &QPushButton::clicked, this, &MainWindow::switchSlot);
     };
 
-    //    auto leSetter = [this](int i, const QString label, const QString objName) {
-    //    };
-
     for (int i = 0; i < 12; ++i) {
         flKds0->addRow(pb[i + 00] = new QPushButton(this), le[i + 00] = new QLineEdit(this));
         flKds1->addRow(pb[i + 12] = new QPushButton(this), le[i + 12] = new QLineEdit(this));
+
+        le[i + 00]->installEventFilter(this);
+        le[i + 12]->installEventFilter(this);
 
         pbSetter(pb[i + 00], i, "pushButton_%1_0", 0);
         pbSetter(pb[i + 12], i, "pushButton_%1_1", 1);
@@ -49,19 +46,16 @@ MainWindow::MainWindow(QWidget* parent)
         cbxTester->addItem(pi.portName());
     }
 
-    //    connect(wAmk1, &AmkTest::message, statusBar_, &QStatusBar::showMessage);
-    //    connect(wAmk2, &AmkTest::message, statusBar_, &QStatusBar::showMessage);
-
     tableView->initCheckBox2();
-    //    connect(pushButton, &QPushButton::clicked, [this] {
-    //        tableView->addRow(wAmk1->m_points[wAmk1->m_numPoint].Description);
-    //    });
-    //    connect(pushButton_3, &QPushButton::clicked, [this] {
-    //        tableView->setPattern(
-    //            widget_2->data(),
-    //            wAmk1->m_points[wAmk1->m_numPoint],
-    //            wAmk2->m_points[wAmk2->m_numPoint]);
-    //    });
+    connect(pushButton, &QPushButton::clicked, [this] {
+        tableView->addRow(cbxAmk->m_points[cbxAmk->m_numPoint].Description);
+    });
+    connect(pushButton_3, &QPushButton::clicked, [this] {
+        tableView->setPattern(
+            widget_2->data(),
+            wAmk1->m_points[wAmk1->m_numPoint],
+            wAmk2->m_points[wAmk2->m_numPoint]);
+    });
 
     connect(pushButton_2, &QPushButton::clicked, tableView, &TableView::clear);
     connect(this, &MainWindow::start, Interface::at(), &AutoTest::start, Qt::QueuedConnection);
@@ -95,8 +89,6 @@ void MainWindow::writeSettings()
     settings.setValue("cbxTester", cbxTester->currentIndex());
     settings.setValue("cbType1", comboBox->currentIndex());
     settings.setValue("cbType2", comboBox_2->currentIndex());
-    //    settings.setValue("cbType1", wAmk1->cbType->currentIndex());
-    //    settings.setValue("cbType2", wAmk2->cbType->currentIndex());
     settings.endGroup();
 }
 
@@ -111,8 +103,6 @@ void MainWindow::readSettings()
     cbxTester->setCurrentIndex(settings.value("cbxTester").toInt());
     comboBox->setCurrentIndex(settings.value("cbType1").toInt());
     comboBox_2->setCurrentIndex(settings.value("cbType2").toInt());
-    //    wAmk1->cbType->setCurrentIndex(settings.value("cbType1").toInt());
-    //    wAmk2->cbType->setCurrentIndex(settings.value("cbType2").toInt());
     settings.endGroup();
 }
 
@@ -228,7 +218,7 @@ A:
     QJsonDocument loadDoc(saveFormat == Json ? QJsonDocument::fromJson(array, &err) : QJsonDocument::fromBinaryData(array));
 
     jsonArray = loadDoc.array();
-    qDebug() << jsonArray << err.errorString();
+    qDebug() << err.errorString();
 
     for (QJsonValue value : jsonArray) {
         QJsonObject object(value.toObject());
@@ -370,12 +360,11 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event)
     if (event->type() == QEvent::MouseButtonDblClick) {
         int m_numPoint = le.indexOf(reinterpret_cast<QLineEdit*>(obj));
         if (m_numPoint > -1) {
-            PointEdit pe(&m_points[m_numPoint % 13][m_numPoint % 12], le[m_numPoint % 12], this);
+            PointEdit pe(&m_points[m_numPoint > 11 ? 1 : 0][m_numPoint % 12], le[m_numPoint], this);
             pe.exec();
             return true;
         }
     }
-
     return QWidget::eventFilter(obj, event);
 }
 void MainWindow::switchSlot()

@@ -58,5 +58,5 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
-include(../mp/myprotokol.pri)
+include(../MyProtokol/myprotokol.pri)
 include(../elemer_ascii/elemer_ascii.pri)

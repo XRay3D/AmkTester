@@ -162,6 +162,7 @@ void AmkPort::Read()
 {
     QMutexLocker locker(&m_mutex);
     m_data.append(readAll());
+    qDebug() << Q_FUNC_INFO << m_data;
     if (m_data[m_data.size() - 1] == '\r' && checkParcel(m_data, m_kds->m_data)) {
         //qDebug() << "Read" << m_data;
         m_data.clear();

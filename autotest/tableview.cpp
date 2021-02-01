@@ -8,7 +8,7 @@ TableView::TableView(QWidget* parent)
 {
 }
 
-TableView::~TableView() {}
+TableView::~TableView() { }
 
 Model* TableView::model() const { return m_model; }
 
@@ -114,7 +114,7 @@ void TableView::createCornerCheckBox(Header* header, Header* header2)
         checkBox->setGeometry(Header::getRect(cornerButton->rect()).translated(1, -4));
         connect(checkBox, &QCheckBox::clicked, [header](bool checked) { header->setAll(checked); });
         connect(header, &Header::onCheckedV, [checkBox](const QVector<bool>& v, int) {
-            static const Qt::CheckState chState[]{
+            static const Qt::CheckState chState[] {
                 Qt::Unchecked,
                 Qt::Unchecked,
                 Qt::Checked,
@@ -129,7 +129,7 @@ void TableView::createCornerCheckBox(Header* header, Header* header2)
         checkBox->setGeometry(Header::getRect(cornerButton->rect()).translated(1 + 20, -4));
         connect(checkBox, &QCheckBox::clicked, [header2](bool checked) { header2->setAll(checked); });
         connect(header2, &Header::onCheckedV, [checkBox](const QVector<bool>& v, int) {
-            static const Qt::CheckState chState[]{
+            static const Qt::CheckState chState[] {
                 Qt::Unchecked,
                 Qt::Unchecked,
                 Qt::Checked,

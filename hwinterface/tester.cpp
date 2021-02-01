@@ -113,7 +113,7 @@ void Tester::rxPing(const QByteArray& /*data*/)
 
 void Tester::rxMeasurePin(const QByteArray& data)
 {
-    const Parcel_t* d = reinterpret_cast<const Parcel_t*>(data.data());
+    const Parcel* d = reinterpret_cast<const Parcel*>(data.data());
     const quint16* p = reinterpret_cast<const quint16*>(d->data);
     if (all) {
         for (int i = 0; i < 11; ++i)
@@ -218,7 +218,7 @@ void TesterPort::readSlot()
     QMutexLocker locker(&m_mutex);
     m_data.append(readAll());
     for (int i = 0; i < m_data.size() - 3; ++i) {
-        const Parcel_t* const d = reinterpret_cast<const Parcel_t*>(m_data.constData() + i);
+        const Parcel* const d = reinterpret_cast<const Parcel*>(m_data.constData() + i);
         if (d->start == RX && d->len <= m_data.size()) {
             QByteArray tmpData = m_data.mid(i, d->len);
             counter += tmpData.size();
