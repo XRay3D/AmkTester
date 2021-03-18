@@ -19,7 +19,7 @@ Tester::~Tester()
     m_portThread.wait();
 }
 
-bool Tester::Ping(const QString& portName, int baud, int addr)
+bool Tester::ping(const QString& portName, int baud, int addr)
 {
     Q_UNUSED(baud)
     Q_UNUSED(addr)

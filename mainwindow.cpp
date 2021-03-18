@@ -1,12 +1,16 @@
 #include "mainwindow.h"
 #include "hwinterface/interface.h"
+#include "pinmodel.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSerialPortInfo>
 #include <QSettings>
+#include <QShortcut>
+#include <ranges>
 //QTabWidget* tw;
 
 MainWindow::MainWindow(QWidget* parent)
@@ -15,19 +19,27 @@ MainWindow::MainWindow(QWidget* parent)
     , pb(24)
 {
     setupUi(this);
+    auto model = new PinModel(tvPins);
+    tvPins->setModel(model);
+    tvPins->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    tvPins->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     auto pbSetter = [this](QPushButton* pb, int i, const QString objName, bool fl) {
-        pb->setObjectName(QString(objName).arg(i));
+        auto shortcut = new QShortcut(this); // Инициализируем объект
+        shortcut->setKey(fl ? QString("Shift+F%1").arg(i + 1) : QString("F%1").arg(i + 1)); // Устанавливаем код клавиши
+        connect(shortcut, &QShortcut::activated, pb, &QPushButton::click); // цепляем обработчик нажатия клавиши
+
         pb->setCheckable(true);
         pb->setMinimumSize(0, 0);
-        pb->setShortcut(fl ? QKeySequence { QString("Shift+F%1").arg(i + 1) } : QKeySequence { Qt::Key_F1 + i });
-        pb->setText(pb->shortcut().toString());
+        pb->setMinimumSize(70, 0);
+        pb->setObjectName(QString(objName).arg(i));
+        pb->setText(fl ? QString("Shift+F%1").arg(i + 1) : QString("F%1").arg(i + 1));
         connect(pb, &QPushButton::clicked, this, &MainWindow::switchSlot);
     };
 
     for (int i = 0; i < 12; ++i) {
-        flKds0->addRow(pb[i + 00] = new QPushButton(this), le[i + 00] = new QLineEdit(this));
-        flKds1->addRow(pb[i + 12] = new QPushButton(this), le[i + 12] = new QLineEdit(this));
+        flKds0->addRow(pb[i + 00] = new QPushButton(QMainWindow::centralWidget()), le[i + 00] = new QLineEdit(this));
+        flKds1->addRow(pb[i + 12] = new QPushButton(QMainWindow::centralWidget()), le[i + 12] = new QLineEdit(this));
 
         le[i + 00]->installEventFilter(this);
         le[i + 12]->installEventFilter(this);
@@ -36,45 +48,64 @@ MainWindow::MainWindow(QWidget* parent)
         pbSetter(pb[i + 12], i, "pushButton_%1_1", 1);
     }
 
-    static QList<QSerialPortInfo> pl(QSerialPortInfo::availablePorts());
-    std::sort(pl.begin(), pl.end(), [](const QSerialPortInfo& i1, const QSerialPortInfo& i2) {
-        return i1.portName().mid(3).toInt() < i2.portName().mid(3).toInt();
-    });
-    for (const QSerialPortInfo& pi : pl) {
-        cbxAmk->addItem(pi.portName());
-        cbxHart->addItem(pi.portName());
-        cbxTester->addItem(pi.portName());
+    auto ports(QSerialPortInfo::availablePorts().toVector());
+    std::ranges::sort(ports, {}, [](const QSerialPortInfo& i1) { return i1.portName().mid(3).toInt(); });
+    for (const QSerialPortInfo& pi : ports) {
+        cbxPortAmk->addItem(pi.portName());
+        cbxPortHart->addItem(pi.portName());
+        cbxPortTester->addItem(pi.portName());
     }
 
-    tableView->initCheckBox2();
-    connect(pushButton, &QPushButton::clicked, [this] {
-        tableView->addRow(cbxAmk->m_points[cbxAmk->m_numPoint].Description);
-    });
-    connect(pushButton_3, &QPushButton::clicked, [this] {
-        tableView->setPattern(
-            widget_2->data(),
-            wAmk1->m_points[wAmk1->m_numPoint],
-            wAmk2->m_points[wAmk2->m_numPoint]);
+    //    tableView->initCheckBox2();
+    //    connect(pushButton, &QPushButton::clicked, [this] {
+    //        tableView->addRow(cbxAmk->m_points[cbxAmk->m_numPoint].Description);
+    //    });
+    //    connect(pushButton_3, &QPushButton::clicked, [this] {
+    //        tableView->setPattern(
+    //            widget_2->data(),
+    //            wAmk1->m_points[wAmk1->m_numPoint],
+    //            wAmk2->m_points[wAmk2->m_numPoint]);
+    //    });
+
+    connect(Interface::autoTest(), &AutoTest::finished, [this] { pbTest->setChecked(false); });
+    connect(Interface::autoTest(), &AutoTest::message, this, &MainWindow::message);
+
+    connect(Interface::tester(), &Tester::measureReadyAll, [model, this](const PinsValue& value) {
+        for (int i = 0; i < 11; ++i)
+            model->setRawData({ //
+                static_cast<unsigned short>(value.data[i][0]),
+                static_cast<unsigned short>(value.data[i][1]),
+                static_cast<unsigned short>(value.data[i][2]),
+                static_cast<unsigned short>(value.data[i][3]),
+                static_cast<unsigned short>(value.data[i][4]),
+                static_cast<unsigned short>(value.data[i][5]),
+                static_cast<unsigned short>(value.data[i][6]),
+                static_cast<unsigned short>(value.data[i][7]),
+                static_cast<unsigned short>(value.data[i][8]),
+                static_cast<unsigned short>(value.data[i][9]),
+                static_cast<unsigned short>(value.data[i][10]),
+                static_cast<unsigned short>(i) });
+        pinSemaphore.tryAcquire();
     });
 
-    connect(pushButton_2, &QPushButton::clicked, tableView, &TableView::clear);
-    connect(this, &MainWindow::start, Interface::at(), &AutoTest::start, Qt::QueuedConnection);
-    connect(this, &MainWindow::stop, Interface::at(), &AutoTest::stop, Qt::DirectConnection);
-    connect(Interface::at(), &AutoTest::finished, [this] { pushButton_4->setChecked(false); });
-    connect(Interface::at(), &AutoTest::message, this, &MainWindow::message);
-    connect(pushButton_4, &QPushButton::clicked, [&](bool checked) {
-        if (checked)
-            emit start(tableView->model());
-        else
-            emit stop();
-    });
+    connect(pbClear, &QPushButton::clicked, tableView, &TableView::clear);
+    connect(pbTest, &QPushButton::clicked, [&](bool checked) { checked ? emit start(tableView->model()) : emit stop(); });
+
+    connect(this, &MainWindow::measurePins, Interface::tester(), &Tester::measureAll);
+    connect(this, &MainWindow::start, Interface::autoTest(), &AutoTest::start, Qt::QueuedConnection);
+    connect(this, &MainWindow::stop, Interface::autoTest(), &AutoTest::stop, Qt::DirectConnection);
+
     loadSettings();
     readSettings();
-    on_pbPing_clicked();
+
+    QTimer::singleShot(10, this, &MainWindow::on_pbPing_clicked);
 }
 
 MainWindow::~MainWindow()
 {
+    if (timerId)
+        killTimer(timerId);
+    thread()->msleep(100);
     writeSettings();
 }
 
@@ -84,9 +115,9 @@ void MainWindow::writeSettings()
     settings.beginGroup("MainWindow");
     settings.setValue("geometry", saveGeometry());
     settings.setValue("state", saveState());
-    settings.setValue("cbxAmk", cbxAmk->currentIndex());
-    settings.setValue("cbxHart", cbxHart->currentIndex());
-    settings.setValue("cbxTester", cbxTester->currentIndex());
+    settings.setValue("cbxAmk", cbxPortAmk->currentText());
+    settings.setValue("cbxHart", cbxPortHart->currentText());
+    settings.setValue("cbxTester", cbxPortTester->currentText());
     settings.setValue("cbType1", comboBox->currentIndex());
     settings.setValue("cbType2", comboBox_2->currentIndex());
     settings.endGroup();
@@ -98,9 +129,9 @@ void MainWindow::readSettings()
     settings.beginGroup("MainWindow");
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("state").toByteArray());
-    cbxAmk->setCurrentIndex(settings.value("cbxAmk").toInt());
-    cbxHart->setCurrentIndex(settings.value("cbxHart").toInt());
-    cbxTester->setCurrentIndex(settings.value("cbxTester").toInt());
+    cbxPortAmk->setCurrentText(settings.value("cbxAmk").toString());
+    cbxPortHart->setCurrentText(settings.value("cbxHart").toString());
+    cbxPortTester->setCurrentText(settings.value("cbxTester").toString());
     comboBox->setCurrentIndex(settings.value("cbType1").toInt());
     comboBox_2->setCurrentIndex(settings.value("cbType2").toInt());
     settings.endGroup();
@@ -109,9 +140,9 @@ void MainWindow::readSettings()
 void MainWindow::message(const QString& msg)
 {
     if (QMessageBox::information(this, "", msg, QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
-        Interface::at()->sem.release();
+        Interface::autoTest()->sem.release();
     else
-        Interface::at()->sem.release(2);
+        Interface::autoTest()->sem.release(2);
 }
 
 void MainWindow::cbxTypeIndexChanged(int index)
@@ -306,55 +337,6 @@ void MainWindow::saveSettings()
     saveFile.write(saveFormat == Json ? saveDoc.toJson() : saveDoc.toBinaryData());
 }
 
-//void MainWindow::setupUi()
-//{
-//    if (objectName().isEmpty())
-//        setObjectName(QStringLiteral("AMK"));
-//    QFormLayout* formLayout = new QFormLayout(this);
-//    formLayout->setSpacing(6);
-//    formLayout->setContentsMargins(11, 11, 11, 11);
-//    formLayout->setObjectName(QStringLiteral("formLayout"));
-//    formLayout->setHorizontalSpacing(4);
-//    formLayout->setVerticalSpacing(4);
-//    formLayout->setContentsMargins(0, 0, 0, 0);
-//    cbType = new QComboBox(this);
-//    cbType->setObjectName(QStringLiteral("cbType"));
-//    cbType->setEditable(true);
-//    formLayout->setWidget(0, QFormLayout::SpanningRole, cbType);
-//    int i = 0;
-//    for (QPushButton*& pushButton : pb) {
-//        pushButton = new QPushButton(this);
-//        pushButton->setCheckable(true);
-//        pushButton->setMinimumSize(0, 0);
-//        pushButton->setObjectName(QString("pushButton_%1").arg(i));
-//        connect(pushButton, &QPushButton::clicked, this, &AmkTest::switchSlot);
-//        formLayout->setWidget(++i, QFormLayout::LabelRole, pushButton);
-//    }
-//    i = 0;
-//    for (QLineEdit*& lineEdit : le) {
-//        lineEdit = new QLineEdit(this);
-//        lineEdit->installEventFilter(this);
-//        lineEdit->setEnabled(true);
-//        lineEdit->setObjectName(QString("lineEdit_%1").arg(i));
-//        lineEdit->setReadOnly(true);
-//        formLayout->setWidget(++i, QFormLayout::FieldRole, lineEdit);
-//    }
-//    QMetaObject::connectSlotsByName(this);
-//}
-//void MainWindow::switchSlot()
-//{
-//    for (QPushButton* pushButton : pb)
-//        pushButton->setChecked(false);
-//    QPushButton* pushButton = qobject_cast<QPushButton*>(sender());
-//    pushButton->setChecked(true);
-//    m_numPoint = pb.indexOf(pushButton);
-//    Amk* ptr = !fl ? Interface::kds1() : Interface::kds2();
-//    if (ptr->setOut(0, m_points[m_numPoint].Parcel.toInt()))
-//        emit message("Прибором КДС успешно переключен!");
-//    else
-//        emit message("Нет связи с прибором КДС!");
-//}
-
 bool MainWindow::eventFilter(QObject* obj, QEvent* event)
 {
     if (event->type() == QEvent::MouseButtonDblClick) {
@@ -367,6 +349,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event)
     }
     return QWidget::eventFilter(obj, event);
 }
+
 void MainWindow::switchSlot()
 {
     QPushButton* pushButton = qobject_cast<QPushButton*>(sender());
@@ -396,16 +379,39 @@ void MainWindow::switchSlot()
 
 void MainWindow::on_pbPing_clicked()
 {
-    QString str;
-    if (!Interface::kds1()->Ping(cbxAmk->currentText()))
-        str += "Amk!\n";
+    {
+        bool fl = Interface::kds1()->ping(cbxPortAmk->currentText());
+        gbxKds1->setEnabled(fl);
+        cbxPortAmk->setEnabled(true);
+    }
+    {
+        bool fl = Interface::kds2()->ping(cbxPortHart->currentText());
+        gbxKds2->setEnabled(fl);
+        cbxPortHart->setEnabled(true);
+    }
+    {
+        bool fl = Interface::tester()->ping(cbxPortTester->currentText());
+        gbxTest->setEnabled(fl);
+        cbxPortTester->setEnabled(true);
+    }
+}
 
-    if (!Interface::kds2()->Ping(cbxHart->currentText()))
-        str += "Hart!\n";
+void MainWindow::on_pbAutoMeasure_clicked(bool checked)
+{
+    if (checked) {
+        timerId = startTimer(10);
+    } else {
+        killTimer(timerId);
+        timerId = 0;
+    }
+}
 
-    if (!Interface::tester()->Ping(cbxTester->currentText()))
-        str += "Tester!\n";
-
-    if (!str.isEmpty())
-        QMessageBox::critical(this, "", str);
+void MainWindow::timerEvent(QTimerEvent* event)
+{
+    if (event->timerId() == timerId) {
+        if (!pinSemaphore.available()) {
+            pinSemaphore.release();
+            emit measurePins();
+        }
+    }
 }

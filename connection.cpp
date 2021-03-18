@@ -121,16 +121,16 @@ void CONNECTION::CheckConnection()
 
 bool CONNECTION::CheckConnectionAmk()
 {
-    if (!Interface::kds1()->Ping(cbxPortAmk->currentText()))
+    if (!Interface::kds1()->ping(cbxPortAmk->currentText()))
         QMessageBox::warning(nullptr, "kds", "kds");
-    return Interface::kds1()->IsConnected();
+    return Interface::kds1()->isConnected();
 }
 
 bool CONNECTION::CheckConnectionTest()
 {
-    if (!Interface::tester()->Ping(cbxPortTest->currentText()))
+    if (!Interface::tester()->ping(cbxPortTest->currentText()))
         QMessageBox::warning(nullptr, "tester", "tester");
-    return Interface::tester()->IsConnected();
+    return Interface::tester()->isConnected();
 }
 
 void CONNECTION::showEvent(QShowEvent* /*event*/)

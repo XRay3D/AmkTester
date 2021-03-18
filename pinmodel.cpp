@@ -1,9 +1,9 @@
-#include "mytablemodel.h"
+#include "pinmodel.h"
 #include <QColor>
 #include <QDebug>
 #include <QMutex>
 
-MyTableModel::MyTableModel(QObject* parent)
+PinModel::PinModel(QObject* parent)
     : QAbstractTableModel(parent)
     , m_data{
         { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
@@ -21,7 +21,7 @@ MyTableModel::MyTableModel(QObject* parent)
 {
 }
 
-void MyTableModel::setRawData(const QVector<quint16>& value)
+void PinModel::setRawData(const QVector<quint16>& value)
 {
     //static QMutex mutex;
     //QMutexLocker mutexLocker(&mutex);
@@ -69,17 +69,17 @@ void MyTableModel::setRawData(const QVector<quint16>& value)
     dataChanged(createIndex(row, 0), createIndex(row, 10), { Qt::DisplayRole });
 }
 
-int MyTableModel::rowCount(const QModelIndex& /*parent*/) const
+int PinModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return RowCount;
 }
 
-int MyTableModel::columnCount(const QModelIndex& /*parent*/) const
+int PinModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return ColumnCount;
 }
 
-QVariant MyTableModel::data(const QModelIndex& index, int role) const
+QVariant PinModel::data(const QModelIndex& index, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
@@ -102,7 +102,7 @@ QVariant MyTableModel::data(const QModelIndex& index, int role) const
     }
 }
 
-QVariant MyTableModel::headerData(int section, Qt::Orientation /*orientation*/, int role) const
+QVariant PinModel::headerData(int section, Qt::Orientation /*orientation*/, int role) const
 {
     const QStringList header({ "K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V" });
     if (role == Qt::DisplayRole)
@@ -112,7 +112,7 @@ QVariant MyTableModel::headerData(int section, Qt::Orientation /*orientation*/, 
     return QVariant();
 }
 
-Qt::ItemFlags MyTableModel::flags(const QModelIndex& /*index*/) const
+Qt::ItemFlags PinModel::flags(const QModelIndex& /*index*/) const
 {
     return Qt::ItemIsEnabled;
 }

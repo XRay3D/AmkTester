@@ -1,7 +1,6 @@
 #ifndef MY_PROTOCOL_H
 #define MY_PROTOCOL_H
 
-#include "common_interfaces.h"
 #include "myprotokol.h"
 #include <QElapsedTimer>
 #include <QMutex>
@@ -9,6 +8,7 @@
 #include <QSerialPort>
 #include <QThread>
 #include <QVector>
+#include <commoninterfaces.h>
 
 enum COMMAND {
     PING,
@@ -21,7 +21,7 @@ enum COMMAND {
 };
 
 struct PinsValue {
-    PinsValue() {}
+    PinsValue() { }
     int data[11][11];
 };
 
@@ -35,7 +35,7 @@ public:
     Tester(QObject* parent = nullptr);
     ~Tester() override;
 
-    bool Ping(const QString& portName = QString(), int baud = 9600, int addr = 0) override;
+    bool ping(const QString& portName = QString(), int baud = 9600, int addr = 0) override;
 
     bool measurePin(int pin);
     bool measureAll();
@@ -46,8 +46,8 @@ public:
     PinsValue pinsValue() const;
 
 signals:
-    void open(int mode);
-    void close();
+    void open(int mode) override;
+    void close() override;
     void write(const QByteArray& data);
     void measureReady(const QVector<quint16>&);
     void measureReadyAll(const PinsValue&);
@@ -63,7 +63,7 @@ private:
     QThread m_portThread;
     PinsValue m_pinsValue;
 
-    void reset();
+    void reset() override;
 
     void rxPing(const QByteArray& data);
     void rxMeasurePin(const QByteArray& data);

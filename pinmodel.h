@@ -1,14 +1,14 @@
-#ifndef MYTABLEMODEL_H
-#define MYTABLEMODEL_H
+#ifndef PINMODEL_H
+#define PINMODEL_H
 
 #include "hwinterface/tester.h"
 #include <QAbstractTableModel>
 
-class MyTableModel : public QAbstractTableModel {
+class PinModel : public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    explicit MyTableModel(QObject* parent = nullptr);
+    explicit PinModel(QObject* parent = nullptr);
     enum {
         ColumnCount = 11,
         RowCount = 11,
@@ -27,4 +27,4 @@ private:
     int m_data[11][11];
 };
 
-#endif // MYTABLEMODEL_H
+#endif // PINMODEL_H

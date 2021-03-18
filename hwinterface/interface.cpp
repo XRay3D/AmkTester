@@ -48,4 +48,4 @@ Amk* Interface::kds1() { return Kds; }
 
 Amk* Interface::kds2() { return Hart; }
 
-AutoTest* Interface::at() { return AT; }
+AutoTest* Interface::autoTest() { return AT; }

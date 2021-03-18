@@ -12,7 +12,7 @@ public:
     static Tester* tester();
     static Amk* kds1();
     static Amk* kds2();
-    static AutoTest* at();
+    static AutoTest* autoTest();
 };
 
 #endif // MEASURINGINTERFACE_H

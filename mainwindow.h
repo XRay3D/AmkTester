@@ -14,32 +14,37 @@ public:
 signals:
     void start(Model* model);
     void stop();
+    void measurePins();
 
 private slots:
     void on_pbPing_clicked();
+    void on_pbAutoMeasure_clicked(bool checked);
 
 private:
-    void writeSettings();
-    void readSettings();
-    void message(const QString&);
-
-    void switchSlot();
-
+    PointEdit::Point m_points[2][12];
+    QJsonArray jsonArray;
     QVector<QLineEdit*> le;
     QVector<QPushButton*> pb;
-
-    PointEdit::Point m_points[2][12];
+    QSemaphore pinSemaphore;
     enum { Json };
     const int saveFormat = Json;
-    QJsonArray jsonArray;
-    int lastIndex{};
+
+    int lastIndex {};
+    int timerId {};
+
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
     void cbxTypeIndexChanged(int index);
     void loadSettings();
+    void message(const QString&);
+    void readSettings();
     void saveSettings();
-    //    void setupUi();
-    //    void switchSlot();
-    bool eventFilter(QObject* obj, QEvent* event);
+    void switchSlot();
+    void writeSettings();
+
+    // QObject interface
+protected:
+    void timerEvent(QTimerEvent* event) override;
 };
 
 #endif // MAINWINDOW_H

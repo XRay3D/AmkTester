@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,1">
+   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,1">
     <property name="leftMargin">
      <number>6</number>
     </property>
@@ -27,79 +27,134 @@
     <property name="bottomMargin">
      <number>6</number>
     </property>
-    <item row="1" column="1">
-     <widget class="QGroupBox" name="groupBox_2">
-      <property name="title">
-       <string>ИЗМЕРИТЕЛЬ</string>
+    <item>
+     <widget class="QPushButton" name="pbPing">
+      <property name="text">
+       <string>ping</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="10,1">
-       <property name="leftMargin">
-        <number>6</number>
-       </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
-       <property name="rightMargin">
-        <number>6</number>
-       </property>
-       <property name="bottomMargin">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QComboBox" name="cbxTester"/>
-       </item>
-       <item>
-        <widget class="TesterData" name="widget_2" native="true"/>
-       </item>
-      </layout>
      </widget>
     </item>
-    <item row="1" column="2">
-     <widget class="QGroupBox" name="groupBox">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>КДС</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <property name="leftMargin">
-        <number>6</number>
-       </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
-       <property name="rightMargin">
-        <number>6</number>
-       </property>
-       <property name="bottomMargin">
-        <number>6</number>
-       </property>
-       <item row="1" column="0">
-        <widget class="QComboBox" name="comboBox"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="cbxHart"/>
-       </item>
-       <item row="2" column="0">
-        <layout class="QFormLayout" name="flKds0"/>
-       </item>
-       <item row="2" column="1">
-        <layout class="QFormLayout" name="flKds1"/>
-       </item>
-       <item row="0" column="0">
-        <widget class="QComboBox" name="cbxAmk"/>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="comboBox_2"/>
-       </item>
-      </layout>
-     </widget>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0">
+      <item>
+       <widget class="QGroupBox" name="gbxTest">
+        <property name="title">
+         <string>ИЗМЕРИТЕЛЬ</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout" stretch="10,0,0">
+         <property name="leftMargin">
+          <number>6</number>
+         </property>
+         <property name="topMargin">
+          <number>6</number>
+         </property>
+         <property name="rightMargin">
+          <number>6</number>
+         </property>
+         <property name="bottomMargin">
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="cbxPortTester"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbAutoMeasure">
+           <property name="text">
+            <string>Auto Measure</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTableView" name="tvPins"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="gbxKds1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>КДС 1</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="leftMargin">
+          <number>6</number>
+         </property>
+         <property name="topMargin">
+          <number>6</number>
+         </property>
+         <property name="rightMargin">
+          <number>6</number>
+         </property>
+         <property name="bottomMargin">
+          <number>6</number>
+         </property>
+         <item row="2" column="0">
+          <layout class="QFormLayout" name="flKds0"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QComboBox" name="cbxPortAmk"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QComboBox" name="comboBox"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="gbxKds2">
+        <property name="title">
+         <string>КДС 2</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="leftMargin">
+          <number>6</number>
+         </property>
+         <property name="topMargin">
+          <number>6</number>
+         </property>
+         <property name="rightMargin">
+          <number>6</number>
+         </property>
+         <property name="bottomMargin">
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="cbxPortHart"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox_2"/>
+         </item>
+         <item>
+          <layout class="QFormLayout" name="flKds1">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </item>
-    <item row="2" column="1" colspan="2">
+    <item>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="title">
        <string>GroupBox</string>
@@ -109,7 +164,7 @@
         <widget class="QLineEdit" name="lineEdit_2"/>
        </item>
        <item row="1" column="1">
-        <widget class="QPushButton" name="pushButton_3">
+        <widget class="QPushButton" name="pbSetPattern">
          <property name="text">
           <string>Set Pattern</string>
          </property>
@@ -119,7 +174,7 @@
         <widget class="TableView" name="tableView"/>
        </item>
        <item row="2" column="1" colspan="2">
-        <widget class="QPushButton" name="pushButton_4">
+        <widget class="QPushButton" name="pbTest">
          <property name="text">
           <string>Test</string>
          </property>
@@ -129,27 +184,20 @@
         </widget>
        </item>
        <item row="3" column="1" colspan="2">
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="pbClear">
          <property name="text">
           <string>Clear</string>
          </property>
         </widget>
        </item>
        <item row="4" column="1" colspan="2">
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="pbAdd">
          <property name="text">
           <string>Add Test</string>
          </property>
         </widget>
        </item>
       </layout>
-     </widget>
-    </item>
-    <item row="0" column="1" colspan="2">
-     <widget class="QPushButton" name="pbPing">
-      <property name="text">
-       <string>Ping</string>
-      </property>
      </widget>
     </item>
    </layout>
@@ -169,17 +217,23 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>TesterData</class>
-   <extends>QWidget</extends>
-   <header>testerdata.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>TableView</class>
    <extends>QTableView</extends>
    <header>autotest/tableview.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>pbPing</tabstop>
+  <tabstop>cbxPortTester</tabstop>
+  <tabstop>cbxPortAmk</tabstop>
+  <tabstop>comboBox</tabstop>
+  <tabstop>pbSetPattern</tabstop>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>pbTest</tabstop>
+  <tabstop>pbClear</tabstop>
+  <tabstop>pbAdd</tabstop>
+  <tabstop>tableView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
