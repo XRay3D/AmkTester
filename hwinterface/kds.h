@@ -81,31 +81,14 @@ public:
     /* FILE */
     bool fileOpen();
     bool fileSeek(uint16_t offset, Seek seek = Seek::Set);
-    template <typename T>
-    T fileRead(bool* ok = {})
+    template <typename... Ts>
+    bool fileRead(Ts&... vals)
     {
-        if (m_connected) {
-            emit write(createParcel(m_address, AmkCmd::FileRead, sizeof(T)));
-            if (wait()) {
-                if (ok)
-                    *ok = true;
-                return fromHex<T>(1);
-            }
-        }
-        if (ok)
-            *ok = false;
-        return {};
+        return m_connected && readData(AmkCmd::FileRead, vals...);
     }
     template <typename... Ts>
-    bool fileWrite(Ts&&... data)
-    {
-        if (m_connected) {
-            emit write(createParcel(m_address, AmkCmd::FileWrite, Elemer::Hex { data... }));
-            if (wait() && success())
-                return true;
-        }
-        return false;
-    }
+    bool fileWrite(Ts&&... data) { return m_connected && writeData(AmkCmd::FileWrite, Elemer::Hex { data... }) == RretCcode::OK; }
+
     bool fileClose();
     /* COM */
     QByteArray getVer(bool* ok = {});
