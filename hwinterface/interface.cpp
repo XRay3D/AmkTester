@@ -1,24 +1,24 @@
 #include "interface.h"
 
-static Amk* Hart = nullptr;
-static Amk* Kds = nullptr;
+static Kds_* Hart = nullptr;
+static Kds_* Kds = nullptr;
 static Tester* AmkTest = nullptr;
 static AutoTest* AT = nullptr;
 
 static QThread thrd;
 static QSemaphore semafore;
 
-Interface::Interface()
+HW::HW()
 {
     if (!semafore.available()) {
 
         AmkTest = new Tester;
         AmkTest->moveToThread(&thrd);
 
-        Hart = new Amk;
+        Hart = new Kds_;
         Hart->moveToThread(&thrd);
 
-        Kds = new Amk;
+        Kds = new Kds_;
         Kds->moveToThread(&thrd);
 
         AT = new AutoTest;
@@ -33,7 +33,7 @@ Interface::Interface()
     semafore.release();
 }
 
-Interface::~Interface()
+HW::~HW()
 {
     semafore.acquire();
     if (!semafore.available()) {
@@ -42,10 +42,10 @@ Interface::~Interface()
     }
 }
 
-Tester* Interface::tester() { return AmkTest; }
+Tester* HW::tester() { return AmkTest; }
 
-Amk* Interface::kds1() { return Kds; }
+Kds_* HW::kds1() { return Kds; }
 
-Amk* Interface::kds2() { return Hart; }
+Kds_* HW::kds2() { return Hart; }
 
-AutoTest* Interface::autoTest() { return AT; }
+AutoTest* HW::autoTest() { return AT; }

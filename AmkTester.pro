@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += \
     QT_DISABLE_DEPRECATED_BEFORE=0x060000 \    # disables all the APIs deprecated before Qt 6.0.0
     EL_ALWAYS_OPEN=1 \
+    EL_LOG \
 
 win32:RC_FILE = main_icon/myapp.rc
 
@@ -33,6 +34,7 @@ SOURCES += \
     hwinterface/interface.cpp \
     hwinterface/kds.cpp \
     hwinterface/tester.cpp \
+    kdsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     pinmodel.cpp \
@@ -52,12 +54,14 @@ HEADERS += \
     hwinterface/interface.h \
     hwinterface/kds.h \
     hwinterface/tester.h \
+    kdsdialog.h \
     mainwindow.h \
     pinmodel.h \
     testerdata.h
 
 
 FORMS += \
+        kdsdialog.ui \
         mainwindow.ui
 
 include(../MyProtokol/myprotokol.pri)

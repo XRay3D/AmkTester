@@ -5,13 +5,13 @@
 #include "kds.h"
 #include "tester.h"
 
-class Interface {
+class HW {
 public:
-    Interface();
-    ~Interface();
+    HW();
+    ~HW();
     static Tester* tester();
-    static Amk* kds1();
-    static Amk* kds2();
+    static Kds_* kds1();
+    static Kds_* kds2();
     static AutoTest* autoTest();
 };
 

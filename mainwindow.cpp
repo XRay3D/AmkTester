@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "hwinterface/interface.h"
+#include "kdsdialog.h"
 #include "pinmodel.h"
 
 #include <QJsonDocument>
@@ -67,10 +68,10 @@ MainWindow::MainWindow(QWidget* parent)
     //            wAmk2->m_points[wAmk2->m_numPoint]);
     //    });
 
-    connect(Interface::autoTest(), &AutoTest::finished, [this] { pbTest->setChecked(false); });
-    connect(Interface::autoTest(), &AutoTest::message, this, &MainWindow::message);
+    connect(HW::autoTest(), &AutoTest::finished, [this] { pbTest->setChecked(false); });
+    connect(HW::autoTest(), &AutoTest::message, this, &MainWindow::message);
 
-    connect(Interface::tester(), &Tester::measureReadyAll, [model, this](const PinsValue& value) {
+    connect(HW::tester(), &Tester::measureReadyAll, [model, this](const PinsValue& value) {
         for (int i = 0; i < 11; ++i)
             model->setRawData({ //
                 static_cast<unsigned short>(value.data[i][0]),
@@ -91,9 +92,19 @@ MainWindow::MainWindow(QWidget* parent)
     connect(pbClear, &QPushButton::clicked, tableView, &TableView::clear);
     connect(pbTest, &QPushButton::clicked, [&](bool checked) { checked ? emit start(tableView->model()) : emit stop(); });
 
-    connect(this, &MainWindow::measurePins, Interface::tester(), &Tester::measureAll);
-    connect(this, &MainWindow::start, Interface::autoTest(), &AutoTest::start, Qt::QueuedConnection);
-    connect(this, &MainWindow::stop, Interface::autoTest(), &AutoTest::stop, Qt::DirectConnection);
+    connect(pbSettings1, &QPushButton::clicked, [] {
+        KdsDialog d(HW::kds1());
+        d.exec();
+    });
+
+    connect(pbSettings2, &QPushButton::clicked, [] {
+        KdsDialog d(HW::kds2());
+        d.exec();
+    });
+
+    connect(this, &MainWindow::measurePins, HW::tester(), &Tester::measureAll);
+    connect(this, &MainWindow::start, HW::autoTest(), &AutoTest::start, Qt::QueuedConnection);
+    connect(this, &MainWindow::stop, HW::autoTest(), &AutoTest::stop, Qt::DirectConnection);
 
     loadSettings();
     readSettings();
@@ -140,9 +151,9 @@ void MainWindow::readSettings()
 void MainWindow::message(const QString& msg)
 {
     if (QMessageBox::information(this, "", msg, QMessageBox::Ok, QMessageBox::Cancel) == QMessageBox::Ok)
-        Interface::autoTest()->sem.release();
+        HW::autoTest()->sem.release();
     else
-        Interface::autoTest()->sem.release(2);
+        HW::autoTest()->sem.release(2);
 }
 
 void MainWindow::cbxTypeIndexChanged(int index)
@@ -361,7 +372,7 @@ void MainWindow::switchSlot()
                 pb[i]->setChecked(false);
             else
                 pushButton->setChecked(true);
-        if (Interface::kds1()->setOut(0, m_points[0][m_numPoint % 12].Parcel.toInt()))
+        if (HW::kds1()->setRelay(m_points[0][m_numPoint % 12].Parcel.toInt()))
             //emit message("Прибором КДС успешно переключен!");
             return;
     } else {
@@ -370,7 +381,7 @@ void MainWindow::switchSlot()
                 pb[i]->setChecked(false);
             else
                 pushButton->setChecked(true);
-        if (Interface::kds2()->setOut(0, m_points[1][m_numPoint % 12].Parcel.toInt()))
+        if (HW::kds2()->setRelay(m_points[1][m_numPoint % 12].Parcel.toInt()))
             //emit message("Прибором КДС успешно переключен!");
             return;
     }
@@ -379,21 +390,21 @@ void MainWindow::switchSlot()
 
 void MainWindow::on_pbPing_clicked()
 {
-    {
-        bool fl = Interface::kds1()->ping(cbxPortAmk->currentText());
-        gbxKds1->setEnabled(fl);
-        cbxPortAmk->setEnabled(true);
-    }
-    {
-        bool fl = Interface::kds2()->ping(cbxPortHart->currentText());
-        gbxKds2->setEnabled(fl);
-        cbxPortHart->setEnabled(true);
-    }
-    {
-        bool fl = Interface::tester()->ping(cbxPortTester->currentText());
-        gbxTest->setEnabled(fl);
-        cbxPortTester->setEnabled(true);
-    }
+    for (bool en = HW::kds1()->ping(cbxPortAmk->currentText());
+         auto w : gbxKds1->findChildren<QWidget*>())
+        w->setEnabled(en);
+
+    for (bool en = HW::kds2()->ping(cbxPortHart->currentText());
+         auto w : gbxKds2->findChildren<QWidget*>())
+        w->setEnabled(en);
+
+    for (bool en = HW::tester()->ping(cbxPortTester->currentText());
+         auto w : gbxTest->findChildren<QWidget*>())
+        w->setEnabled(en);
+
+    cbxPortAmk->setEnabled(true);
+    cbxPortHart->setEnabled(true);
+    cbxPortTester->setEnabled(true);
 }
 
 void MainWindow::on_pbAutoMeasure_clicked(bool checked)

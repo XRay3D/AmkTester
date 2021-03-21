@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     a.setOrganizationName("XrSoft");
     a.setApplicationName("AmkTest");
 
-    Interface i;
+    HW i;
     Q_UNUSED(i)
 
     MainWindow w;

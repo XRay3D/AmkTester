@@ -8,7 +8,7 @@ AutoTest::AutoTest(QObject* parent)
 {
 }
 
-AutoTest::~AutoTest() {}
+AutoTest::~AutoTest() { }
 
 void AutoTest::start(Model* model)
 {
@@ -39,13 +39,13 @@ void AutoTest::start(Model* model)
                     continue;
             }
             qDebug() << r << c;
-            Interface::kds1()->setOut(0, m_model->m_data[r][c].parcel1.toInt());
-            Interface::kds2()->setOut(0, m_model->m_data[r][c].parcel2.toInt());
+            HW::kds1()->setRelay(m_model->m_data[r][c].parcel1.toInt());
+            HW::kds2()->setRelay(m_model->m_data[r][c].parcel2.toInt());
             thread()->msleep(500);
             //Interface::tester()->measureAll();
-            Interface::tester()->measureAll();
+            HW::tester()->measureAll();
             thread()->msleep(500);
-            m_model->test(r, c, Interface::tester()->pinsValue());
+            m_model->test(r, c, HW::tester()->pinsValue());
             if (thread()->isInterruptionRequested()) {
                 return;
             }

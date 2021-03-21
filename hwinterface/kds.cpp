@@ -2,172 +2,78 @@
 
 #include <QDebug>
 
-Amk::Amk()
-    : Elemer::AsciiDevice()
+using namespace Elemer;
 
-//    : m_port(new AmkPort(this))
+Kds_::Kds_()
+    : AsciiDevice()
 {
-
-    //    m_port->moveToThread(&m_portThread);
-    //    connect(&m_portThread, &QThread::finished, m_port, &QObject::deleteLater);
-    //    connect(this, &Amk::Open, m_port, &AmkPort::Open);
-    //    connect(this, &Amk::Close, m_port, &AmkPort::Close);
-    //    connect(this, &Amk::Write, m_port, &AmkPort::Write);
-    //    m_portThread.start(QThread::InheritPriority);
 }
 
-//Amk::~Amk()
-//{
-//    //    m_portThread.quit();
-//    //    m_portThread.wait();
-//}
-
-//bool Amk::ping(const QString& portName, int baud, int addr)
-//{
-//    Q_UNUSED(baud)
-//    Q_UNUSED(addr)
-//    QMutexLocker locker(&m_mutex);
-//    m_connected = true;
-//    m_semaphore.acquire(m_semaphore.available());
-//    do {
-//        emit Close();
-//        if (!m_semaphore.tryAcquire(1, 1000))
-//            break;
-
-//        if (!portName.isEmpty())
-//            m_port->setPortName(portName);
-
-//        emit Open(QIODevice::ReadWrite);
-//        if (!m_semaphore.tryAcquire(1, 1000))
-//            break;
-
-//        if (getDev(0) != 25) {
-//            emit Close();
-//            m_connected = false;
-//        }
-//    } while (0);
-//    return m_connected;
-//}
-
-//int Amk::getDev(int addr)
-//{
-//    dev = 0;
-//    if (m_connected) {
-//        Write(createParcel({ addr, 0 }));
-//        if (m_semaphore.tryAcquire(1, 1000))
-//            dev = m_data[1].toInt();
-//    }
-//    return dev;
-//}
-
-bool Amk::setOut(int addr, int value)
+uint16_t Kds_::getData(DataType type, bool* ok)
 {
     if (m_connected) {
-        write(createParcel(addr, 4, value));
-        if (wait() && success())
-            return true;
+        emit write(createParcel(m_address, AmkCmd::GetData, type));
+        if (wait())
+            return m_data[1].toUInt(ok);
+    }
+    if (ok)
+        *ok = false;
+    return {};
+}
+
+bool Kds_::setRelay(uint16_t data) { return m_connected && AsciiDevice::writeData(AmkCmd::SetRelay, data) == RretCcode::OK; }
+
+bool Kds_::writeRelay(uint16_t data) { return m_connected && AsciiDevice::writeData(AmkCmd::WriteRelay, data) == RretCcode::OK; }
+
+bool Kds_::writeSerNum(uint16_t sn) { return m_connected && AsciiDevice::writeData(AmkCmd::WriteSerNum, sn) == RretCcode::OK; }
+
+bool Kds_::writeChCount(uint16_t count) { return m_connected && AsciiDevice::writeData(AmkCmd::WriteChCount, count) == RretCcode::OK; }
+
+uint8_t Kds_::getProtocolType(bool* ok)
+{
+    if (m_connected) {
+        emit write(createParcel(m_address, AmkCmd::GetProtocolType));
+        if (wait())
+            return m_data[0].toInt();
     }
     return false;
 }
 
-//uint KDS::getUintData(QByteArray data)
-//{
-//    if (data.isEmpty())
-//        return false;
+bool Kds_::writeDevAddress(uint8_t address)
+{
+    bool success = m_connected && AsciiDevice::writeData(AmkCmd::WriteDevAddress, address) == RretCcode::OK;
+    if (success)
+        setAddress(address);
+    return success;
+}
 
-//    int i = 0;
+bool Kds_::writeDevBaud(Baud baud)
+{
+    bool success = m_connected && AsciiDevice::writeData(AmkCmd::WriteDevBaud, baud) == RretCcode::OK;
+    if (success)
+        port()->setBaudRate(bauds[baud]);
+    return success;
+}
 
-//    while (data[0] != '!' && data.size())
-//        data = data.remove(0, 1);
+bool Kds_::fileOpen() { return m_connected && AsciiDevice::writeData(AmkCmd::FileOpen) == RretCcode::OK; }
 
-//    while (data[data.size() - 1] != '\r' && data.size())
-//        data = data.remove(data.size() - 1, 1);
+bool Kds_::fileSeek(uint16_t offset, Seek seek) { return m_connected && AsciiDevice::writeData(AmkCmd::FileSeek, offset, seek) == RretCcode::OK; }
 
-//    data = data.remove(data.size() - 1, 1);
+bool Kds_::fileClose() { return m_connected && AsciiDevice::writeData(AmkCmd::FileClose) == RretCcode::OK; }
 
-//    QList<QByteArray> list = data.split(';');
-//    data.clear();
+QByteArray Kds_::getVer(bool* ok)
+{
+    if (m_connected) {
+        emit write(createParcel(m_address, AmkCmd::GetVer));
+        if (wait()) {
+            if (ok)
+                *ok = true;
+            return m_data[1];
+        }
+    }
+    if (ok)
+        *ok = false;
+    return {};
+}
 
-//    while (i < list.count() - 1)
-//        data.append(list[i++]).append(';');
-
-//    if (CalcCrc(data).toInt() == list.last().toInt() && list.count() > 2)
-//        return list.at(1).toUInt();
-
-//    return 0;
-//}
-
-//bool KDS::getSuccess(QByteArray data)
-//{
-//    if (data.isEmpty())
-//        return false;
-
-//    int i = 0;
-
-//    while (data[0] != '!' && data.size())
-//        data = data.remove(0, 1);
-
-//    while (data[data.size() - 1] != '\r' && data.size())
-//        data = data.remove(data.size() - 1, 1);
-
-//    data = data.remove(data.size() - 1, 1);
-
-//    QList<QByteArray> list = data.split(';');
-//    data.clear();
-
-//    while (i < list.count() - 1)
-//        data.append(list[i++]).append(';');
-
-//    if (CalcCrc(data).toInt() == list.last().toInt() && list.count() > 2)
-//        if (list.at(1) == "$0")
-//            return true;
-
-//    return false;
-//}
-
-///////////////////////////////////////////
-/// \brief Port::Port
-/// \param t
-///
-//AmkPort::AmkPort(Amk* kds)
-//    : m_kds(kds)
-//{
-//    setBaudRate(Baud9600);
-//    setParity(NoParity);
-//    setDataBits(Data8);
-//    setFlowControl(NoFlowControl);
-//    connect(this, &QSerialPort::readyRead, this, &AmkPort::Read, Qt::DirectConnection);
-//}
-
-//void AmkPort::Open(int mode)
-//{
-//    if (open(static_cast<OpenMode>(mode))) {
-//        setDataTerminalReady(false);
-//        setRequestToSend(true);
-//        m_kds->m_semaphore.release();
-//    }
-//}
-
-//void AmkPort::Close()
-//{
-//    close();
-//    m_kds->m_semaphore.release();
-//}
-
-//void AmkPort::Write(const QByteArray& data)
-//{
-//    write(data);
-//    //qDebug() << "Write" << data;
-//}
-
-//void AmkPort::Read()
-//{
-//    QMutexLocker locker(&m_mutex);
-//    m_data.append(readAll());
-//    qDebug() << Q_FUNC_INFO << m_data;
-//    if (m_data[m_data.size() - 1] == '\r' && checkParcel(m_data, m_kds->m_data)) {
-//        //qDebug() << "Read" << m_data;
-//        m_data.clear();
-//        m_kds->m_semaphore.release();
-//    }
-//}
+bool Kds_::resetCpu() { return m_connected && AsciiDevice::writeData(AmkCmd::ResetCpu) == RretCcode::OK; }
