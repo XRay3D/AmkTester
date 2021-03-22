@@ -11,37 +11,65 @@ Kds_::Kds_()
 
 uint16_t Kds_::getData(DataType type, bool* ok)
 {
-    if (m_connected) {
-        emit write(createParcel(m_address, AmkCmd::GetData, type));
-        if (wait())
-            return m_data[1].toUInt(ok);
+    uint16_t data {};
+    bool success {};
+    switch (type) {
+    case In:
+        success = isConnected() && readStr<Cmd::GetData, DataType::In>(data);
+        break;
+    case SerNum:
+        success = isConnected() && readStr<Cmd::GetData, DataType::SerNum>(data);
+        break;
+    case ChCount:
+        success = isConnected() && readStr<Cmd::GetData, DataType::ChCount>(data);
+        break;
+    case Data:
+        success = isConnected() && readStr<Cmd::GetData, DataType::Data>(data);
+        break;
+    default:;
     }
+
     if (ok)
-        *ok = false;
-    return {};
+        *ok = success;
+    return data;
 }
 
-bool Kds_::setRelay(uint16_t data) { return m_connected && writeData(AmkCmd::SetRelay, data) == RretCcode::OK; }
+bool Kds_::setRelay(uint16_t data)
+{
+    bool success = isConnected() && writeStr<Cmd::SetRelay>(data) == RetCcode::OK;
+    return success;
+}
 
-bool Kds_::writeRelay(uint16_t data) { return m_connected && writeData(AmkCmd::WriteRelay, data) == RretCcode::OK; }
+bool Kds_::writeRelay(uint16_t data)
+{
+    bool success = isConnected() && writeStr<Cmd::WriteRelay>(data) == RetCcode::OK;
+    return success;
+}
 
-bool Kds_::writeSerNum(uint16_t sn) { return m_connected && writeData(AmkCmd::WriteSerNum, sn) == RretCcode::OK; }
+bool Kds_::writeSerNum(uint16_t sn)
+{
+    bool success = isConnected() && writeStr<Cmd::WriteSerNum>(sn) == RetCcode::OK;
+    return success;
+}
 
-bool Kds_::writeChCount(uint16_t count) { return m_connected && writeData(AmkCmd::WriteChCount, count) == RretCcode::OK; }
+bool Kds_::writeChCount(uint16_t count)
+{
+    bool success = isConnected() && writeStr<Cmd::WriteChCount>(count) == RetCcode::OK;
+    return success;
+}
 
 uint8_t Kds_::getProtocolType(bool* ok)
 {
-    if (m_connected) {
-        emit write(createParcel(m_address, AmkCmd::GetProtocolType));
-        if (wait())
-            return m_data[0].toInt();
-    }
-    return false;
+    uint8_t data {};
+    bool success = isConnected() && readStr<Cmd::GetProtocolType>(data);
+    if (ok)
+        *ok = success;
+    return data;
 }
 
 bool Kds_::writeDevAddress(uint8_t address)
 {
-    bool success = m_connected && writeData(AmkCmd::WriteDevAddress, address) == RretCcode::OK;
+    bool success = isConnected() && writeStr<Cmd::WriteDevAddress>(address) == RetCcode::OK;
     if (success)
         setAddress(address);
     return success;
@@ -49,23 +77,23 @@ bool Kds_::writeDevAddress(uint8_t address)
 
 bool Kds_::writeDevBaud(Baud baud)
 {
-    bool success = m_connected && writeData(AmkCmd::WriteDevBaud, baud) == RretCcode::OK;
+    bool success = isConnected() && writeStr<Cmd::WriteDevBaud>(baud) == RetCcode::OK;
     if (success)
         port()->setBaudRate(bauds[baud]);
     return success;
 }
 
-bool Kds_::fileOpen() { return m_connected && writeData(AmkCmd::FileOpen) == RretCcode::OK; }
-
-bool Kds_::fileSeek(uint16_t offset, Seek seek) { return m_connected && writeData(AmkCmd::FileSeek, offset, seek) == RretCcode::OK; }
-
-bool Kds_::fileClose() { return m_connected && writeData(AmkCmd::FileClose) == RretCcode::OK; }
-
 QByteArray Kds_::getVer(bool* ok)
 {
-    if (m_connected && readData(AmkCmd::GetVer))
-        return m_data[1];
-    return {};
+    QByteArray data {};
+    bool success = isConnected() && readStr<Cmd::GetVer>(data) == RetCcode::OK;
+    if (ok)
+        *ok = success;
+    return data;
 }
 
-bool Kds_::resetCpu() { return m_connected && writeData(AmkCmd::ResetCpu) == RretCcode::OK; }
+bool Kds_::resetCpu()
+{
+    bool success = isConnected() && writeStr<Cmd::ResetCpu>() == RetCcode::OK;
+    return success;
+}

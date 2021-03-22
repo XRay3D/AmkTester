@@ -1,53 +1,54 @@
 #pragma once
 
 #include <QtSerialPort>
-#include <ascii_device.h>
-
-enum /*class*/ RretCcode : uint8_t {
-    OK,
-    UNKNOWN_CMD,
-    UNNOWN_DATA_TYPE,
-    EEPROM_ERROR,
-    EEPROM_ADDRES_TOO_BIG
-};
-// clang-format off
-enum class AmkCmd : uint8_t {
-    /* KDS */
-    GetType         = 0,
-    GetData         = 1,
-    WriteDevAddr    = 3,
-    WriteBaud       = 4,
-    SetRelay         = 5,
-    WriteRelay       = 6,
-    WriteSerNum     = 7,
-    WriteChCount    = 8,
-    /* DEV */
-    GetProtocolType = 32,
-    WriteDevAddress = 33,
-    WriteDevBaud    = 34,
-    /* FILE */
-    FileOpen        = 40,
-    FileSeek        = 41,
-    FileRead        = 42,
-    FileWrite       = 43,
-    FileClose       = 44,
-    /* COM */
-    GetVer          = 0XFE,
-    ResetCpu        = 0XFF,
-};
-// clang-format on
+#include <device.h>
 
 class Kds_ final : public Elemer::AsciiDevice {
     Q_OBJECT
     static constexpr int bauds[] { 300, 600, 1200, 2400, 4800, 9600, 19200 };
-    enum { WriteDelay = 10000 };
+    enum { WriteDelay = 2000 };
 
 public:
     Kds_();
     Elemer::DeviceType type() const override { return Elemer::KDS; }
 
+    enum /*class*/ RetCcode : uint8_t {
+        OK,
+        UNKNOWN_CMD,
+        UNNOWN_DATA_TYPE,
+        EEPROM_ERROR,
+        EEPROM_ADDRES_TOO_BIG
+    };
+
+    // clang-format off
+    enum class Cmd : uint8_t {
+        /* KDS */
+        GetType         = 0,
+        GetData         = 1,
+        WriteDevAddr    = 2,
+        WriteBaud       = 3,
+        SetRelay        = 4,
+        WriteRelay      = 5,
+        WriteSerNum     = 6,
+        WriteChCount    = 7,
+        /* DEV */
+        GetProtocolType = 32,
+        WriteDevAddress = 33,
+        WriteDevBaud    = 34,
+        /* FILE */
+        //FileOpen        = 40,
+        //FileSeek        = 41,
+        //FileRead        = 42,
+        //FileWrite       = 43,
+        //FileClose       = 44,
+        /* COM */
+        GetVer          = 0XFE,
+        ResetCpu        = 0XFF,
+    };
+    // clang-format on
+
     enum DataType : uint8_t {
-        IN,
+        In,
         SerNum,
         ChCount,
         Data,
@@ -62,11 +63,6 @@ public:
         Baud9600,
         Baud19200,
     };
-    enum Seek {
-        Set,
-        Cur,
-        End,
-    };
 
     /* KDS */
     uint16_t getData(DataType type, bool* ok = {});
@@ -78,18 +74,6 @@ public:
     uint8_t getProtocolType(bool* ok = {});
     bool writeDevAddress(uint8_t address);
     bool writeDevBaud(Baud baud);
-    /* FILE */
-    bool fileOpen();
-    bool fileSeek(uint16_t offset, Seek seek = Seek::Set);
-    template <typename... Ts>
-    bool fileRead(Ts&... vals)
-    {
-        return m_connected && readData(AmkCmd::FileRead, vals...);
-    }
-    template <typename... Ts>
-    bool fileWrite(Ts&&... data) { return m_connected && writeData(AmkCmd::FileWrite, Elemer::Hex { data... }) == RretCcode::OK; }
-
-    bool fileClose();
     /* COM */
     QByteArray getVer(bool* ok = {});
     bool resetCpu();

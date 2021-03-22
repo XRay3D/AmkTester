@@ -18,7 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += \
     QT_DISABLE_DEPRECATED_BEFORE=0x060000 \    # disables all the APIs deprecated before Qt 6.0.0
     EL_ALWAYS_OPEN=1 \
-    EL_LOG \
+#    EL_LOG \
 
 win32:RC_FILE = main_icon/myapp.rc
 
@@ -65,4 +65,4 @@ FORMS += \
         mainwindow.ui
 
 include(../MyProtokol/myprotokol.pri)
-include(../ElemerAscii/ElemerAscii.pri)
+include(../ElemerDevice/ElemerDevice.pri)
