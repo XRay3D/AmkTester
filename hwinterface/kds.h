@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtSerialPort>
-#include <device.h>
+#include <ed_device.h>
 
 class Kds_ final : public Elemer::AsciiDevice {
     Q_OBJECT
