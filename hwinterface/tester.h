@@ -88,7 +88,7 @@ public:
 
 private:
     void readSlot();
-    QByteArray m_data;
+    QByteArray m_answerData;
     QMutex m_mutex;
     qint64 counter = 0;
 };

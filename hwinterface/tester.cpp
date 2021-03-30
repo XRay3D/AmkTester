@@ -216,11 +216,11 @@ void TesterPort::writeSlot(const QByteArray& data)
 void TesterPort::readSlot()
 {
     QMutexLocker locker(&m_mutex);
-    m_data.append(readAll());
-    for (int i = 0; i < m_data.size() - 3; ++i) {
-        const Parcel* const d = reinterpret_cast<const Parcel*>(m_data.constData() + i);
-        if (d->start == RX && d->len <= m_data.size()) {
-            QByteArray tmpData = m_data.mid(i, d->len);
+    m_answerData.append(readAll());
+    for (int i = 0; i < m_answerData.size() - 3; ++i) {
+        const Parcel* const d = reinterpret_cast<const Parcel*>(m_answerData.constData() + i);
+        if (d->start == RX && d->len <= m_answerData.size()) {
+            QByteArray tmpData = m_answerData.mid(i, d->len);
             counter += tmpData.size();
             if (checkParcel(tmpData))
                 (m_t->*m_f[d->cmd])(tmpData);
@@ -228,18 +228,18 @@ void TesterPort::readSlot()
                 (m_t->*m_f[CRC_ERROR])(tmpData);
 
             m_t->m_semaphore.release();
-            m_data.remove(0, i + d->len);
+            m_answerData.remove(0, i + d->len);
             i = 0;
         }
-        //        if (m_data.at(i) == -86 && m_data.at(i + 1) == 85) {
-        //            if ((i + m_data[i + 2]) <= m_data.size()) {
-        //                m_tmpData = m_data.mid(i, m_data[i + 2]);
+        //        if (m_answerData.at(i) == -86 && m_answerData.at(i + 1) == 85) {
+        //            if ((i + m_answerData[i + 2]) <= m_answerData.size()) {
+        //                m_tmpData = m_answerData.mid(i, m_answerData[i + 2]);
         //                quint8 cmd = *(quint8*)(m_tmpData.constData() + 3);
         //                if (checkParcel(m_tmpData))
         //                    (m_t->*m_f[cmd])(m_tmpData);
         //                else
         //                    (m_t->*m_f[CRC_ERROR])(m_tmpData);
-        //                m_data.remove(0, i + m_data[i + 2]);
+        //                m_answerData.remove(0, i + m_answerData[i + 2]);
         //                i = -1;
         //            }
         //        }

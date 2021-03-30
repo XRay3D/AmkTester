@@ -15,7 +15,7 @@ Model::Model(QObject* parent, const QVector<bool>* hChecked, const QVector<bool>
         QDataStream in(&file);
         in >> m_row;
         in >> m_column;
-        in >> m_data;
+        in >> m_answerData;
         in >> m_verticalHeader;
         //        if (m_hChecked)
         //            in >> (*const_cast<QVector<bool>*>(m_hChecked));
@@ -31,7 +31,7 @@ Model::~Model()
         QDataStream out(&file);
         out << m_row;
         out << m_column;
-        out << m_data;
+        out << m_answerData;
         out << m_verticalHeader;
         //        if (m_hChecked)
         //            out << *m_hChecked;
@@ -49,11 +49,11 @@ QVariant Model::data(const QModelIndex& index, int role) const
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-        return static_cast<bool>(m_data[index.row()][index.column()].data);
+        return static_cast<bool>(m_answerData[index.row()][index.column()].data);
     case Qt::TextAlignmentRole:
         return Qt::AlignCenter;
     case Qt::BackgroundColorRole:
-        return m_data[index.row()][index.column()].data ? QColor(220, 255, 220) : QColor(255, 220, 220);
+        return m_answerData[index.row()][index.column()].data ? QColor(220, 255, 220) : QColor(255, 220, 220);
     default:
         return QVariant();
     }
@@ -64,7 +64,7 @@ bool Model::setData(const QModelIndex& index, const QVariant& value, int role)
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-        m_data[index.row()][index.column()].data = value.toInt();
+        m_answerData[index.row()][index.column()].data = value.toInt();
         return true;
     default:
         return false;
@@ -135,8 +135,8 @@ void Model::setColumnCount(int column)
 bool Model::insertRows(int row, int count, const QModelIndex& parent)
 {
     beginInsertRows(parent, row, count);
-    m_data.resize(count + 1);
-    for (QVector<Data>& data : m_data)
+    m_answerData.resize(count + 1);
+    for (QVector<Data>& data : m_answerData)
         data.resize(m_column);
     endInsertRows();
     return true;
@@ -145,8 +145,8 @@ bool Model::insertRows(int row, int count, const QModelIndex& parent)
 bool Model::removeRows(int row, int count, const QModelIndex& parent)
 {
     beginRemoveRows(parent, row, count);
-    m_data.resize(row);
-    for (QVector<Data>& data : m_data)
+    m_answerData.resize(row);
+    for (QVector<Data>& data : m_answerData)
         data.resize(m_column);
     endRemoveRows();
     return true;
@@ -155,7 +155,7 @@ bool Model::removeRows(int row, int count, const QModelIndex& parent)
 bool Model::insertColumns(int column, int count, const QModelIndex& parent)
 {
     beginInsertColumns(parent, column, count);
-    for (QVector<Data>& data : m_data)
+    for (QVector<Data>& data : m_answerData)
         data.resize(count + 1);
     endInsertColumns();
     return true;
@@ -164,7 +164,7 @@ bool Model::insertColumns(int column, int count, const QModelIndex& parent)
 bool Model::removeColumns(int column, int count, const QModelIndex& parent)
 {
     beginRemoveColumns(parent, column, count);
-    for (QVector<Data>& data : m_data)
+    for (QVector<Data>& data : m_answerData)
         data.resize(column);
     endRemoveColumns();
     return true;
@@ -172,6 +172,6 @@ bool Model::removeColumns(int column, int count, const QModelIndex& parent)
 
 void Model::test(int row, int col, const PinsValue& value)
 {
-    m_data[row][col].test(value);
+    m_answerData[row][col].test(value);
     emit dataChanged(createIndex(row, col), createIndex(row, col), { Qt::DisplayRole });
 }

@@ -3,14 +3,14 @@
 #include <QtSerialPort>
 #include <ed_device.h>
 
-class Kds_ final : public Elemer::AsciiDevice {
+class Kds final : public Elemer::Device {
     Q_OBJECT
     static constexpr int bauds[] { 300, 600, 1200, 2400, 4800, 9600, 19200 };
     enum { WriteDelay = 2000 };
 
 public:
-    Kds_();
-    Elemer::DeviceType type() const override { return Elemer::KDS; }
+    Kds();
+    Elemer::DeviceType type() const override { return Elemer::KDS_02; }
 
     enum /*class*/ RetCcode : uint8_t {
         OK,
@@ -54,16 +54,6 @@ public:
         Data,
     };
 
-    enum Baud : uint8_t {
-        Baud300,
-        Baud600,
-        Baud1200,
-        Baud2400,
-        Baud4800,
-        Baud9600,
-        Baud19200,
-    };
-
     /* KDS */
     uint16_t getData(DataType type, bool* ok = {});
     bool setRelay(uint16_t data);
@@ -73,7 +63,7 @@ public:
     /* DEV */
     uint8_t getProtocolType(bool* ok = {});
     bool writeDevAddress(uint8_t address);
-    bool writeDevBaud(Baud baud);
+    bool writeDevBaud(Elemer::Baud baud);
     /* COM */
     QByteArray getVer(bool* ok = {});
     bool resetCpu();

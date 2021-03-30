@@ -39,8 +39,8 @@ void AutoTest::start(Model* model)
                     continue;
             }
             qDebug() << r << c;
-            HW::kds1()->setRelay(m_model->m_data[r][c].parcel1.toInt());
-            HW::kds2()->setRelay(m_model->m_data[r][c].parcel2.toInt());
+            HW::kds1()->setRelay(m_model->m_answerData[r][c].parcel1.toInt());
+            HW::kds2()->setRelay(m_model->m_answerData[r][c].parcel2.toInt());
             thread()->msleep(500);
             //Interface::tester()->measureAll();
             HW::tester()->measureAll();

@@ -1,34 +1,21 @@
 #include "interface.h"
 
-static Kds_* Hart = nullptr;
-static Kds_* Kds = nullptr;
-static Tester* AmkTest = nullptr;
-static AutoTest* AT = nullptr;
-
-static QThread thrd;
-static QSemaphore semafore;
-
 HW::HW()
 {
     if (!semafore.available()) {
+        QObject* objArray[] {
+            m_amkTest = new Tester,
+            m_autoTest = new AutoTest,
+            m_kds1 = new Kds,
+            m_kds2 = new Kds,
+        };
 
-        AmkTest = new Tester;
-        AmkTest->moveToThread(&thrd);
+        for (auto obj : objArray) {
+            obj->moveToThread(&thread);
+            thread.connect(&thread, &QThread::finished, obj, &QObject::deleteLater);
+        }
 
-        Hart = new Kds_;
-        Hart->moveToThread(&thrd);
-
-        Kds = new Kds_;
-        Kds->moveToThread(&thrd);
-
-        AT = new AutoTest;
-        AT->moveToThread(&thrd);
-
-        thrd.connect(&thrd, &QThread::finished, AT, &QObject::deleteLater);
-        thrd.connect(&thrd, &QThread::finished, AmkTest, &QObject::deleteLater);
-        thrd.connect(&thrd, &QThread::finished, Hart, &QObject::deleteLater);
-        thrd.connect(&thrd, &QThread::finished, Kds, &QObject::deleteLater);
-        thrd.start(QThread::NormalPriority);
+        thread.start(QThread::NormalPriority);
     }
     semafore.release();
 }
@@ -37,15 +24,15 @@ HW::~HW()
 {
     semafore.acquire();
     if (!semafore.available()) {
-        thrd.quit();
-        thrd.wait();
+        thread.quit();
+        thread.wait();
     }
 }
 
-Tester* HW::tester() { return AmkTest; }
+Tester* HW::tester() { return m_amkTest; }
 
-Kds_* HW::kds1() { return Kds; }
+Kds* HW::kds1() { return m_kds1; }
 
-Kds_* HW::kds2() { return Hart; }
+Kds* HW::kds2() { return m_kds2; }
 
-AutoTest* HW::autoTest() { return AT; }
+AutoTest* HW::autoTest() { return m_autoTest; }

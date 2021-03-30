@@ -11,6 +11,7 @@
 #include <QSerialPortInfo>
 #include <QSettings>
 #include <QShortcut>
+#include <QTimer>
 #include <ranges>
 //QTabWidget* tw;
 
@@ -401,6 +402,15 @@ void MainWindow::on_pbPing_clicked()
     for (bool en = HW::tester()->ping(cbxPortTester->currentText());
          auto w : gbxTest->findChildren<QWidget*>())
         w->setEnabled(en);
+
+    static QTimer t;
+    if (comboBox->isEnabled()) {
+        if (t.disconnect())
+            connect(&t, &QTimer::timeout, [] { HW::kds1()->setRelay(1024); });
+        t.start(1000);
+    } else {
+        t.stop();
+    }
 
     cbxPortAmk->setEnabled(true);
     cbxPortHart->setEnabled(true);

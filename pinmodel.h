@@ -24,7 +24,7 @@ public slots:
     void setRawData(const QVector<quint16>& value);
 
 private:
-    int m_data[11][11];
+    int m_answerData[11][11];
 };
 
 #endif // PINMODEL_H

@@ -8,13 +8,13 @@ class KdsDialog;
 }
 
 class KdsDataModel;
-class Kds_;
+class Kds;
 
 class KdsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit KdsDialog(Kds_* kds, QWidget* parent = nullptr);
+    explicit KdsDialog(Kds* kds, QWidget* parent = nullptr);
     ~KdsDialog();
 
 private slots:
@@ -27,7 +27,7 @@ private slots:
 private:
     Ui::KdsDialog* ui;
     KdsDataModel* model;
-    Kds_* const kds;
+    Kds* const kds;
 };
 
 #endif // KDSDIALOG_H

@@ -81,7 +81,7 @@ public:
 
 private:
     QStringList m_verticalHeader;
-    QVector<QVector<Data>> m_data;
+    QVector<QVector<Data>> m_answerData;
     const QVector<bool>* m_hChecked;
     const QVector<bool>* m_vChecked;
     int m_row = 0;

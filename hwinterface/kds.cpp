@@ -4,96 +4,91 @@
 
 using namespace Elemer;
 
-Kds_::Kds_()
-    : AsciiDevice()
+Kds::Kds()
+    : Device()
 {
 }
 
-uint16_t Kds_::getData(DataType type, bool* ok)
+uint16_t Kds::getData(DataType type, bool* ok)
 {
     uint16_t data {};
     bool success {};
-    switch (type) {
-    case In:
-        success = isConnected() && readStr<Cmd::GetData, DataType::In>(data);
-        break;
-    case SerNum:
-        success = isConnected() && readStr<Cmd::GetData, DataType::SerNum>(data);
-        break;
-    case ChCount:
-        success = isConnected() && readStr<Cmd::GetData, DataType::ChCount>(data);
-        break;
-    case Data:
-        success = isConnected() && readStr<Cmd::GetData, DataType::Data>(data);
-        break;
-    default:;
-    }
-
+    success = isConnected() && (write<Cmd::GetData>(type), read(data));
     if (ok)
         *ok = success;
+    qDebug() << __FUNCTION__ << success;
     return data;
 }
 
-bool Kds_::setRelay(uint16_t data)
+bool Kds::setRelay(uint16_t data)
 {
-    bool success = isConnected() && writeStr<Cmd::SetRelay>(data) == RetCcode::OK;
+    bool success = isConnected() && write<Cmd::SetRelay>(data) == RetCcode::OK;
+    qDebug() << __FUNCTION__ << success;
     return success;
 }
 
-bool Kds_::writeRelay(uint16_t data)
+bool Kds::writeRelay(uint16_t data)
 {
-    bool success = isConnected() && writeStr<Cmd::WriteRelay>(data) == RetCcode::OK;
+    bool success = isConnected() && write<Cmd::WriteRelay>(data) == RetCcode::OK;
+    qDebug() << __FUNCTION__ << success;
     return success;
 }
 
-bool Kds_::writeSerNum(uint16_t sn)
+bool Kds::writeSerNum(uint16_t sn)
 {
-    bool success = isConnected() && writeStr<Cmd::WriteSerNum>(sn) == RetCcode::OK;
+    bool success = isConnected() && write<Cmd::WriteSerNum>(sn) == RetCcode::OK;
+    qDebug() << __FUNCTION__ << success;
     return success;
 }
 
-bool Kds_::writeChCount(uint16_t count)
+bool Kds::writeChCount(uint16_t count)
 {
-    bool success = isConnected() && writeStr<Cmd::WriteChCount>(count) == RetCcode::OK;
+    bool success = isConnected() && write<Cmd::WriteChCount>(count) == RetCcode::OK;
+    qDebug() << __FUNCTION__ << success;
     return success;
 }
 
-uint8_t Kds_::getProtocolType(bool* ok)
+uint8_t Kds::getProtocolType(bool* ok)
 {
     uint8_t data {};
-    bool success = isConnected() && readStr<Cmd::GetProtocolType>(data);
+    bool success = isConnected() && read<Cmd::GetProtocolType>(data);
     if (ok)
         *ok = success;
+    qDebug() << __FUNCTION__ << success;
     return data;
 }
 
-bool Kds_::writeDevAddress(uint8_t address)
+bool Kds::writeDevAddress(uint8_t address)
 {
-    bool success = isConnected() && writeStr<Cmd::WriteDevAddress>(address) == RetCcode::OK;
+    bool success = isConnected() && write<Cmd::WriteDevAddress>(address) == RetCcode::OK;
     if (success)
         setAddress(address);
+    qDebug() << __FUNCTION__ << success;
     return success;
 }
 
-bool Kds_::writeDevBaud(Baud baud)
+bool Kds::writeDevBaud(Baud baud)
 {
-    bool success = isConnected() && writeStr<Cmd::WriteDevBaud>(baud) == RetCcode::OK;
+    bool success = isConnected() && write<Cmd::WriteDevBaud>(baud) == RetCcode::OK;
     if (success)
         port()->setBaudRate(bauds[baud]);
+    qDebug() << __FUNCTION__ << success;
     return success;
 }
 
-QByteArray Kds_::getVer(bool* ok)
+QByteArray Kds::getVer(bool* ok)
 {
     QByteArray data {};
-    bool success = isConnected() && readStr<Cmd::GetVer>(data) == RetCcode::OK;
+    bool success = isConnected() && read<Cmd::GetVer>(data) == RetCcode::OK;
     if (ok)
         *ok = success;
+    qDebug() << __FUNCTION__ << success;
     return data;
 }
 
-bool Kds_::resetCpu()
+bool Kds::resetCpu()
 {
-    bool success = isConnected() && writeStr<Cmd::ResetCpu>() == RetCcode::OK;
+    bool success = isConnected() && write<Cmd::ResetCpu>() == RetCcode::OK;
+    qDebug() << __FUNCTION__ << success;
     return success;
 }

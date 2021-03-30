@@ -5,7 +5,7 @@
 
 PinModel::PinModel(QObject* parent)
     : QAbstractTableModel(parent)
-    , m_data{
+    , m_answerData{
         { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
         { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
         { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
@@ -63,7 +63,7 @@ void PinModel::setRawData(const QVector<quint16>& value)
     for (int column = 0; column < ColumnCount; ++column) {
         if (count && rez[column] > 0 && column < row)
             rez[column] /= count;
-        m_data[row][column] = rez[column];
+        m_answerData[row][column] = rez[column];
     }
 
     dataChanged(createIndex(row, 0), createIndex(row, 10), { Qt::DisplayRole });
@@ -83,13 +83,13 @@ QVariant PinModel::data(const QModelIndex& index, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
-        if (m_data[index.row()][index.column()] > -1)
-            return m_data[index.row()][index.column()];
+        if (m_answerData[index.row()][index.column()] > -1)
+            return m_answerData[index.row()][index.column()];
         return QVariant();
     case Qt::TextAlignmentRole:
         return Qt::AlignCenter;
     case Qt::BackgroundColorRole:
-        if (m_data[index.row()][index.column()] > -1)
+        if (m_answerData[index.row()][index.column()] > -1)
             return QColor(100, 255, 100);
         else if (index.row() < 6 && index.column() < 6)
             return QColor(220, 255, 220);

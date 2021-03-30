@@ -1,0 +1,9 @@
+[submodule "CommonInterfaces"]
+	path = CommonInterfaces
+	url = https://github.com/XRay3D/CommonInterfaces.git
+[submodule "ElemerDevice"]
+	path = ElemerDevice
+	url = https://github.com/XRay3D/ElemerDevice.git
+[submodule "MyProtokol"]
+	path = MyProtokol
+	url = https://github.com/XRay3D/MyProtokol.git

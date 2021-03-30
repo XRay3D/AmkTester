@@ -2,6 +2,7 @@ QT += core gui serialport widgets
 
 TARGET = AmkTester
 TEMPLATE = app
+DESTDIR = $$_PRO_FILE_PWD_/bin
 
 QMAKE_CXXFLAGS += /std:c++latest
 QMAKE_CXXFLAGS += /await
@@ -64,5 +65,5 @@ FORMS += \
         kdsdialog.ui \
         mainwindow.ui
 
-include(../MyProtokol/myprotokol.pri)
-include(../ElemerDevice/ElemerDevice.pri)
+include(MyProtokol/myprotokol.pri)
+include(ElemerDevice/ElemerDevice.pri)

@@ -13,11 +13,11 @@ class KdsDataModel : public QAbstractTableModel {
 
     static constexpr int rows = 5;
     int cols = 16;
-    float m_data[5][16] = {};
-    Kds_* const kds;
+    float m_answerData[5][16] = {};
+    Kds* const kds;
 
 public:
-    KdsDataModel(Kds_* kds, int cols, QObject* parent)
+    KdsDataModel(Kds* kds, int cols, QObject* parent)
         : QAbstractTableModel(parent)
         , cols(cols)
         , kds(kds)
@@ -31,7 +31,7 @@ public:
     QVariant data(const QModelIndex& index, int role) const override
     {
         if (role == Qt::DisplayRole || role == Qt::EditRole)
-            return static_cast<double>(m_data[index.row()][index.column()]);
+            return static_cast<double>(m_answerData[index.row()][index.column()]);
         else if (role == Qt::TextAlignmentRole)
             return Qt::AlignCenter;
         return {};
@@ -40,16 +40,16 @@ public:
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override
     {
         if (role == Qt::EditRole) {
-            if (m_data[index.row()][index.column()] != value.toFloat()
+            if (m_answerData[index.row()][index.column()] != value.toFloat()
                 && kds->fileOpen()
                 && kds->fileSeek(index.column() * 5 * 4 + index.row() * 4)
                 && kds->fileWrite(value.toFloat())) {
-                m_data[index.row()][index.column()] = value.toFloat();
+                m_answerData[index.row()][index.column()] = value.toFloat();
                 emit dataChanged(index, index, { role });
                 return true;
             }
         } else if (role == Qt::DisplayRole) {
-            m_data[index.row()][index.column()] = value.toFloat();
+            m_answerData[index.row()][index.column()] = value.toFloat();
             emit dataChanged(index, index, { role });
             return true;
         }
@@ -79,7 +79,7 @@ public:
     }
 };
 
-KdsDialog::KdsDialog(Kds_* kds_, QWidget* parent)
+KdsDialog::KdsDialog(Kds* kds_, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::KdsDialog)
     , kds(kds_)
@@ -89,11 +89,11 @@ KdsDialog::KdsDialog(Kds_* kds_, QWidget* parent)
         ui->baudComboBox->setItemData(i, Qt::AlignCenter, Qt::TextAlignmentRole);
 
     ui->baudComboBox->setCurrentText(QString::number(kds->port()->baudRate()));
-    ui->dataLineEdit->setText(QString("%1").arg(kds->getData(Kds_::Data), 16, 2, QChar('0')));
+    ui->dataLineEdit->setText(QString("%1").arg(kds->getData(Kds::Data), 16, 2, QChar('0')));
     ui->versionLineEdit->setText(kds->getVer());
     ui->addressSpinBox->setValue(kds->address());
-    ui->chCountSpinBox->setValue(kds->getData(Kds_::ChCount));
-    ui->serNumSpinBox->setValue(kds->getData(Kds_::SerNum));
+    ui->chCountSpinBox->setValue(kds->getData(Kds::ChCount));
+    ui->serNumSpinBox->setValue(kds->getData(Kds::SerNum));
 
     //    kds->fileOpen();
     //    kds->fileSeek(0);
@@ -140,12 +140,13 @@ KdsDialog::KdsDialog(Kds_* kds_, QWidget* parent)
         setMaximumHeight(h);
         kds->fileOpen();
         kds->fileSeek(0);
+
         float data[5];
+
         for (int channel = 0; channel < model->columnCount(); ++channel) {
             kds->fileRead(data);
-            for (int row = 0; row < 5; ++row) {
-                model->setData(model->createIndex(row, channel), data[row], Qt::DisplayRole);
-            }
+            for (float& f : data)
+                model->setData(model->createIndex(std::distance(data, &f), channel), f, Qt::DisplayRole);
         }
     }
 
@@ -158,17 +159,21 @@ KdsDialog::KdsDialog(Kds_* kds_, QWidget* parent)
         switch (ui->buttonBox->standardButton(button)) {
         case QDialogButtonBox::Open:
             ui->baudComboBox->setCurrentText(QString::number(kds->port()->baudRate()));
-            ui->dataLineEdit->setText(QString("%1").arg(kds->getData(Kds_::Data), 16, 2, QChar('0')));
+            ui->dataLineEdit->setText(QString("%1").arg(kds->getData(Kds::Data), 16, 2, QChar('0')));
             ui->versionLineEdit->setText(kds->getVer());
             ui->addressSpinBox->setValue(kds->address());
-            ui->chCountSpinBox->setValue(kds->getData(Kds_::ChCount));
-            ui->serNumSpinBox->setValue(kds->getData(Kds_::SerNum));
+            ui->chCountSpinBox->setValue(kds->getData(Kds::ChCount));
+            ui->serNumSpinBox->setValue(kds->getData(Kds::SerNum));
             return;
         case QDialogButtonBox::Apply:
             onSerNumSpinBoxEditingFinished();
+            thread()->sleep(1);
             onChCountSpinBoxEditingFinished();
+            thread()->sleep(1);
             onAddressSpinBoxEditingFinished();
+            thread()->sleep(1);
             onBaudComboBoxCurrentIndexChanged(ui->baudComboBox->currentIndex());
+            thread()->sleep(1);
             onDataLineEditEditingFinished();
             return;
         case QDialogButtonBox::RestoreDefaults:
@@ -206,12 +211,12 @@ void KdsDialog::onChCountSpinBoxEditingFinished()
 
 void KdsDialog::onAddressSpinBoxEditingFinished()
 {
-    kds->writeDevAddress(ui->addressSpinBox->value());
+    kds->setAddress(ui->addressSpinBox->value());
 }
 
 void KdsDialog::onBaudComboBoxCurrentIndexChanged(int index)
 {
-    kds->writeDevBaud(Kds_::Baud(index));
+    kds->setBaudRate(Elemer::Baud(index));
 }
 
 void KdsDialog::onDataLineEditEditingFinished()

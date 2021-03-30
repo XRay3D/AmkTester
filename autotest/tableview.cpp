@@ -14,7 +14,7 @@ Model* TableView::model() const { return m_model; }
 
 void TableView::clear()
 {
-    for (QVector<Data>& vd : m_model->m_data) {
+    for (QVector<Data>& vd : m_model->m_answerData) {
         for (Data& d : vd) {
             d.data = 0;
         }
@@ -32,7 +32,7 @@ void TableView::addRow(const QString& name)
 void TableView::setPattern(const PinsValue& pData, const PointEdit::Point& pt1, const PointEdit::Point& pt2)
 {
     for (const QModelIndex& index : selectedIndexes()) {
-        Data& data = m_model->m_data[index.row()][index.column()];
+        Data& data = m_model->m_answerData[index.row()][index.column()];
         data.parcel1 = pt1.Parcel;
         data.parcel2 = pt2.Parcel;
         data.data = 0;
