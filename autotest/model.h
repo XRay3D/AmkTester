@@ -1,13 +1,13 @@
 #ifndef MYTABLEMODEL_H
 #define MYTABLEMODEL_H
 
-#include "hwinterface/tester.h"
+#include "devices/tester.h"
 #include <QAbstractTableModel>
 #include <QDataStream>
 
 struct Data {
     Data() {}
-    bool test(const PinsValue& val)
+    bool test(const Pins& val)
     {
         bool ok = true;
         for (int i = 0; i < 11; ++i) {
@@ -25,7 +25,7 @@ struct Data {
     QString parcel1;
     QString parcel2;
     QString userMessage;
-    PinsValue patern;
+    Pins patern;
     bool check = false;
     int data = 0;
 
@@ -36,7 +36,7 @@ struct Data {
         stream << d.userMessage;
         stream << d.check;
         stream << d.data;
-        stream.writeRawData(reinterpret_cast<const char*>(&d.patern), sizeof(PinsValue));
+        stream.writeRawData(reinterpret_cast<const char*>(&d.patern), sizeof(Pins));
         return stream;
     }
     friend QDataStream& operator>>(QDataStream& stream, Data& d)
@@ -46,7 +46,7 @@ struct Data {
         stream >> d.userMessage;
         stream >> d.check;
         stream >> d.data;
-        stream.readRawData(reinterpret_cast<char*>(&d.patern), sizeof(PinsValue));
+        stream.readRawData(reinterpret_cast<char*>(&d.patern), sizeof(Pins));
         return stream;
     }
 };
@@ -77,7 +77,7 @@ public:
     bool insertColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
     bool removeColumns(int column, int count, const QModelIndex& parent = QModelIndex()) override;
 
-    void test(int row, int col, const PinsValue& value);
+    void test(int row, int col, const Pins& value);
 
 private:
     QStringList m_verticalHeader;

@@ -20,10 +20,27 @@ enum COMMAND {
     CRC_ERROR
 };
 
-struct PinsValue {
-    PinsValue() { }
-    int data[11][11];
+struct Pins {
+    enum { Count = 11 };
+    struct Row {
+        int data[Count]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+        int& operator[](int i) { return data[i]; }
+        const int& operator[](int i) const noexcept { return data[i]; }
+    } data[Count];
+    Row& operator[](int i) { return data[i]; }
+    const Row& operator[](int i) const noexcept { return data[i]; }
+    void reset() noexcept {
+        for(auto& row : data)
+            row = {};
+    }
 };
+
+#pragma pack(push, 1)
+struct MData {
+    uint16_t data[Pins::Count];
+    uint16_t ch;
+};
+#pragma pack(pop)
 
 class TesterPort;
 
@@ -43,27 +60,34 @@ public:
     bool getCalibrationCoefficients(float& GradCoeff, int pin);
     bool setCalibrationCoefficients(float& GradCoeff, int pin);
     bool saveCalibrationCoefficients(quint8 pin);
-    PinsValue pinsValue() const;
+    Pins pinsValue() const;
+
+    void start();
+    void stop();
+    void startStop(bool fl);
 
 signals:
     void open(int mode) override;
     void close() override;
     void write(const QByteArray& data);
     void measureReady(const QVector<quint16>&);
-    void measureReadyAll(const PinsValue&);
+    void measureReadyAll(const Pins&);
 
 private:
-    bool m_result = false;
-    bool all = false;
-    int m_counter = 0;
-    TesterPort* m_port;
+    Pins m_pins;
     QMutex m_mutex;
     QSemaphore m_semaphore;
-    mutable QSemaphore m_semPv;
     QThread m_portThread;
-    PinsValue m_pinsValue;
+    TesterPort* m_port;
+    uint16_t dataMatrix[Pins::Count][Pins::Count]{};
+    int m_counter = 0;
+    mutable QSemaphore m_semPv;
+    uint8_t m_count;
+    int timerId = 0;
+    const QByteArray parcels[Pins::Count];
 
     void reset() override;
+    void calcRes();
 
     void rxPing(const QByteArray& data);
     void rxMeasurePin(const QByteArray& data);
@@ -72,6 +96,9 @@ private:
     void rxBufferOverflow(const QByteArray& data);
     void rxWrongCommand(const QByteArray& data);
     void rxCrcError(const QByteArray& data);
+
+protected:
+    void timerEvent(QTimerEvent* event) override;
 };
 
 class TesterPort : public QSerialPort, private MyProtokol {

@@ -1,7 +1,7 @@
 #ifndef PINMODEL_H
 #define PINMODEL_H
 
-#include "hwinterface/tester.h"
+#include "devices/tester.h"
 #include <QAbstractTableModel>
 
 class PinModel : public QAbstractTableModel {
@@ -10,8 +10,8 @@ class PinModel : public QAbstractTableModel {
 public:
     explicit PinModel(QObject* parent = nullptr);
     enum {
-        ColumnCount = 11,
-        RowCount = 11,
+        ColumnCount = Pins::Count,
+        RowCount = Pins::Count,
     };
     // QAbstractItemModel interface
     int columnCount(const QModelIndex& parent) const override;
@@ -21,10 +21,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 public slots:
-    void setRawData(const QVector<quint16>& value);
+    void setDataA(const Pins& value);
 
 private:
-    int m_answerData[11][11];
+    Pins m_data;
 };
 
 #endif // PINMODEL_H

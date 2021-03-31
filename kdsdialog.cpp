@@ -1,5 +1,5 @@
 #include "kdsdialog.h"
-#include "hwinterface/interface.h"
+#include "devices/devices.h"
 #include "ui_kdsdialog.h"
 
 #include <QAbstractButton>

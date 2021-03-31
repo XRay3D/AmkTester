@@ -1,6 +1,6 @@
-#include "interface.h"
+#include "devices.h"
 
-HW::HW()
+Devices::Devices()
 {
     if (!semafore.available()) {
         QObject* objArray[] {
@@ -20,7 +20,7 @@ HW::HW()
     semafore.release();
 }
 
-HW::~HW()
+Devices::~Devices()
 {
     semafore.acquire();
     if (!semafore.available()) {
@@ -29,10 +29,10 @@ HW::~HW()
     }
 }
 
-Tester* HW::tester() { return m_amkTest; }
+Tester* Devices::tester() { return m_amkTest; }
 
-Kds* HW::kds1() { return m_kds1; }
+Kds* Devices::kds1() { return m_kds1; }
 
-Kds* HW::kds2() { return m_kds2; }
+Kds* Devices::kds2() { return m_kds2; }
 
-AutoTest* HW::autoTest() { return m_autoTest; }
+AutoTest* Devices::autoTest() { return m_autoTest; }

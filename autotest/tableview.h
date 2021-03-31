@@ -17,7 +17,7 @@ public:
 
     void clear();
     void addRow(const QString& name);
-    void setPattern(const PinsValue& pData, const PointEdit::Point& pt1, const PointEdit::Point& pt2);
+    void setPattern(const Pins& pData, const Point& pt1, const Point& pt2);
 
     void init();
     void initCheckBox();

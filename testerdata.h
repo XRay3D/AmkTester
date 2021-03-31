@@ -1,7 +1,7 @@
 ﻿//#ifndef TESTER_H
 //#define TESTER_H
 
-//#include "hwinterface/tester.h"
+//#include "devices/tester.h"
 //#include <QSemaphore>
 //#include <QTableView>
 //#include <QTimer>

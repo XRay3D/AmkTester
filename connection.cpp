@@ -2,7 +2,7 @@
 #include <QStackedWidget>
 #include <QtSerialPort>
 #include <QMessageBox>
-#include <hwinterface/interface.h>
+#include <devices/devices.h>
 
 extern QTabWidget* tw;
 
@@ -13,7 +13,7 @@ CONNECTION::CONNECTION(QWidget* parent)
     UpdateCbxPort();
     connect(pbUpdateCbxPort, &QPushButton::clicked, this, &CONNECTION::UpdateCbxPort);
     QSettings settings;
-    cbxPortAmk->setCurrentIndex(settings.value("cbxPortAmk", 0).toInt());
+    cbxPortAmk1->setCurrentIndex(settings.value("cbxPortAmk1", 0).toInt());
     cbxPortTest->setCurrentIndex(settings.value("cbxPortTest", 0).toInt());
 
     QTimer::singleShot(100, Qt::CoarseTimer, [=]() { CheckConnection(); });
@@ -22,7 +22,7 @@ CONNECTION::CONNECTION(QWidget* parent)
 CONNECTION::~CONNECTION()
 {
     QSettings settings;
-    settings.setValue("cbxPortAmk", cbxPortAmk->currentIndex());
+    settings.setValue("cbxPortAmk1", cbxPortAmk1->currentIndex());
     settings.setValue("cbxPortTest", cbxPortTest->currentIndex());
 }
 
@@ -38,8 +38,8 @@ void CONNECTION::setupUi(QWidget* Form)
     verticalLayout = new QVBoxLayout(gbxAmk);
     verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
 
-    cbxPortAmk = new QComboBox(gbxAmk);
-    cbxPortAmk->setObjectName(QStringLiteral("cbPortAmk"));
+    cbxPortAmk1 = new QComboBox(gbxAmk);
+    cbxPortAmk1->setObjectName(QStringLiteral("cbPortAmk"));
 
     //    cbxBaudAmk = new QComboBox(gbxAmk);
     //    cbxBaudAmk->setObjectName(QStringLiteral("cbBaudAmk"));
@@ -53,7 +53,7 @@ void CONNECTION::setupUi(QWidget* Form)
     pbPingAmk->setObjectName(QStringLiteral("pbPingAmk"));
     connect(pbPingAmk, &QPushButton::clicked, this, &CONNECTION::CheckConnectionAmk);
 
-    verticalLayout->addWidget(cbxPortAmk);
+    verticalLayout->addWidget(cbxPortAmk1);
     //    verticalLayout->addWidget(cbxBaudAmk);
     //    verticalLayout->addWidget(sbAddrAmk);
     verticalLayout->addWidget(pbPingAmk);
@@ -101,10 +101,10 @@ void CONNECTION::retranslateUi(QWidget* Form)
 
 void CONNECTION::UpdateCbxPort()
 {
-    cbxPortAmk->clear();
+    cbxPortAmk1->clear();
     cbxPortTest->clear();
     foreach (QSerialPortInfo portInfo, QSerialPortInfo::availablePorts()) {
-        cbxPortAmk->addItem(portInfo.portName());
+        cbxPortAmk1->addItem(portInfo.portName());
         if (portInfo.manufacturer().contains("FTDI", Qt::CaseInsensitive))
             cbxPortTest->addItem(portInfo.portName());
     }
@@ -121,16 +121,16 @@ void CONNECTION::CheckConnection()
 
 bool CONNECTION::CheckConnectionAmk()
 {
-    if (!HW::kds1()->ping(cbxPortAmk->currentText()))
+    if (!Devices::kds1()->ping(cbxPortAmk1->currentText()))
         QMessageBox::warning(nullptr, "kds", "kds");
-    return HW::kds1()->isConnected();
+    return Devices::kds1()->isConnected();
 }
 
 bool CONNECTION::CheckConnectionTest()
 {
-    if (!HW::tester()->ping(cbxPortTest->currentText()))
+    if (!Devices::tester()->ping(cbxPortTest->currentText()))
         QMessageBox::warning(nullptr, "tester", "tester");
-    return HW::tester()->isConnected();
+    return Devices::tester()->isConnected();
 }
 
 void CONNECTION::showEvent(QShowEvent* /*event*/)

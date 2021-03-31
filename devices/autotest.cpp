@@ -1,5 +1,5 @@
 #include "autotest.h"
-#include "hwinterface/interface.h"
+#include "devices/devices.h"
 #include <QThread>
 #include <autotest/model.h>
 
@@ -39,13 +39,13 @@ void AutoTest::start(Model* model)
                     continue;
             }
             qDebug() << r << c;
-            HW::kds1()->setRelay(m_model->m_answerData[r][c].parcel1.toInt());
-            HW::kds2()->setRelay(m_model->m_answerData[r][c].parcel2.toInt());
+            Devices::kds1()->setRelay(m_model->m_answerData[r][c].parcel1.toInt());
+            Devices::kds2()->setRelay(m_model->m_answerData[r][c].parcel2.toInt());
             thread()->msleep(500);
             //Interface::tester()->measureAll();
-            HW::tester()->measureAll();
+            Devices::tester()->measureAll();
             thread()->msleep(500);
-            m_model->test(r, c, HW::tester()->pinsValue());
+            m_model->test(r, c, Devices::tester()->pinsValue());
             if (thread()->isInterruptionRequested()) {
                 return;
             }

@@ -29,7 +29,7 @@ void TableView::addRow(const QString& name)
     m_model->setRowCount(m_model->rowCount() + 1, name);
 }
 
-void TableView::setPattern(const PinsValue& pData, const PointEdit::Point& pt1, const PointEdit::Point& pt2)
+void TableView::setPattern(const Pins& pData, const Point& pt1, const Point& pt2)
 {
     for (const QModelIndex& index : selectedIndexes()) {
         Data& data = m_model->m_answerData[index.row()][index.column()];

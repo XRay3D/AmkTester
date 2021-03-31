@@ -14,21 +14,20 @@ namespace Ui {
 class PointEdit;
 }
 
+struct Point {
+    Point() { }
+    Point(const QJsonObject& object)
+        : Parcel(object["value"].toString())
+        , Description(object["name"].toString()) {
+    }
+    QString Parcel;
+    QString Description;
+};
+
 class PointEdit : public QDialog {
     Q_OBJECT
 
 public:
-    struct Point {
-        Point() {}
-        Point(const QJsonObject& object)
-            : Parcel(object["value"].toString())
-            , Description(object["name"].toString())
-        {
-        }
-        QString Parcel;
-        QString Description;
-    };
-
     explicit PointEdit(Point* point, QLineEdit* lineEdit, QWidget* parent = 0);
     ~PointEdit();
 

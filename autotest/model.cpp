@@ -170,7 +170,7 @@ bool Model::removeColumns(int column, int count, const QModelIndex& parent)
     return true;
 }
 
-void Model::test(int row, int col, const PinsValue& value)
+void Model::test(int row, int col, const Pins& value)
 {
     m_answerData[row][col].test(value);
     emit dataChanged(createIndex(row, col), createIndex(row, col), { Qt::DisplayRole });

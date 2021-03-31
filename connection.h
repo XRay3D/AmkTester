@@ -18,7 +18,7 @@ signals:
 public slots:
 
 private:
-    QComboBox* cbxPortAmk;
+    QComboBox* cbxPortAmk1;
     QComboBox* cbxPortTest;
     QGroupBox* gbxAmk;
     QGroupBox* gbxTest;

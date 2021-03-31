@@ -24,41 +24,36 @@ DEFINES += \
 win32:RC_FILE = main_icon/myapp.rc
 
 SOURCES += \
-#    amktest/amktest.cpp \
     amktest/pointedit.cpp \
     autotest/header.cpp \
-#    autotest/main.cpp \
     autotest/model.cpp \
     autotest/tableview.cpp \
     connection.cpp \
-    hwinterface/autotest.cpp \
-    hwinterface/interface.cpp \
-    hwinterface/kds.cpp \
-    hwinterface/tester.cpp \
+    devices/autotest.cpp \
+    devices/devices.cpp \
+    devices/kds.cpp \
+    devices/tester.cpp \
     kdsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     pinmodel.cpp \
-    testerdata.cpp
-
-
+    testerdata.cpp \
 
 
 HEADERS += \
-#    amktest/amktest.h \
     amktest/pointedit.h \
     autotest/header.h \
     autotest/model.h \
     autotest/tableview.h \
     connection.h \
-    hwinterface/autotest.h \
-    hwinterface/interface.h \
-    hwinterface/kds.h \
-    hwinterface/tester.h \
+    devices/autotest.h \
+    devices/devices.h \
+    devices/kds.h \
+    devices/tester.h \
     kdsdialog.h \
     mainwindow.h \
     pinmodel.h \
-    testerdata.h
+    testerdata.h \
 
 
 FORMS += \
@@ -67,3 +62,6 @@ FORMS += \
 
 include(MyProtokol/myprotokol.pri)
 include(ElemerDevice/ElemerDevice.pri)
+
+RESOURCES += \
+    res/res.qrc

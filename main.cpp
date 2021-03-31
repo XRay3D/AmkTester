@@ -1,4 +1,4 @@
-#include "hwinterface/interface.h"
+#include "devices/devices.h"
 #include "mainwindow.h"
 
 #include <QApplication>
@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     a.setOrganizationName("XrSoft");
     a.setApplicationName("AmkTest");
 
-    HW i;
+    Devices i;
     Q_UNUSED(i)
 
     MainWindow w;

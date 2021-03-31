@@ -1,5 +1,5 @@
 //#include "testerdata.h"
-//#include "hwinterface/interface.h"
+//#include "devices/interface.h"
 //#include "mytablemodel.h"
 
 //#include <QDebug>

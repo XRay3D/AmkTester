@@ -5,7 +5,7 @@
 #include "kds.h"
 #include "tester.h"
 
-class HW {
+class Devices {
     static inline Kds* m_kds2;
     static inline Kds* m_kds1;
     static inline Tester* m_amkTest;
@@ -15,8 +15,8 @@ class HW {
     static inline QSemaphore semafore;
 
 public:
-    HW();
-    ~HW();
+    Devices();
+    ~Devices();
     static Tester* tester();
     static Kds* kds1();
     static Kds* kds2();
