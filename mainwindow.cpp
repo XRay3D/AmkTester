@@ -260,7 +260,7 @@ void MainWindow::loadSets() {
     jsonArray = loadDoc.array();
     qDebug() << err.errorString();
 
-    for(QJsonValue value : jsonArray) {
+    for(const QJsonValue &value : qAsConst(jsonArray)) {
         QJsonObject object(value.toObject());
         ui->cbxAmkSet1->addItem(object["name"].toString());
         ui->cbxAmkSet2->addItem(object["name"].toString());
@@ -268,7 +268,7 @@ void MainWindow::loadSets() {
 
     int idxCtr = 0;
 
-    for(QJsonValue value : jsonArray[lastIndex].toObject()["data"].toArray()) {
+    for(const QJsonValue &value : jsonArray[lastIndex].toObject()["data"].toArray()) {
         QJsonObject object2(value.toObject());
         m_points[0][idxCtr] = Point(value.toObject());
         m_points[1][idxCtr] = Point(value.toObject());
