@@ -1,7 +1,7 @@
 #ifndef MEASURINGINTERFACE_H
 #define MEASURINGINTERFACE_H
 
-#include "autotest.h"
+#include "autotest/autotest.h"
 #include "kds.h"
 #include "tester.h"
 

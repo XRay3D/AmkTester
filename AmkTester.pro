@@ -24,41 +24,52 @@ DEFINES += \
 win32:RC_FILE = main_icon/myapp.rc
 
 SOURCES += \
-    amktest/pointedit.cpp \
+#    autotest/header.cpp \
+#    autotest/model.cpp \
+#    autotest/tableview.cpp \
+    autotest/autotest.cpp \
+    autotest/autotestmodel.cpp \
     autotest/header.cpp \
-    autotest/model.cpp \
+    autotest/resultdialog.cpp \
     autotest/tableview.cpp \
     connection.cpp \
-    devices/autotest.cpp \
     devices/devices.cpp \
     devices/kds.cpp \
+    devices/pins.cpp \
     devices/tester.cpp \
     kdsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     pinmodel.cpp \
-    testerdata.cpp \
+    pointedit.cpp \
+    sets.cpp \
 
 
 HEADERS += \
-    amktest/pointedit.h \
+#    autotest/header.h \
+#    autotest/model.h \
+#    autotest/tableview.h \
+    autotest/autotest.h \
+    autotest/autotestmodel.h \
     autotest/header.h \
-    autotest/model.h \
+    autotest/resultdialog.h \
     autotest/tableview.h \
     connection.h \
-    devices/autotest.h \
     devices/devices.h \
     devices/kds.h \
+    devices/pins.h \
     devices/tester.h \
     kdsdialog.h \
     mainwindow.h \
     pinmodel.h \
-    testerdata.h \
+    pointedit.h \
+    sets.h \
 
 
 FORMS += \
-        kdsdialog.ui \
-        mainwindow.ui
+    autotest/resultdialog.ui \
+    kdsdialog.ui \
+    mainwindow.ui
 
 include(MyProtokol/myprotokol.pri)
 include(ElemerDevice/ElemerDevice.pri)

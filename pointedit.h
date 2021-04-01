@@ -17,18 +17,28 @@ class PointEdit;
 struct Point {
     Point() { }
     Point(const QJsonObject& object)
-        : Parcel(object["value"].toString())
+        : Parcel(object["value"].toInt())
         , Description(object["name"].toString()) {
     }
-    QString Parcel;
+    uint16_t Parcel;
     QString Description;
+    friend QDataStream& operator<<(QDataStream& stream, const Point& point) {
+        stream << point.Parcel;
+        stream << point.Description;
+        return stream;
+    }
+    friend QDataStream& operator>>(QDataStream& stream, Point& point) {
+        stream >> point.Parcel;
+        stream >> point.Description;
+        return stream;
+    }
 };
 
 class PointEdit : public QDialog {
     Q_OBJECT
 
 public:
-    explicit PointEdit(Point* point, QLineEdit* lineEdit, QWidget* parent = 0);
+    explicit PointEdit(Point& point, QLineEdit* lineEdit, QWidget* parent = 0);
     ~PointEdit();
 
     QGridLayout* gridLayout;
@@ -50,7 +60,7 @@ private slots:
 
 private:
     QLineEdit* lineEdit;
-    Point* point;
+    Point& point;
     void Yes();
     bool flag;
     uint lastParcVal;

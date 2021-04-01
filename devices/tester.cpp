@@ -180,7 +180,7 @@ void Tester::calcRes() {
                  },
                  i);
     }
-    qDebug() << __FUNCTION__ << (t.nsecsElapsed() * 0.001) << "us";
+    //qDebug() << __FUNCTION__ << (t.nsecsElapsed() * 0.001) << "us";
 }
 
 void Tester::rxPing(const QByteArray& /*data*/) {

@@ -1,33 +1,18 @@
-#ifndef TABLE_H
-#define TABLE_H
+#pragma once
 
-#include "amktest/pointedit.h"
-#include "model.h"
 #include <QTableView>
 
+class AutoTestModel;
 class Header;
-class QAbstractButton;
 
 class TableView : public QTableView {
     Q_OBJECT
 public:
     explicit TableView(QWidget* parent = nullptr);
     ~TableView();
-    Model* model() const;
 
-    void clear();
-    void addRow(const QString& name);
-    void setPattern(const Pins& pData, const Point& pt1, const Point& pt2);
-
-    void init();
-    void initCheckBox();
-    void initCheckBox2();
-    void initRadioButton();
-    void initCheckBoxRadioButton();
+    AutoTestModel* initCheckBox();
 
 private:
-    Model* m_model;
-    void createCornerCheckBox(Header* header, Header* header2 = nullptr);
+    void createCornerCheckBox(Header* header);
 };
-
-#endif // TABLE_H

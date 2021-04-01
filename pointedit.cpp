@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-PointEdit::PointEdit(Point* point, QLineEdit* lineEdit, QWidget* parent)
+PointEdit::PointEdit(Point& point, QLineEdit* lineEdit, QWidget* parent)
     : QDialog(parent)
     , lineEdit(lineEdit)
     , point(point)
@@ -10,19 +10,17 @@ PointEdit::PointEdit(Point* point, QLineEdit* lineEdit, QWidget* parent)
 
 {
     setupUi(this);
-    lastParcVal = point->Parcel.toInt();
-    sbxParcel->setValue(point->Parcel.toInt());
-    leDescription->setText(point->Description);
+    lastParcVal = point.Parcel;
+    sbxParcel->setValue(point.Parcel);
+    leDescription->setText(point.Description);
     connect(pbYes, &QPushButton::clicked, this, &PointEdit::Yes);
 }
 
-PointEdit::~PointEdit()
-{
+PointEdit::~PointEdit() {
 }
 
-void PointEdit::setupUi(QWidget* PointEdit)
-{
-    if (PointEdit->objectName().isEmpty())
+void PointEdit::setupUi(QWidget* PointEdit) {
+    if(PointEdit->objectName().isEmpty())
         PointEdit->setObjectName(QStringLiteral("PointEdit"));
 
     PointEdit->resize(255, 90);
@@ -93,8 +91,7 @@ void PointEdit::setupUi(QWidget* PointEdit)
     QMetaObject::connectSlotsByName(PointEdit);
 }
 
-void PointEdit::retranslateUi(QWidget* PointEdit)
-{
+void PointEdit::retranslateUi(QWidget* PointEdit) {
     PointEdit->setWindowTitle("\320\240\320\265\320\264\320\260\320\272\321\202\320\270\321\200\320\276\320\262\320\260\320\275\320\270\320\265 \321\202\320\276\321\207\320\272\320\270");
     lblParcel->setText("\320\237\320\276\321\201\321\213\320\273\320\272\320\260:");
     lblDescription->setText("\320\236\320\277\320\270\321\201\320\260\320\275\320\270\320\265:");
@@ -103,20 +100,19 @@ void PointEdit::retranslateUi(QWidget* PointEdit)
     pbNo->setText("\320\235\320\265\321\202");
 }
 
-void PointEdit::Yes()
-{
-    if (leDescription->text().isEmpty()) {
+void PointEdit::Yes() {
+    if(leDescription->text().isEmpty()) {
         leDescription->setText(QString().setNum(sbxParcel->value()));
     }
-    lineEdit->setText(leDescription->text());
-    point->Description = leDescription->text();
-    point->Parcel = QString().setNum(sbxParcel->value());
+    if(lineEdit)
+        lineEdit->setText(leDescription->text());
+    point.Description = leDescription->text();
+    point.Parcel = sbxParcel->value();
     hide();
 }
 
-void PointEdit::on_spinBox_Parcel_valueChanged(int arg1)
-{
-    if (leDescription->text().isEmpty() || leDescription->text().toInt() == lastParcVal)
+void PointEdit::on_spinBox_Parcel_valueChanged(int arg1) {
+    if(leDescription->text().isEmpty() || leDescription->text().toUInt() == lastParcVal)
         leDescription->setText(QString().setNum(arg1));
     lastParcVal = arg1;
 }

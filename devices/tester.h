@@ -2,7 +2,11 @@
 #define MY_PROTOCOL_H
 
 #include "myprotokol.h"
+#include "pins.h"
+
+#include <QDebug>
 #include <QElapsedTimer>
+#include <QIcon>
 #include <QMutex>
 #include <QSemaphore>
 #include <QSerialPort>
@@ -18,21 +22,6 @@ enum COMMAND {
     BUFFER_OVERFLOW,
     WRONG_COMMAND,
     CRC_ERROR
-};
-
-struct Pins {
-    enum { Count = 11 };
-    struct Row {
-        int data[Count]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-        int& operator[](int i) { return data[i]; }
-        const int& operator[](int i) const noexcept { return data[i]; }
-    } data[Count];
-    Row& operator[](int i) { return data[i]; }
-    const Row& operator[](int i) const noexcept { return data[i]; }
-    void reset() noexcept {
-        for(auto& row : data)
-            row = {};
-    }
 };
 
 #pragma pack(push, 1)

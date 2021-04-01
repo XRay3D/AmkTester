@@ -1,7 +1,7 @@
 #ifndef PINMODEL_H
 #define PINMODEL_H
 
-#include "devices/tester.h"
+#include "devices/pins.h"
 #include <QAbstractTableModel>
 
 class PinModel : public QAbstractTableModel {
@@ -20,8 +20,8 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-public slots:
-    void setDataA(const Pins& value);
+    void setPins(const Pins& value);
+    Pins pins() const { return m_data; }
 
 private:
     Pins m_data;

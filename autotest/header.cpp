@@ -4,67 +4,57 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-Header::Header(Qt::Orientation orientation, QWidget* parent)
+Header::Header(Qt::Orientation orientation, std::vector<ModelData>& data, QWidget* parent)
     : QHeaderView(orientation, parent)
-
+    , m_data{data} //
 {
-    connect(this, &QHeaderView::sectionCountChanged, [this, orientation](int /*oldCount*/, int newCount) {
-        QFile file(orientation == Qt::Horizontal ? "Horizontal.data" : "Vertical.data");
-        if (file.open(QFile::ReadOnly)) {
-            QDataStream in(&file);
-            in >> m_checked;
-        }
-        m_checked.resize(newCount);
+    connect(this, &QHeaderView::sectionCountChanged, [this](int /*oldCount*/, int newCount) {
         m_checkRect.resize(newCount);
-        emit onCheckedV(m_checked, orientation);
+        m_checked.resize(newCount);
+        for(int index = 0; index < count(); ++index)
+            m_checked[index] = m_data[index].use;
+        emit onCheckedV(m_checked);
     });
     setSectionsClickable(true);
     setHighlightSections(true);
 }
 
-Header::~Header()
-{
-    QFile file(orientation() == Qt::Horizontal ? "Horizontal.data" : "Vertical.data");
-    if (file.open(QFile::WriteOnly)) {
-        QDataStream out(&file);
-        out << m_checked;
-    }
-}
+Header::~Header() { }
 
-void Header::setAll(bool checked)
-{
-    for (int i = 0; i < count(); ++i) {
-        if (m_checked[i] != checked) {
-            m_checked[i] = checked;
-            emit onChecked(i, orientation());
-            updateSection(i);
+void Header::setAll(bool checked) {
+    for(int index = 0; index < count(); ++index) {
+        if(m_data[index].use != checked) {
+            m_data[index].use = checked;
+            emit onChecked(index, orientation());
+            updateSection(index);
         }
+        m_checked[index] = m_data[index].use;
     }
-    emit onCheckedV(m_checked, orientation());
+    emit onCheckedV(m_checked);
 }
 
-void Header::togle(int index)
-{
-    m_checked[index] = !m_checked[index];
+void Header::togle(int index) {
+    m_data[index].use = !m_data[index].use;
+    for(int index = 0; index < count(); ++index)
+        m_checked[index] = m_data[index].use;
     updateSection(index);
-    emit onCheckedV(m_checked, orientation());
+    emit onCheckedV(m_checked);
     emit onChecked(index, orientation());
 }
 
-void Header::setSingle(int index)
-{
-    for (int i = 0, fl = i == index; i < count(); fl = ++i == index) {
-        if (m_checked[i] != fl) {
-            m_checked[i] = fl;
+void Header::setSingle(int index) {
+    for(int i = 0, fl = i == index; i < count(); fl = ++i == index) {
+        if(m_data[i].use != fl) {
+            m_data[i].use = fl;
             emit onChecked(i, orientation());
             updateSection(i);
         }
+        m_checked[index] = m_data[index].use;
     }
-    emit onCheckedV(m_checked, orientation());
+    emit onCheckedV(m_checked);
 }
 
-QRect Header::getRect(const QRect& rect)
-{
+QRect Header::getRect(const QRect& rect) {
     return QRect(
         rect.left() + XOffset,
         rect.top() + (rect.height() - DelegateSize) / 2,
@@ -72,49 +62,46 @@ QRect Header::getRect(const QRect& rect)
         DelegateSize);
 }
 
-void Header::mouseMoveEvent(QMouseEvent* event)
-{
+void Header::mouseMoveEvent(QMouseEvent* event) {
     static int index = 0;
     do {
         //        if (!m_checkBoxRect[logicalIndexAt(event->pos())].contains(event->pos()))
         //            break;
-        if (index == logicalIndexAt(event->pos()))
+        if(index == logicalIndexAt(event->pos()))
             break;
         index = logicalIndexAt(event->pos());
-        if (index < 0)
+        if(index < 0)
             break;
-        if (event->buttons() != Qt::RightButton)
+        if(event->buttons() != Qt::RightButton)
             break;
-        //        if (orientation() == Qt::Horizontal) {
-        //            //setSingle(index);
-        //        } else
-        togle(index);
+        if(orientation() == Qt::Horizontal) {
+            //setSingle(index);
+        } else
+            togle(index);
         event->accept();
         return;
-    } while (0);
+    } while(0);
     QHeaderView::mouseMoveEvent(event);
 }
 
-void Header::mousePressEvent(QMouseEvent* event)
-{
+void Header::mousePressEvent(QMouseEvent* event) {
     int index = logicalIndexAt(event->pos());
     do {
-        if (index < 0)
+        if(index < 0)
             break;
-        if (!m_checkRect[index].contains(event->pos()) && event->buttons() != Qt::RightButton)
+        if(!m_checkRect[index].contains(event->pos()) && event->buttons() != Qt::RightButton)
             break;
-        //        if (orientation() == Qt::Horizontal)
-        //            setSingle(index);
-        //        else
-        togle(index);
+        if(orientation() == Qt::Horizontal)
+            setSingle(index);
+        else
+            togle(index);
         event->accept();
         return;
-    } while (0);
+    } while(0);
     QHeaderView::mousePressEvent(event);
 }
 
-void Header::paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const
-{
+void Header::paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const {
     painter->save();
     QHeaderView::paintSection(painter, rect, logicalIndex);
     painter->restore();
@@ -122,7 +109,7 @@ void Header::paintSection(QPainter* painter, const QRect& rect, int logicalIndex
     QStyleOptionButton option;
     m_checkRect[logicalIndex] = option.rect = getRect(rect);
 
-    option.state = m_checked[logicalIndex]
+    option.state = m_data[logicalIndex].use
         ? QStyle::State_On
         : QStyle::State_Off;
 
@@ -130,8 +117,8 @@ void Header::paintSection(QPainter* painter, const QRect& rect, int logicalIndex
         ? QStyle::State_Enabled
         : QStyle::State_None;
 
-    //    if (orientation() == Qt::Horizontal)
-    //        style()->drawPrimitive(QStyle::PE_IndicatorRadioButton, &option, painter);
-    //    else
-    style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
+    if(orientation() == Qt::Horizontal)
+        style()->drawPrimitive(QStyle::PE_IndicatorRadioButton, &option, painter);
+    else
+        style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
 }

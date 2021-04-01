@@ -7,11 +7,9 @@ PinModel::PinModel(QObject* parent)
     : QAbstractTableModel(parent) {
 }
 
-void PinModel::setDataA(const Pins& value) {
+void PinModel::setPins(const Pins& value) {
     m_data = value;
-    dataChanged(createIndex(0, 0),
-                createIndex(RowCount - 1, ColumnCount - 1),
-                {Qt::DisplayRole});
+    dataChanged(createIndex(0, 0), createIndex(RowCount - 1, ColumnCount - 1), {Qt::DisplayRole});
 }
 
 int PinModel::rowCount(const QModelIndex&) const { return RowCount; }
@@ -41,10 +39,10 @@ QVariant PinModel::data(const QModelIndex& index, int role) const {
 }
 
 QVariant PinModel::headerData(int section, Qt::Orientation /*orientation*/, int role) const {
-    const QStringList header({"K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V"});
+    const QStringList header{"K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V"};
     if(role == Qt::DisplayRole)
         return header.at(section);
-    if(role == Qt::TextAlignmentRole)
+    else if(role == Qt::TextAlignmentRole)
         return Qt::AlignCenter;
     return QVariant();
 }

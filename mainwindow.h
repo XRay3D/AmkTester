@@ -1,10 +1,18 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "ui_mainwindow.h"
+#include "pointedit.h"
 #include <QJsonArray>
+#include <QMainWindow>
 
-class MainWindow : public QMainWindow, private Ui::MainWindow {
+class PinModel;
+class AutoTestModel;
+
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -12,33 +20,45 @@ public:
     ~MainWindow();
 
 signals:
-    void start(Model* model);
-    void stop();
-    void measurePins();
-
-private slots:
-    void on_pbPing_clicked();
+    //    void start(Model* model);
+    //    void stop();
+    //    void measurePins();
 
 private:
+    Ui::MainWindow* ui;
     enum { SetCount = 12 };
     Point m_points[2][SetCount];
     QJsonArray jsonArray;
-    QVector<QLineEdit*> le;
+    QVector<QLineEdit*> leDescription;
     QVector<QPushButton*> pb;
+
+    PinModel* pinModel;
+    AutoTestModel* testModel;
+    QAction* actionTest;
+
+    QString testFileNane;
+
+    void setupTvPins();
+    void setupTvAuto();
 
     int lastIndex{};
 
     bool eventFilter(QObject* obj, QEvent* event) override;
 
     void cbxTypeIndexChanged(int index);
+    void onActionTestTriggered(bool checked = false);
+    void finished() { onActionTestTriggered(); }
+    void updatePorts();
+    void ping();
 
     void loadSets();
     void saveSets();
 
-    void message(const QString&);
     void readSettings();
-    void switchSlot();
     void writeSettings();
+
+    void message(const QString&);
+    void switchSlot();
 };
 
 #endif // MAINWINDOW_H

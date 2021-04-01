@@ -1,13 +1,16 @@
-#ifndef MYHEADER_H
-#define MYHEADER_H
+#pragma once
+
+#include "autotestmodel.h"
 
 #include <QHeaderView>
 
 class Header : public QHeaderView {
     Q_OBJECT
+    std::vector<ModelData>& m_data;
+    QVector<bool> m_checked;
 
 public:
-    Header(Qt::Orientation orientation, QWidget* parent = nullptr);
+    Header(Qt::Orientation orientation, std::vector<ModelData>& m_data, QWidget* parent = nullptr);
     ~Header() override;
 
     enum {
@@ -19,11 +22,10 @@ public:
     void togle(int index);
     void setSingle(int index);
 
-    const QVector<bool>* checked() const { return &m_checked; }
     static QRect getRect(const QRect& rect);
 
 signals:
-    void onCheckedV(const QVector<bool>&, int);
+    void onCheckedV(const QVector<bool>&);
     void onChecked(int, int);
 
 protected:
@@ -32,8 +34,5 @@ protected:
     void paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const override;
 
 private:
-    mutable QVector<bool> m_checked;
     mutable QVector<QRect> m_checkRect;
 };
-
-#endif // MYHEADER_H
