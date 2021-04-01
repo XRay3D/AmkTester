@@ -36,6 +36,8 @@ private:
     AutoTestModel* testModel;
     QAction* actionTest;
 
+    QToolBar* toolBarAutomatic;
+
     QString testFileNane;
 
     void setupTvPins();
@@ -59,6 +61,10 @@ private:
 
     void message(const QString&);
     void switchSlot();
+
+    // QMainWindow interface
+public:
+    QMenu* createPopupMenu() override;
 };
 
 #endif // MAINWINDOW_H

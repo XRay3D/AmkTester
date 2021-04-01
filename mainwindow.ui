@@ -38,7 +38,7 @@
    </property>
   </widget>
   <widget class="QStatusBar" name="statusBar_"/>
-  <widget class="QDockWidget" name="dockWidget">
+  <widget class="QDockWidget" name="dwMan">
    <property name="floating">
     <bool>false</bool>
    </property>
@@ -205,7 +205,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_2">
+  <widget class="QDockWidget" name="dwAuto">
    <property name="floating">
     <bool>false</bool>
    </property>

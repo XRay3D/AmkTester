@@ -5,6 +5,7 @@
 #include "pinmodel.h"
 #include "ui_mainwindow.h"
 
+#include <QContextMenuEvent>
 #include <QFileDialog>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -370,8 +371,8 @@ void MainWindow::setupTvAuto() {
     ui->tvAuto->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvAuto->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
-    auto toolBar = addToolBar("Automatic");
-    toolBar->addAction(QIcon(), "Add Test", [this] {
+    toolBarAutomatic = addToolBar("Automatic");
+    toolBarAutomatic->addAction(QIcon(), "Add Test", [this] {
         std::pair<Point, Point> pair;
         for(auto b : pb) {
             if(b->isChecked()) {
@@ -384,11 +385,14 @@ void MainWindow::setupTvAuto() {
         testModel->appendTest(pinModel->pins(), pair.first, pair.second);
         ui->tvAuto->selectRow(testModel->rowCount() - 1);
     });
-    toolBar->addAction(QIcon(), "Set Pattern", [this] {
+    toolBarAutomatic->addAction(QIcon(), "Set Pattern", [this] {
         for(auto& index : ui->tvAuto->selectionModel()->selectedIndexes())
             testModel->setPattern(index, pinModel->pins());
     });
-    actionTest = toolBar->addAction(QIcon(), "Test", this, &MainWindow::onActionTestTriggered);
+
+    connect(ui->dwAuto, &QDockWidget::visibilityChanged, toolBarAutomatic, &QToolBar::setVisible);
+
+    actionTest = toolBarAutomatic->addAction(QIcon(), "Test", this, &MainWindow::onActionTestTriggered);
     actionTest->setCheckable(true);
     actionTest->setObjectName("actionTest");
 
@@ -443,4 +447,10 @@ void MainWindow::ping() {
     ui->cbxPortAmk1->setEnabled(true);
     ui->cbxPortAmk2->setEnabled(true);
     ui->cbxPortTester->setEnabled(true);
+}
+
+QMenu* MainWindow::createPopupMenu() {
+    auto menu = QMainWindow::createPopupMenu();
+    menu->removeAction(toolBarAutomatic->toggleViewAction());
+    return menu;
 }
