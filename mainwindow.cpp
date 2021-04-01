@@ -36,31 +36,21 @@ MainWindow::MainWindow(QWidget* parent)
     { // menu File
         auto menu = menuBar()->addMenu("File");
         menu->addAction(
-            QIcon(), "New", [this] {
-                testFileNane.clear();
-                testModel->clear();
-            },
-            QKeySequence::New);
+            QIcon(), "New",
+            [this] { testFileNane.clear(); testModel->clear(); }, QKeySequence::New);
         menu->addSeparator();
 
         menu->addAction(
-            QIcon(), "Save", [this] {
-                if(testFileNane.isEmpty())
-                    testFileNane = QFileDialog::getSaveFileName(this, "Save", "", "Tests (*.tst)");
-                testModel->save(testFileNane);
-            },
+            QIcon(), "Save",
+            [this] { if(testFileNane.isEmpty()) testFileNane = QFileDialog::getSaveFileName(this, "Save", "", "Tests (*.tst)"); testModel->save(testFileNane); },
             QKeySequence::Save);
         menu->addAction(
-            QIcon(), "Save As", [this] {
-                testFileNane = QFileDialog::getSaveFileName(this, "Save As", testFileNane, "Tests (*.tst)");
-                testModel->save(testFileNane);
-            },
+            QIcon(), "Save As",
+            [this] { testFileNane = QFileDialog::getSaveFileName(this, "Save As", testFileNane, "Tests (*.tst)"); testModel->save(testFileNane); },
             QKeySequence::SaveAs);
         menu->addAction(
-            QIcon(), "Open", [this] {
-                testFileNane = QFileDialog::getOpenFileName(this, "Open", testFileNane, "Tests (*.tst)");
-                testModel->load(testFileNane);
-            },
+            QIcon(), "Open",
+            [this] { testFileNane = QFileDialog::getOpenFileName(this, "Open", testFileNane, "Tests (*.tst)"); testModel->load(testFileNane); },
             QKeySequence::Open);
         menu->addSeparator();
         menu->addAction(QIcon(), "Quit", this, &MainWindow::close, QKeySequence("Ctrl+Q"));
@@ -95,13 +85,13 @@ MainWindow::MainWindow(QWidget* parent)
     };
 
     for(int i = 0; i < SetCount; ++i) {
-        ui->layAmk1->addRow(pb[i /*      */] = new QPushButton(QMainWindow::centralWidget()), leDescription[i /*      */] = new QLineEdit(this));
+        ui->layAmk1->addRow(pb[i /* */] = new QPushButton(QMainWindow::centralWidget()), leDescription[i /* */] = new QLineEdit(this));
         ui->layAmk2->addRow(pb[i + SetCount] = new QPushButton(QMainWindow::centralWidget()), leDescription[i + SetCount] = new QLineEdit(this));
 
-        leDescription[i /*      */]->installEventFilter(this);
+        leDescription[i /* */]->installEventFilter(this);
         leDescription[i + SetCount]->installEventFilter(this);
 
-        pbSetter(pb[i /*      */], i, "pushButton_%1_0", 0);
+        pbSetter(pb[i /* */], i, "pushButton_%1_0", 0);
         pbSetter(pb[i + SetCount], i, "pushButton_%1_1", 1);
     }
 
@@ -270,7 +260,7 @@ A:
         QJsonObject object2(value.toObject());
         m_points[0][idxCtr] = Point(value.toObject());
         m_points[1][idxCtr] = Point(value.toObject());
-        leDescription[idxCtr /*      */]->setText(m_points[0][idxCtr].Description);
+        leDescription[idxCtr /* */]->setText(m_points[0][idxCtr].Description);
         leDescription[idxCtr + SetCount]->setText(m_points[1][idxCtr].Description);
         ++idxCtr;
     }
