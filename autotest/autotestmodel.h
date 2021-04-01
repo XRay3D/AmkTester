@@ -67,6 +67,8 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+    bool removeRows(int row, int = {}, const QModelIndex& = {}) override;
+
     Point& point(const QModelIndex& index);
     void appendTest(const Pins& pattern, const Point& setPoint1, const Point& setPoint2);
     void setPattern(const QModelIndex& index, const Pins& pattern);

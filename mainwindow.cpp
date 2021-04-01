@@ -2,7 +2,6 @@
 #include "autotest/autotestmodel.h"
 #include "devices/devices.h"
 #include "kdsdialog.h"
-#include "pinmodel.h"
 #include "ui_mainwindow.h"
 
 #include <QContextMenuEvent>
@@ -35,41 +34,45 @@ MainWindow::MainWindow(QWidget* parent)
     ui->setupUi(this);
 
     { // menu File
-        auto menu = menuBar()->addMenu("File");
+        auto menu = menuBar()->addMenu("&Файл");
         menu->addAction(
-            QIcon(), "New",
-            [this] { testFileNane.clear(); testModel->clear(); }, QKeySequence::New);
-        menu->addSeparator();
+            QIcon::fromTheme("document-new"), "Новый",
+            [this] { testFileNane.clear(); testModel->clear(); },
+            QKeySequence::New);
 
         menu->addAction(
-            QIcon(), "Save",
-            [this] { if(testFileNane.isEmpty()) testFileNane = QFileDialog::getSaveFileName(this, "Save", "", "Tests (*.tst)"); testModel->save(testFileNane); },
-            QKeySequence::Save);
-        menu->addAction(
-            QIcon(), "Save As",
-            [this] { testFileNane = QFileDialog::getSaveFileName(this, "Save As", testFileNane, "Tests (*.tst)"); testModel->save(testFileNane); },
-            QKeySequence::SaveAs);
-        menu->addAction(
-            QIcon(), "Open",
+            QIcon::fromTheme("document-open"), "Открыть...",
             [this] { testFileNane = QFileDialog::getOpenFileName(this, "Open", testFileNane, "Tests (*.tst)"); testModel->load(testFileNane); },
             QKeySequence::Open);
+
+        menu->addAction(
+            QIcon::fromTheme("document-save"), "Сохранить",
+            [this] { if(testFileNane.isEmpty()) testFileNane = QFileDialog::getSaveFileName(this, "Save", "", "Tests (*.tst)"); testModel->save(testFileNane); },
+            QKeySequence::Save);
+
+        menu->addAction(
+            QIcon::fromTheme("document-save-as"), "Сохранить как...",
+            [this] { testFileNane = QFileDialog::getSaveFileName(this, "Save As", testFileNane, "Tests (*.tst)"); testModel->save(testFileNane); },
+            QKeySequence::SaveAs);
+
         menu->addSeparator();
-        menu->addAction(QIcon(), "Quit", this, &MainWindow::close, QKeySequence("Ctrl+Q"));
+        menu->addAction(QIcon::fromTheme("application-exit"), "Выход", this, &MainWindow::close, QKeySequence("Ctrl+Q"));
     }
     { // menu Справка
         auto menu = menuBar()->addMenu("Справка");
-        menu->addAction(QIcon(), "О Qt", [] { qApp->aboutQt(); });
+        menu->addAction(QIcon::fromTheme("QtProject-designer"), "О Qt", [] { qApp->aboutQt(); });
     }
     { // toolBar Connection
-        auto toolBar = addToolBar("Connection");
-        toolBar->addAction(QIcon(), "Ping", this, &MainWindow::ping);
-        toolBar->addAction(QIcon(), "Update Ports", this, &MainWindow::updatePorts);
+        toolBarConnection = addToolBar("Connection");
+        toolBarConnection->addAction(QIcon::fromTheme(""), "Ping", this, &MainWindow::ping);
+        toolBarConnection->addAction(QIcon::fromTheme("update-none"), "Update Ports", this, &MainWindow::updatePorts);
+        connect(ui->dwCommunication, &QDockWidget::visibilityChanged, toolBarConnection, &QToolBar::setVisible);
     }
 
-    pinModel = new PinModel(ui->tvPins);
     testModel = ui->tvAuto->initCheckBox();
 
-    setupTvPins();
+    connect(Devices::tester(), &Tester::measureReadyAll, ui->tvPins, &ResistanceView::setPins);
+
     setupTvAuto();
 
     auto pbSetter = [this](QPushButton* pb, int i, const QString objName, bool fl) {
@@ -106,7 +109,7 @@ MainWindow::MainWindow(QWidget* parent)
     loadSets();
     readSettings();
 
-    QTimer::singleShot(10, this, &MainWindow::ping);
+    QTimer::singleShot(200, this, &MainWindow::ping);
 }
 
 MainWindow::~MainWindow() {
@@ -119,11 +122,16 @@ void MainWindow::readSettings() {
     settings.beginGroup("MainWindow");
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("state").toByteArray());
-    ui->cbxPortAmk1->setCurrentText(settings.value("cbxAmk").toString());
-    ui->cbxPortAmk2->setCurrentText(settings.value("cbxHart").toString());
     ui->cbxPortTester->setCurrentText(settings.value("cbxTester").toString());
-    ui->cbxAmkSet1->setCurrentIndex(settings.value("cbType1").toInt());
-    ui->cbxAmkSet2->setCurrentIndex(settings.value("cbType2").toInt());
+
+    ui->cbxPortAmk1->setCurrentText(settings.value("cbxPortAmk1").toString());
+    ui->cbxPortAmk2->setCurrentText(settings.value("cbxPortAmk2").toString());
+
+    ui->cbxAmkSet1->setCurrentIndex(settings.value("cbxAmkSet1").toInt());
+    ui->cbxAmkSet2->setCurrentIndex(settings.value("cbxAmkSet2").toInt());
+
+    ui->cbxPortBaud1->setCurrentIndex(settings.value("cbxPortBaud1").toInt());
+    ui->cbxPortBaud2->setCurrentIndex(settings.value("cbxPortBaud2").toInt());
 
     testFileNane = settings.value("testFileNane").toString();
     testModel->load(testFileNane);
@@ -135,11 +143,16 @@ void MainWindow::writeSettings() {
     settings.beginGroup("MainWindow");
     settings.setValue("geometry", saveGeometry());
     settings.setValue("state", saveState());
-    settings.setValue("cbxAmk", ui->cbxPortAmk1->currentText());
-    settings.setValue("cbxHart", ui->cbxPortAmk2->currentText());
     settings.setValue("cbxTester", ui->cbxPortTester->currentText());
-    settings.setValue("cbType1", ui->cbxAmkSet1->currentIndex());
-    settings.setValue("cbType2", ui->cbxAmkSet2->currentIndex());
+
+    settings.setValue("cbxPortAmk1", ui->cbxPortAmk1->currentText());
+    settings.setValue("cbxPortAmk2", ui->cbxPortAmk2->currentText());
+
+    settings.setValue("cbxAmkSet1", ui->cbxAmkSet1->currentIndex());
+    settings.setValue("cbxAmkSet2", ui->cbxAmkSet2->currentIndex());
+
+    settings.setValue("cbxPortBaud1", ui->cbxPortBaud1->currentIndex());
+    settings.setValue("cbxPortBaud2", ui->cbxPortBaud2->currentIndex());
 
     settings.setValue("testFileNane", testFileNane);
     settings.endGroup();
@@ -167,8 +180,7 @@ void MainWindow::cbxTypeIndexChanged(int index) {
 
 void MainWindow::loadSets() {
     QFile file(QStringLiteral("data.json"));
-A:
-    if(!file.open(QIODevice::ReadOnly)) {
+    while(!file.open(QIODevice::ReadOnly)) {
         QFile saveFile(QStringLiteral("data.json"));
         if(!saveFile.open(QIODevice::WriteOnly)) {
             qWarning() << __FUNCTION__ << saveFile.errorString();
@@ -240,7 +252,6 @@ A:
                        "{\"name\":\"1024\",\"value\":1024},"
                        "{\"name\":\"0\",\"value\":0}],\"name\":\"TEST\"}]");
         qWarning() << __FUNCTION__ << file.errorString();
-        goto A;
     }
 
     QByteArray array(file.readAll());
@@ -355,13 +366,6 @@ void MainWindow::switchSlot() {
     statusBar()->showMessage("Нет связи с прибором КДС!");
 }
 
-void MainWindow::setupTvPins() {
-    ui->tvPins->setModel(pinModel);
-    ui->tvPins->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tvPins->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    connect(Devices::tester(), &Tester::measureReadyAll, pinModel, &PinModel::setPins);
-}
-
 void MainWindow::setupTvAuto() {
     ui->tvAuto->setModel(testModel);
     ui->tvAuto->setIconSize({33, 33});
@@ -371,30 +375,36 @@ void MainWindow::setupTvAuto() {
     ui->tvAuto->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvAuto->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
-    toolBarAutomatic = addToolBar("Automatic");
-    toolBarAutomatic->addAction(QIcon(), "Add Test", [this] {
-        std::pair<Point, Point> pair;
-        for(auto b : pb) {
-            if(b->isChecked()) {
-                if(int index = pb.indexOf(b); index < SetCount)
-                    pair.first = m_points[0][index];
-                else
-                    pair.second = m_points[1][index - SetCount];
+    { // toolBarAutomatic
+        toolBarAutomatic = addToolBar("Automatic");
+        toolBarAutomatic->addAction(QIcon::fromTheme(""), "Add Test", [this] {
+            std::pair<Point, Point> pair;
+            for(auto button : qAsConst(pb)) {
+                if(button->isChecked()) {
+                    if(int index = pb.indexOf(button); index < SetCount)
+                        pair.first = m_points[0][index];
+                    else
+                        pair.second = m_points[1][index - SetCount];
+                }
             }
+            testModel->appendTest(ui->tvPins->pins(), pair.first, pair.second);
+            ui->tvAuto->selectRow(testModel->rowCount() - 1);
+        });
+        toolBarAutomatic->addAction(QIcon::fromTheme(""), "Set Pattern", [this] {
+            for(auto& index : ui->tvAuto->selectionModel()->selectedIndexes())
+                testModel->setPattern(index, ui->tvPins->pins());
+        });
+        actionTest = toolBarAutomatic->addAction(QIcon::fromTheme(""), "Remove row", [this] {
+            testModel->removeRow(ui->tvAuto->currentIndex().row());
+        });
+
+        {
+            actionTest = toolBarAutomatic->addAction(QIcon::fromTheme(""), "Test", this, &MainWindow::onActionTestTriggered);
+            actionTest->setCheckable(true);
+            actionTest->setObjectName("actionTest");
         }
-        testModel->appendTest(pinModel->pins(), pair.first, pair.second);
-        ui->tvAuto->selectRow(testModel->rowCount() - 1);
-    });
-    toolBarAutomatic->addAction(QIcon(), "Set Pattern", [this] {
-        for(auto& index : ui->tvAuto->selectionModel()->selectedIndexes())
-            testModel->setPattern(index, pinModel->pins());
-    });
-
+    }
     connect(ui->dwAuto, &QDockWidget::visibilityChanged, toolBarAutomatic, &QToolBar::setVisible);
-
-    actionTest = toolBarAutomatic->addAction(QIcon(), "Test", this, &MainWindow::onActionTestTriggered);
-    actionTest->setCheckable(true);
-    actionTest->setObjectName("actionTest");
 
     connect(ui->tvAuto, &QTableView::doubleClicked, [this](const QModelIndex& index) {
         if(index.column() < AutoTestModel::UserActivity)
@@ -421,36 +431,63 @@ void MainWindow::onActionTestTriggered(bool checked) {
 }
 
 void MainWindow::updatePorts() {
+    QSettings settings;
+    settings.beginGroup("MainWindow");
+    {
+        ui->cbxPortTester->setCurrentText(settings.value("cbxPortTester").toString());
+        ui->cbxPortAmk1->setCurrentText(settings.value("cbxPortAmk1").toString());
+        ui->cbxPortAmk2->setCurrentText(settings.value("cbxPortAmk2").toString());
+        ui->cbxPortBaud1->setCurrentIndex(settings.value("cbxPortBaud1").toInt());
+        ui->cbxPortBaud2->setCurrentIndex(settings.value("cbxPortBaud2").toInt());
+    }
+
     auto ports{QSerialPortInfo::availablePorts().toVector()};
-    std::ranges::sort(ports, {}, [](const QSerialPortInfo& i1) { return i1.portName().mid(3).toInt(); });
-    for(const QSerialPortInfo& pi : ports) {
+    std::ranges::sort(ports, {}, [](const QSerialPortInfo& i1) { return i1.portName().midRef(3).toInt(); });
+    ui->cbxPortAmk1->clear();
+    ui->cbxPortAmk2->clear();
+    ui->cbxPortTester->clear();
+
+    for(auto& pi : qAsConst(ports)) {
         ui->cbxPortAmk1->addItem(pi.portName());
         ui->cbxPortAmk2->addItem(pi.portName());
         if(pi.manufacturer().contains("FTDI"))
             ui->cbxPortTester->addItem(pi.portName());
     }
+    if(!ui->cbxPortBaud1->count())
+        for(int baud : Elemer::stdBauds) {
+            auto baudStr{QString::number(baud)};
+            ui->cbxPortBaud1->addItem(baudStr, baud);
+            ui->cbxPortBaud2->addItem(baudStr, baud);
+        }
+
+    {
+        ui->cbxPortTester->setCurrentText(settings.value("cbxPortTester").toString());
+        ui->cbxPortAmk1->setCurrentText(settings.value("cbxPortAmk1").toString());
+        ui->cbxPortAmk2->setCurrentText(settings.value("cbxPortAmk2").toString());
+        ui->cbxPortBaud1->setCurrentIndex(settings.value("cbxPortBaud1").toInt());
+        ui->cbxPortBaud2->setCurrentIndex(settings.value("cbxPortBaud2").toInt());
+    }
+
+    settings.endGroup();
 }
 
 void MainWindow::ping() {
-    for(bool en = Devices::kds1()->ping(ui->cbxPortAmk1->currentText());
-        auto w : ui->gbxKds1->findChildren<QWidget*>())
-        w->setEnabled(en);
 
-    for(bool en = Devices::kds2()->ping(ui->cbxPortAmk2->currentText());
-        auto w : ui->gbxKds2->findChildren<QWidget*>())
-        w->setEnabled(en);
+    bool en[]{Devices::tester()->ping(ui->cbxPortTester->currentText()),
+              Devices::kds1()->ping(ui->cbxPortAmk1->currentText(), ui->cbxPortBaud1->currentData().toInt()),
+              Devices::kds2()->ping(ui->cbxPortAmk2->currentText(), ui->cbxPortBaud2->currentData().toInt())};
+    ui->gbxTest->setEnabled(en[0]);
+    ui->gbxKds1->setEnabled(en[1]);
+    ui->gbxKds2->setEnabled(en[2]);
 
-    for(bool en = Devices::tester()->ping(ui->cbxPortTester->currentText());
-        auto w : ui->gbxTest->findChildren<QWidget*>())
-        w->setEnabled(en);
-
-    ui->cbxPortAmk1->setEnabled(true);
-    ui->cbxPortAmk2->setEnabled(true);
-    ui->cbxPortTester->setEnabled(true);
+    ui->lblPortTester->setText(en[0] ? QString{"Подключено"} : Devices::tester()->port()->errorString());
+    ui->lblPortAmk1->setText(en[1] ? QString::number(Devices::kds1()->getData(Kds::SerNum)) : Devices::kds1()->port()->errorString());
+    ui->lblPortAmk2->setText(en[2] ? QString::number(Devices::kds2()->getData(Kds::SerNum)) : Devices::kds2()->port()->errorString());
 }
 
 QMenu* MainWindow::createPopupMenu() {
     auto menu = QMainWindow::createPopupMenu();
     menu->removeAction(toolBarAutomatic->toggleViewAction());
+    menu->removeAction(toolBarConnection->toggleViewAction());
     return menu;
 }

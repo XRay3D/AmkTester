@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QMainWindow>
 
-class PinModel;
+class ResistanceModel;
 class AutoTestModel;
 
 namespace Ui {
@@ -32,15 +32,14 @@ private:
     QVector<QLineEdit*> leDescription;
     QVector<QPushButton*> pb;
 
-    PinModel* pinModel;
     AutoTestModel* testModel;
     QAction* actionTest;
 
     QToolBar* toolBarAutomatic;
+    QToolBar* toolBarConnection;
 
     QString testFileNane;
 
-    void setupTvPins();
     void setupTvAuto();
 
     int lastIndex{};

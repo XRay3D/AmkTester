@@ -113,6 +113,11 @@ void Tester::stop() {
 
 void Tester::startStop(bool fl) { fl ? start() : stop(); }
 
+TesterPort *Tester::port() const
+{
+    return m_port;
+}
+
 void Tester::reset() { m_semaphore.acquire(m_semaphore.available()); }
 
 void Tester::calcRes() {

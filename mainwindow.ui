@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>895</width>
-    <height>562</height>
+    <width>728</width>
+    <height>339</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,8 +32,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>895</width>
-     <height>21</height>
+     <width>728</width>
+     <height>20</height>
     </rect>
    </property>
   </widget>
@@ -70,7 +70,7 @@
        <property name="title">
         <string>ИЗМЕРИТЕЛЬ</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="10,0,0">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
         <property name="leftMargin">
          <number>6</number>
         </property>
@@ -84,9 +84,6 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QComboBox" name="cbxPortTester"/>
-        </item>
-        <item>
          <widget class="QPushButton" name="pbMeasure">
           <property name="text">
            <string>Auto Measure</string>
@@ -97,14 +94,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTableView" name="tvPins">
-          <property name="minimumSize">
-           <size>
-            <width>370</width>
-            <height>370</height>
-           </size>
-          </property>
-         </widget>
+         <widget class="ResistanceView" name="tvPins"/>
         </item>
        </layout>
       </widget>
@@ -134,20 +124,17 @@
          <number>6</number>
         </property>
         <item row="1" column="0">
-         <widget class="QComboBox" name="cbxAmkSet1"/>
-        </item>
-        <item row="3" column="0">
-         <layout class="QFormLayout" name="layAmk1"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QComboBox" name="cbxPortAmk1"/>
-        </item>
-        <item row="2" column="0">
          <widget class="QPushButton" name="pbAmkSettings1">
           <property name="text">
            <string>Настройка</string>
           </property>
          </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QComboBox" name="cbxAmkSet1"/>
+        </item>
+        <item row="2" column="0">
+         <layout class="QFormLayout" name="layAmk1"/>
         </item>
        </layout>
       </widget>
@@ -170,9 +157,6 @@
         <property name="bottomMargin">
          <number>6</number>
         </property>
-        <item>
-         <widget class="QComboBox" name="cbxPortAmk2"/>
-        </item>
         <item>
          <widget class="QComboBox" name="cbxAmkSet2"/>
         </item>
@@ -238,6 +222,147 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="dwCommunication">
+   <property name="windowTitle">
+    <string>Connection</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="leftMargin">
+      <number>6</number>
+     </property>
+     <property name="topMargin">
+      <number>6</number>
+     </property>
+     <property name="rightMargin">
+      <number>6</number>
+     </property>
+     <property name="bottomMargin">
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>ИЗМЕРИТЕЛЬ</string>
+       </property>
+       <layout class="QFormLayout" name="formLayout">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
+         <number>6</number>
+        </property>
+        <item row="0" column="0" colspan="2">
+         <widget class="QComboBox" name="cbxPortTester"/>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QLabel" name="lblPortTester">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>КДС 1</string>
+       </property>
+       <layout class="QFormLayout" name="formLayout_2">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
+         <number>6</number>
+        </property>
+        <item row="0" column="0" colspan="2">
+         <widget class="QComboBox" name="cbxPortAmk1"/>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QComboBox" name="cbxPortBaud1"/>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QLabel" name="lblPortAmk1">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>КДС 2</string>
+       </property>
+       <layout class="QFormLayout" name="formLayout_3">
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
+         <number>6</number>
+        </property>
+        <item row="0" column="0" colspan="2">
+         <widget class="QComboBox" name="cbxPortAmk2"/>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QComboBox" name="cbxPortBaud2"/>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QLabel" name="lblPortAmk2">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -246,10 +371,13 @@
    <extends>QTableView</extends>
    <header>autotest/tableview.h</header>
   </customwidget>
+  <customwidget>
+   <class>ResistanceView</class>
+   <extends>QTableView</extends>
+   <header location="global">resistanceview.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>cbxPortTester</tabstop>
-  <tabstop>cbxPortAmk1</tabstop>
   <tabstop>cbxAmkSet1</tabstop>
  </tabstops>
  <resources/>

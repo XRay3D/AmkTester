@@ -94,8 +94,15 @@ Qt::ItemFlags AutoTestModel::flags(const QModelIndex& index) const {
     return Qt::ItemIsEnabled;
 }
 
+bool AutoTestModel::removeRows(int row, int, const QModelIndex&) {
+    beginRemoveRows({}, row, row);
+    m_data.erase(m_data.begin() + row);
+    endRemoveRows();
+    return true;
+}
+
 void AutoTestModel::appendTest(const Pins& pattern, const Point& setPoint1, const Point& setPoint2) {
-    beginInsertRows({}, m_data.size(), m_data.size());
+    beginInsertRows({}, static_cast<int>(m_data.size()), static_cast<int>(m_data.size()));
     m_data.emplace_back(pattern, Pins{}, setPoint1, setPoint2);
     endInsertRows();
 }

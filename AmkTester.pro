@@ -7,16 +7,8 @@ DESTDIR = $$_PRO_FILE_PWD_/bin
 QMAKE_CXXFLAGS += /std:c++latest
 QMAKE_CXXFLAGS += /await
 
-# The following define makes your compiler emit warnings if you use
-# any feature of Qt which as been marked as deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
-
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += \
+    QT_DEPRECATED_WARNINGS \
     QT_DISABLE_DEPRECATED_BEFORE=0x060000 \    # disables all the APIs deprecated before Qt 6.0.0
     EL_ALWAYS_OPEN=1 \
 #    EL_LOG \
@@ -24,9 +16,6 @@ DEFINES += \
 win32:RC_FILE = main_icon/myapp.rc
 
 SOURCES += \
-#    autotest/header.cpp \
-#    autotest/model.cpp \
-#    autotest/tableview.cpp \
     autotest/autotest.cpp \
     autotest/autotestmodel.cpp \
     autotest/header.cpp \
@@ -40,15 +29,12 @@ SOURCES += \
     kdsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
-    pinmodel.cpp \
     pointedit.cpp \
+    resistanceview.cpp \
     sets.cpp \
 
 
 HEADERS += \
-#    autotest/header.h \
-#    autotest/model.h \
-#    autotest/tableview.h \
     autotest/autotest.h \
     autotest/autotestmodel.h \
     autotest/header.h \
@@ -61,8 +47,8 @@ HEADERS += \
     devices/tester.h \
     kdsdialog.h \
     mainwindow.h \
-    pinmodel.h \
     pointedit.h \
+    resistanceview.h \
     sets.h \
 
 

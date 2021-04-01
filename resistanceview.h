@@ -1,14 +1,23 @@
-#ifndef PINMODEL_H
-#define PINMODEL_H
+#pragma once
 
-#include "devices/pins.h"
-#include <QAbstractTableModel>
+#include <QTableView>
+#include <devices/pins.h>
 
-class PinModel : public QAbstractTableModel {
+class ResistanceView : public QTableView {
+    Q_OBJECT
+public:
+    explicit ResistanceView(QWidget* parent = nullptr);
+    void setPins(const Pins& pins);
+    Pins pins() const;
+
+    void showEvent(QShowEvent* event);
+};
+
+class ResistanceModel : public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    explicit PinModel(QObject* parent = nullptr);
+    explicit ResistanceModel(QObject* parent = nullptr);
     enum {
         ColumnCount = Pins::Count,
         RowCount = Pins::Count,
@@ -20,11 +29,9 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    void setPins(const Pins& value);
+    void setPins(const Pins& pins);
     Pins pins() const { return m_data; }
 
 private:
     Pins m_data;
 };
-
-#endif // PINMODEL_H

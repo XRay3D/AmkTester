@@ -55,6 +55,8 @@ public:
     void stop();
     void startStop(bool fl);
 
+    TesterPort* port() const;
+
 signals:
     void open(int mode) override;
     void close() override;
