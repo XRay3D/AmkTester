@@ -6,7 +6,7 @@
 
 Header::Header(Qt::Orientation orientation, std::vector<ModelData>& data, QWidget* parent)
     : QHeaderView(orientation, parent)
-    , m_data{data} //
+    , m_data {data} //
 {
     connect(this, &QHeaderView::sectionCountChanged, [this](int /*oldCount*/, int newCount) {
         m_checkRect.resize(newCount);
@@ -25,7 +25,7 @@ void Header::setAll(bool checked) {
     for(int index = 0; index < count(); ++index) {
         if(m_data[index].use != checked) {
             m_data[index].use = checked;
-            emit onChecked(index, orientation());
+            emit onChecked(index);
             updateSection(index);
         }
         m_checked[index] = m_data[index].use;
@@ -39,14 +39,14 @@ void Header::togle(int index) {
         m_checked[index] = m_data[index].use;
     updateSection(index);
     emit onCheckedV(m_checked);
-    emit onChecked(index, orientation());
+    emit onChecked(index);
 }
 
 void Header::setSingle(int index) {
     for(int i = 0, fl = i == index; i < count(); fl = ++i == index) {
         if(m_data[i].use != fl) {
             m_data[i].use = fl;
-            emit onChecked(i, orientation());
+            emit onChecked(i);
             updateSection(i);
         }
         m_checked[index] = m_data[index].use;
@@ -63,11 +63,13 @@ QRect Header::getRect(const QRect& rect) {
 }
 
 void Header::mouseMoveEvent(QMouseEvent* event) {
-    static int index = 0;
+    mousePos = event->pos();
+    int indexAt = logicalIndexAt(mousePos);
+    if(m_checkRect[indexAt].contains(mousePos))
+        updateSection(indexAt);
+    static int index;
     do {
-        //        if (!m_checkBoxRect[logicalIndexAt(event->pos())].contains(event->pos()))
-        //            break;
-        if(index == logicalIndexAt(event->pos()))
+        if(index == indexAt)
             break;
         index = logicalIndexAt(event->pos());
         if(index < 0)
@@ -115,6 +117,10 @@ void Header::paintSection(QPainter* painter, const QRect& rect, int logicalIndex
 
     option.state |= isEnabled()
         ? QStyle::State_Enabled
+        : QStyle::State_None;
+
+    option.state |= m_checkRect[logicalIndex].contains(mousePos)
+        ? QStyle::State_MouseOver
         : QStyle::State_None;
 
     if(orientation() == Qt::Horizontal)
