@@ -28,8 +28,8 @@ private:
     QVector<QPushButton*> buttons;
     //    QComboBox* cbxAmkSet;
     RelaySetHolder* sets;
-    bool setsChanged{};
-    int lastIndex{};
+    bool setsChanged {};
+    int lastIndex {};
 
     void switchSlot();
 };

@@ -1,5 +1,4 @@
-#ifndef RESULTDIALOG_H
-#define RESULTDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <devices/tester.h>
@@ -21,5 +20,3 @@ protected:
 private:
     Ui::ResultDialog* ui;
 };
-
-#endif // RESULTDIALOG_H

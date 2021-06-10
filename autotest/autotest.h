@@ -1,5 +1,4 @@
-#ifndef AUTOTEST_H
-#define AUTOTEST_H
+#pragma once
 
 #include "autotestmodel.h"
 
@@ -26,5 +25,3 @@ public:
 protected:
     void run() override;
 };
-
-#endif // AUTOTEST_H

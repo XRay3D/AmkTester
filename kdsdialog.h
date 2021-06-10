@@ -1,5 +1,4 @@
-#ifndef KDSDIALOG_H
-#define KDSDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -29,5 +28,3 @@ private:
     KdsDataModel* model;
     Kds* const kds;
 };
-
-#endif // KDSDIALOG_H

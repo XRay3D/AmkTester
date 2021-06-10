@@ -5,7 +5,7 @@
 struct ResistanceMatrix {
     enum { Size = 11 };
     struct Row {
-        int data[Size]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+        int data[Size] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
         int& operator[](int i) noexcept { return data[i]; }
         const int& operator[](int i) const noexcept { return data[i]; }
         auto begin() noexcept { return data; }

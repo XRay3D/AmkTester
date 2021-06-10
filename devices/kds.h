@@ -5,7 +5,7 @@
 
 class Kds final : public Elemer::Device {
     Q_OBJECT
-    static constexpr int bauds[] { 300, 600, 1200, 2400, 4800, 9600, 19200 };
+    static constexpr int bauds[] {300, 600, 1200, 2400, 4800, 9600, 19200};
     enum { WriteDelay = 2000 };
 
 public:

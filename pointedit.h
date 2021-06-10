@@ -1,5 +1,4 @@
-#ifndef POINTEDIT_H
-#define POINTEDIT_H
+#pragma once
 
 #include <QDialog>
 #include <QGridLayout>
@@ -20,7 +19,7 @@ struct Point {
         : Parcel(object["value"].toInt())
         , Description(object["name"].toString()) {
     }
-    uint16_t Parcel{};
+    uint16_t Parcel {};
     QString Description;
     friend QDataStream& operator<<(QDataStream& stream, const Point& point) {
         stream << point.Parcel;
@@ -65,5 +64,3 @@ private:
     bool flag;
     uint lastParcVal;
 };
-
-#endif // POINTEDIT_H

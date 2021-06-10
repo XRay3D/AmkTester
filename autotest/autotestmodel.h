@@ -1,5 +1,4 @@
-#ifndef AUTOTESTMODEL_H
-#define AUTOTESTMODEL_H
+#pragma once
 
 #include <QAbstractTableModel>
 #include <qglobal.h>
@@ -80,5 +79,3 @@ public:
 
     void onChecked(int index);
 };
-
-#endif // AUTOTESTMODEL_H

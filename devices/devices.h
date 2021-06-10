@@ -1,5 +1,4 @@
-#ifndef MEASURINGINTERFACE_H
-#define MEASURINGINTERFACE_H
+#pragma once
 
 #include "autotest/autotest.h"
 #include "kds.h"
@@ -22,5 +21,3 @@ public:
     static Kds* kds2();
     static AutoTest* autoTest();
 };
-
-#endif // MEASURINGINTERFACE_H

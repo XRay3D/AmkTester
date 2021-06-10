@@ -1,5 +1,4 @@
-#ifndef MY_PROTOCOL_H
-#define MY_PROTOCOL_H
+#pragma once
 
 #include "resistancematrix.h"
 #include "xrdevice.h"
@@ -26,13 +25,13 @@ struct MData {
     uint16_t ch;
 };
 struct CalibCoeff {
-    float cc[7]{1.0f};
+    float cc[7] {1.0f};
 };
 #pragma pack(pop)
 
 class Tester final : public XrProtokol::Device {
     Q_OBJECT
-    static inline const QByteArray parcels[ResistanceMatrix::Size]{
+    static inline const QByteArray parcels[ResistanceMatrix::Size] {
         parcel(MeasurePin, static_cast<quint8>(0x0)),
         parcel(MeasurePin, static_cast<quint8>(0x1)),
         parcel(MeasurePin, static_cast<quint8>(0x2)),
@@ -69,7 +68,7 @@ private:
     ResistanceMatrix m_resistance;
 
     int timerId = 0;
-    uint16_t accumulator[ResistanceMatrix::Size][ResistanceMatrix::Size]{};
+    uint16_t accumulator[ResistanceMatrix::Size][ResistanceMatrix::Size] {};
     uint8_t m_count;
 
     void reset() override;
@@ -82,5 +81,3 @@ private:
 protected:
     void timerEvent(QTimerEvent* event) override;
 };
-
-#endif // MY_PROTOCOL_H

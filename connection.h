@@ -1,5 +1,4 @@
-#ifndef CONNECTION_H
-#define CONNECTION_H
+#pragma once
 
 #include <QComboBox>
 #include <QGroupBox>
@@ -44,5 +43,3 @@ private:
 protected:
     void showEvent(QShowEvent* event) override;
 };
-
-#endif // CONNECTION_H
