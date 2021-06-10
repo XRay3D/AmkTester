@@ -20,7 +20,7 @@ struct Point {
         : Parcel(object["value"].toInt())
         , Description(object["name"].toString()) {
     }
-    uint16_t Parcel;
+    uint16_t Parcel{};
     QString Description;
     friend QDataStream& operator<<(QDataStream& stream, const Point& point) {
         stream << point.Parcel;

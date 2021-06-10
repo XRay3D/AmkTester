@@ -11,23 +11,23 @@ ResistanceView::ResistanceView(QWidget* parent)
     verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
-void ResistanceView::setPins(const Pins& pins) {
+void ResistanceView::setPins(const ResistanceMatrix& pins) {
     static_cast<ResistanceModel*>(model())->setPins(pins);
 }
 
-Pins ResistanceView::pins() const {
+ResistanceMatrix ResistanceView::pins() const {
     return static_cast<ResistanceModel*>(model())->pins();
 }
 
 void ResistanceView::showEvent(QShowEvent* event) {
-    QTableView::showEvent(event);
-    if(minimumSize().isNull()) {
-        int size = verticalHeader()->width() + 20;
-        for(int col = 0; col < Pins::Count; ++col)
-            size += columnWidth(col);
-        qDebug() << __FUNCTION__ << size;
-        setMinimumSize({size, size});
-    }
+    //    QTableView::showEvent(event);
+    //    if(minimumSize().isNull()) {
+    //        int size = verticalHeader()->width() + 20;
+    //        for(int col = 0; col < ResistanceMatrix::Size; ++col)
+    //            size += columnWidth(col);
+    //        qDebug() << __FUNCTION__ << size;
+    //        setMinimumSize({size, size});
+    //    }
 }
 
 /////////////////////////////////////////////////////////////////
@@ -38,9 +38,9 @@ ResistanceModel::ResistanceModel(QObject* parent)
     : QAbstractTableModel(parent) {
 }
 
-void ResistanceModel::setPins(const Pins& pins) {
+void ResistanceModel::setPins(const ResistanceMatrix& pins) {
     m_data = pins;
-    dataChanged(createIndex(0, 0), createIndex(RowCount - 1, ColumnCount - 1), {Qt::DisplayRole});
+    dataChanged(createIndex(0, 0), createIndex(RowCount - 1, ColumnCount - 1), { Qt::DisplayRole });
 }
 
 int ResistanceModel::rowCount(const QModelIndex&) const { return RowCount; }
@@ -70,7 +70,7 @@ QVariant ResistanceModel::data(const QModelIndex& index, int role) const {
 }
 
 QVariant ResistanceModel::headerData(int section, Qt::Orientation /*orientation*/, int role) const {
-    const QStringList header{"K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V"};
+    const QStringList header{ "K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V" };
     if(role == Qt::DisplayRole)
         return header.at(section);
     else if(role == Qt::TextAlignmentRole)

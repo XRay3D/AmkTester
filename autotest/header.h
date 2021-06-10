@@ -26,7 +26,7 @@ public:
 
 signals:
     void onCheckedV(const QVector<bool>&);
-    void onChecked(int, int);
+    void onChecked(int);
 
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -35,4 +35,5 @@ protected:
 
 private:
     mutable QVector<QRect> m_checkRect;
+    QPoint mousePos;
 };

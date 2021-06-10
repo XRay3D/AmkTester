@@ -1,8 +1,8 @@
 #ifndef MY_PROTOCOL_H
 #define MY_PROTOCOL_H
 
-#include "myprotokol.h"
-#include "pins.h"
+#include "resistancematrix.h"
+#include "xrdevice.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -14,103 +14,73 @@
 #include <QVector>
 #include <commoninterfaces.h>
 
-enum COMMAND {
-    PING,
-    MEASURE_PIN,
+enum TesterCmd {
+    MeasurePin = 1,
     GET_CALIBRATION_COEFFICIENTS,
     SET_CALIBRATION_COEFFICIENTS,
-    BUFFER_OVERFLOW,
-    WRONG_COMMAND,
-    CRC_ERROR
 };
 
 #pragma pack(push, 1)
 struct MData {
-    uint16_t data[Pins::Count];
+    uint16_t data[ResistanceMatrix::Size];
     uint16_t ch;
+};
+struct CalibCoeff {
+    float cc[7]{1.0f};
 };
 #pragma pack(pop)
 
-class TesterPort;
-
-class Tester : public QObject, private MyProtokol, /*private CallBack,*/ public CommonInterfaces {
+class Tester final : public XrProtokol::Device {
     Q_OBJECT
-    friend class TesterPort;
+    static inline const QByteArray parcels[ResistanceMatrix::Size]{
+        parcel(MeasurePin, static_cast<quint8>(0x0)),
+        parcel(MeasurePin, static_cast<quint8>(0x1)),
+        parcel(MeasurePin, static_cast<quint8>(0x2)),
+        parcel(MeasurePin, static_cast<quint8>(0x3)),
+        parcel(MeasurePin, static_cast<quint8>(0x4)),
+        parcel(MeasurePin, static_cast<quint8>(0x5)),
+        parcel(MeasurePin, static_cast<quint8>(0x6)),
+        parcel(MeasurePin, static_cast<quint8>(0x7)),
+        parcel(MeasurePin, static_cast<quint8>(0x8)),
+        parcel(MeasurePin, static_cast<quint8>(0x9)),
+        parcel(MeasurePin, static_cast<quint8>(0xA))};
+
+signals:
+    void resistanceReady(const ResistanceMatrix&);
 
 public:
     Tester(QObject* parent = nullptr);
     ~Tester() override;
-
-    bool ping(const QString& portName = QString(), int baud = 9600, int addr = 0) override;
+    XrProtokol::Type type() const override;
 
     bool measurePin(int pin);
     bool measureAll();
-    bool setDefaultCalibrationCoefficients(quint8 pin);
-    bool getCalibrationCoefficients(float& GradCoeff, int pin);
-    bool setCalibrationCoefficients(float& GradCoeff, int pin);
-    bool saveCalibrationCoefficients(quint8 pin);
-    Pins pinsValue() const;
+    bool setDefaultCalibrationCoefficients();
+    bool getCalibrationCoefficients(CalibCoeff& GradCoeff);
+    bool setCalibrationCoefficients(const CalibCoeff& GradCoeff);
+    ResistanceMatrix resistance() const;
 
     void start();
     void stop();
     void startStop(bool fl);
 
-    TesterPort* port() const;
-
-signals:
-    void open(int mode) override;
-    void close() override;
-    void write(const QByteArray& data);
-    void measureReady(const QVector<quint16>&);
-    void measureReadyAll(const Pins&);
-
 private:
-    Pins m_pins;
     QMutex m_mutex;
-    QSemaphore m_semaphore;
-    QThread m_portThread;
-    TesterPort* m_port;
-    uint16_t dataMatrix[Pins::Count][Pins::Count]{};
-    int m_counter = 0;
-    mutable QSemaphore m_semPv;
-    uint8_t m_count;
+    ResistanceMatrix m_resistance;
+
     int timerId = 0;
-    const QByteArray parcels[Pins::Count];
+    uint16_t accumulator[ResistanceMatrix::Size][ResistanceMatrix::Size]{};
+    uint8_t m_count;
 
     void reset() override;
     void calcRes();
 
-    void rxPing(const QByteArray& data);
-    void rxMeasurePin(const QByteArray& data);
-    void rxGetCalibrationCoefficients(const QByteArray& data);
-    void rxSetCalibrationCoefficients(const QByteArray& data);
-    void rxBufferOverflow(const QByteArray& data);
-    void rxWrongCommand(const QByteArray& data);
-    void rxCrcError(const QByteArray& data);
+    void ioRxMeasurePin(const QByteArray& data);
+    void ioRxGetCalibrationCoefficients(const QByteArray& data);
+    void ioRxSetCalibrationCoefficients(const QByteArray& data);
 
 protected:
     void timerEvent(QTimerEvent* event) override;
 };
-
-class TesterPort : public QSerialPort, private MyProtokol {
-    Q_OBJECT
-
-public:
-    TesterPort(Tester* t);
-    void openSlot(int mode);
-    void closeSlot();
-    void writeSlot(const QByteArray& data);
-    Tester* m_t;
-    typedef void (Tester::*func)(const QByteArray&);
-    QVector<func> m_f;
-
-private:
-    void readSlot();
-    QByteArray m_answerData;
-    QMutex m_mutex;
-    qint64 counter = 0;
-};
-
-Q_DECLARE_METATYPE(QVector<quint16>)
 
 #endif // MY_PROTOCOL_H

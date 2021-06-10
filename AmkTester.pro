@@ -11,7 +11,7 @@ DEFINES += \
     QT_DEPRECATED_WARNINGS \
     QT_DISABLE_DEPRECATED_BEFORE=0x060000 \    # disables all the APIs deprecated before Qt 6.0.0
     EL_ALWAYS_OPEN=1 \
-#    EL_LOG \
+    EL_LOG \
 
 win32:RC_FILE = main_icon/myapp.rc
 
@@ -24,14 +24,15 @@ SOURCES += \
     connection.cpp \
     devices/devices.cpp \
     devices/kds.cpp \
-    devices/pins.cpp \
+    devices/resistancematrix.cpp \
     devices/tester.cpp \
     kdsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     pointedit.cpp \
+    relayset.cpp \
+    relaysetholder.cpp \
     resistanceview.cpp \
-    sets.cpp \
 
 
 HEADERS += \
@@ -43,13 +44,14 @@ HEADERS += \
     connection.h \
     devices/devices.h \
     devices/kds.h \
-    devices/pins.h \
+    devices/resistancematrix.h \
     devices/tester.h \
     kdsdialog.h \
     mainwindow.h \
     pointedit.h \
+    relayset.h \
+    relaysetholder.h \
     resistanceview.h \
-    sets.h \
 
 
 FORMS += \
@@ -57,8 +59,10 @@ FORMS += \
     kdsdialog.ui \
     mainwindow.ui
 
-include(MyProtokol/myprotokol.pri)
+include(MyProtokol/XrProtokol.pri)
 include(ElemerDevice/ElemerDevice.pri)
+
+INCLUDEPATH += range-v3/include
 
 RESOURCES += \
     res/res.qrc

@@ -7,3 +7,6 @@
 [submodule "MyProtokol"]
 	path = MyProtokol
 	url = https://github.com/XRay3D/MyProtokol.git
+[submodule "range-v3"]
+	path = range-v3
+	url = git@github.com:ericniebler/range-v3.git

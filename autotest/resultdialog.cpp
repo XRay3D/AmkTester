@@ -1,7 +1,7 @@
 #include "resultdialog.h"
 #include "ui_resultdialog.h"
 
-ResultDialog::ResultDialog(const Pins& ref, const Pins& result, QWidget* parent)
+ResultDialog::ResultDialog(const ResistanceMatrix& ref, const ResistanceMatrix& result, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::ResultDialog) //
 {

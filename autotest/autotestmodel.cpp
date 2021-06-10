@@ -69,11 +69,18 @@ bool AutoTestModel::setData(const QModelIndex& index, const QVariant& value, int
 
 QVariant AutoTestModel::headerData(int section, Qt::Orientation orientation, int role) const {
     static const auto hd = {
-        "Description1",
-        "Description2",
-        "UserActivity",
-        "Ref",
-        "Test",
+        "Описание 1",
+        "Описание 2",
+        "Ручные действия",
+        "Оп.",
+        "Изм.",
+    };
+    static const auto hdtt = {
+        "Описание 1",
+        "Описание 2",
+        "Ручные действия",
+        "Опорныне значения",
+        "Измеренные значения",
     };
 
     if(role == Qt::DisplayRole) {
@@ -81,6 +88,11 @@ QVariant AutoTestModel::headerData(int section, Qt::Orientation orientation, int
             return hd.begin()[section];
         else
             return QString("      %1").arg(++section);
+    } else if(role == Qt::ToolTipRole) {
+        if(orientation == Qt::Horizontal)
+            return hdtt.begin()[section];
+        else
+            return QString("%1").arg(++section);
     } else if(role == Qt::TextAlignmentRole)
         return Qt::AlignCenter;
     return QAbstractTableModel::headerData(section, orientation, role);
@@ -101,13 +113,13 @@ bool AutoTestModel::removeRows(int row, int, const QModelIndex&) {
     return true;
 }
 
-void AutoTestModel::appendTest(const Pins& pattern, const Point& setPoint1, const Point& setPoint2) {
+void AutoTestModel::appendTest(const ResistanceMatrix& pattern, const Point& setPoint1, const Point& setPoint2) {
     beginInsertRows({}, static_cast<int>(m_data.size()), static_cast<int>(m_data.size()));
-    m_data.emplace_back(pattern, Pins{}, setPoint1, setPoint2);
+    m_data.emplace_back(pattern, ResistanceMatrix{}, setPoint1, setPoint2);
     endInsertRows();
 }
 
-void AutoTestModel::setPattern(const QModelIndex& index, const Pins& pattern) {
+void AutoTestModel::setPattern(const QModelIndex& index, const ResistanceMatrix& pattern) {
     m_data[index.row()].pattern = pattern;
     emit dataChanged(index, index, {Qt::DecorationRole});
 }

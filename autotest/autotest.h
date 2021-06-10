@@ -3,7 +3,6 @@
 
 #include "autotestmodel.h"
 
-#include <QSemaphore>
 #include <QThread>
 
 class Model;

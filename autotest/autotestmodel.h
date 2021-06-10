@@ -8,8 +8,8 @@
 #include "pointedit.h"
 
 struct ModelData {
-    Pins pattern;
-    Pins measured;
+    ResistanceMatrix pattern;
+    ResistanceMatrix measured;
     Point setPoint1;
     Point setPoint2;
     QString userActivity;
@@ -70,8 +70,8 @@ public:
     bool removeRows(int row, int = {}, const QModelIndex& = {}) override;
 
     Point& point(const QModelIndex& index);
-    void appendTest(const Pins& pattern, const Point& setPoint1, const Point& setPoint2);
-    void setPattern(const QModelIndex& index, const Pins& pattern);
+    void appendTest(const ResistanceMatrix& pattern, const Point& setPoint1, const Point& setPoint2);
+    void setPattern(const QModelIndex& index, const ResistanceMatrix& pattern);
     std::vector<ModelData>& data();
 
     void save(const QString name);

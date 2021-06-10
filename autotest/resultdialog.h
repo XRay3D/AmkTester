@@ -12,7 +12,7 @@ class ResultDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ResultDialog(const Pins& ref, const Pins& result, QWidget* parent = nullptr);
+    explicit ResultDialog(const ResistanceMatrix& ref, const ResistanceMatrix& result, QWidget* parent = nullptr);
     ~ResultDialog();
 
 protected:
