@@ -1,11 +1,10 @@
 #pragma once
 
+#include <QWidget>
 #include "pointedit.h"
 
-#include <QJsonArray>
-#include <QWidget>
-
 class RelaySetHolder;
+
 class RelaySet : public QWidget {
     Q_OBJECT
 

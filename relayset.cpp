@@ -46,7 +46,7 @@ const Point& RelaySet::currentPoint() const {
         if(b->isChecked())
             return m_points[buttons.indexOf(b)];
     }
-    static Point pt{};
+    static Point pt {};
     return pt;
 }
 
@@ -70,7 +70,7 @@ void RelaySet::switchSlot() {
     QPushButton* pushButton = qobject_cast<QPushButton*>(sender());
     int m_numPoint = buttons.indexOf(pushButton);
     qDebug() << "m_numPoint" << m_numPoint;
-    for(int i{}; i < SetCount; ++i)
+    for(int i {}; i < SetCount; ++i)
         if(m_numPoint != i)
             buttons[i]->setChecked(false);
         else

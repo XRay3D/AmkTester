@@ -31,7 +31,7 @@ SOURCES += \
     autotest/header.cpp \
     autotest/resultdialog.cpp \
     autotest/tableview.cpp \
-    connection.cpp \
+#    connection.cpp \
     devices/devices.cpp \
     devices/kds.cpp \
     devices/resistancematrix.cpp \
@@ -52,7 +52,7 @@ HEADERS += \
     autotest/header.h \
     autotest/resultdialog.h \
     autotest/tableview.h \
-    connection.h \
+#    connection.h \
     devices/devices.h \
     devices/kds.h \
     devices/resistancematrix.h \

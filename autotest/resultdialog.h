@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QDialog>
-#include <devices/tester.h>
+
+struct ResistanceMatrix;
 
 namespace Ui {
 class ResultDialog;

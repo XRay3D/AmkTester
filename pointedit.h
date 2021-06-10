@@ -1,13 +1,13 @@
 #pragma once
 
 #include <QDialog>
-#include <QGridLayout>
-#include <QJsonObject>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QSpinBox>
-#include <QWidget>
+
+class QFrame;
+class QGridLayout;
+class QJsonObject;
+class QLabel;
+class QLineEdit;
+class QSpinBox;
 
 namespace Ui {
 class PointEdit;
@@ -15,10 +15,7 @@ class PointEdit;
 
 struct Point {
     Point() { }
-    Point(const QJsonObject& object)
-        : Parcel(object["value"].toInt())
-        , Description(object["name"].toString()) {
-    }
+    Point(const QJsonObject& object);
     uint16_t Parcel {};
     QString Description;
     friend QDataStream& operator<<(QDataStream& stream, const Point& point) {
@@ -40,19 +37,17 @@ public:
     explicit PointEdit(Point& point, QLineEdit* lineEdit, QWidget* parent = 0);
     ~PointEdit();
 
-    QGridLayout* gridLayout;
-    QLabel* lblParcel;
-    QLabel* lblDescription;
-    QPushButton* pbClean;
-    QPushButton* pbYes;
-    QPushButton* pbNo;
-    QLineEdit* leDescription;
     QFrame* line;
+    QGridLayout* gridLayout;
+    QLabel* lblDescription;
+    QLabel* lblParcel;
+    QLineEdit* leDescription;
+    QPushButton* pbClean;
+    QPushButton* pbNo;
+    QPushButton* pbYes;
     QSpinBox* sbxParcel;
 
     void setupUi(QWidget* PointEdit); // setupUi
-
-    void retranslateUi(QWidget* PointEdit); // retranslateUi
 
 private slots:
     void on_spinBox_Parcel_valueChanged(int arg1);

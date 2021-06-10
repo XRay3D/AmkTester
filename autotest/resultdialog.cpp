@@ -1,5 +1,6 @@
 #include "resultdialog.h"
 #include "ui_resultdialog.h"
+#include "devices/resistancematrix.h"
 
 ResultDialog::ResultDialog(const ResistanceMatrix& ref, const ResistanceMatrix& result, QWidget* parent)
     : QDialog(parent)
