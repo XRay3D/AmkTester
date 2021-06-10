@@ -1,5 +1,6 @@
 #include "kdsdialog.h"
 #include "devices/devices.h"
+#include "kdsdatamodel.h"
 #include "ui_kdsdialog.h"
 
 #include <QAbstractButton>
@@ -8,84 +9,12 @@
 #include <QMenu>
 #include <QPushButton>
 
-class KdsDataModel : public QAbstractTableModel {
-    friend KdsDialog;
-
-    static constexpr int rows = 5;
-    int cols = 16;
-    float m_answerData[5][16] = {};
-    Kds* const kds;
-
-public:
-    KdsDataModel(Kds* kds, int cols, QObject* parent)
-        : QAbstractTableModel(parent)
-        , cols(cols)
-        , kds(kds)
-    {
-    }
-    ~KdsDataModel() { }
-
-    // QAbstractItemModel interface
-    int rowCount(const QModelIndex& = {}) const override { return rows; }
-    int columnCount(const QModelIndex& = {}) const override { return cols; }
-    QVariant data(const QModelIndex& index, int role) const override
-    {
-        if (role == Qt::DisplayRole || role == Qt::EditRole)
-            return static_cast<double>(m_answerData[index.row()][index.column()]);
-        else if (role == Qt::TextAlignmentRole)
-            return Qt::AlignCenter;
-        return {};
-    }
-
-    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override
-    {
-        if (role == Qt::EditRole) {
-            if (m_answerData[index.row()][index.column()] != value.toFloat()
-                && kds->fileOpen()
-                && kds->fileSeek(index.column() * 5 * 4 + index.row() * 4)
-                && kds->fileWrite(value.toFloat())) {
-                m_answerData[index.row()][index.column()] = value.toFloat();
-                emit dataChanged(index, index, { role });
-                return true;
-            }
-        } else if (role == Qt::DisplayRole) {
-            m_answerData[index.row()][index.column()] = value.toFloat();
-            emit dataChanged(index, index, { role });
-            return true;
-        }
-        return {};
-    }
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override
-    {
-        static auto hd = {
-            "0 Ом",
-            "40 Ом",
-            "80 Ом",
-            "160 Ом",
-            "320 Ом",
-        };
-        if (role == Qt::DisplayRole) {
-            if (orientation == Qt::Horizontal)
-                return ++section;
-            else
-                return *(hd.begin() + section);
-        } else if (role == Qt::TextAlignmentRole)
-            return Qt::AlignCenter;
-        return {};
-    }
-    Qt::ItemFlags flags(const QModelIndex&) const override
-    {
-        return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    }
-};
-
 KdsDialog::KdsDialog(Kds* kds_, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::KdsDialog)
-    , kds(kds_)
-{
+    , kds(kds_) {
     ui->setupUi(this);
-    for (int i = 0; i < ui->baudComboBox->count(); ++i)
+    for(int i = 0; i < ui->baudComboBox->count(); ++i)
         ui->baudComboBox->setItemData(i, Qt::AlignCenter, Qt::TextAlignmentRole);
 
     ui->baudComboBox->setCurrentText(QString::number(kds->port()->baudRate()));
@@ -120,12 +49,12 @@ KdsDialog::KdsDialog(Kds* kds_, QWidget* parent)
         connect(ui->tableView, &QWidget::customContextMenuRequested, [this](const QPoint& pos) {
             QMenu menu;
             menu.addAction("Set", [this] {
-                auto selectedIndexes { ui->tableView->selectionModel()->selectedIndexes() };
-                if (selectedIndexes.size()) {
+                auto selectedIndexes {ui->tableView->selectionModel()->selectedIndexes()};
+                if(selectedIndexes.size()) {
                     bool ok;
                     auto val = QInputDialog::getDouble(this, "1", "2", selectedIndexes.front().data().toDouble(), -std::numeric_limits<float>::max(), +std::numeric_limits<float>::max(), 4, &ok);
-                    if (ok)
-                        for (auto& index : ui->tableView->selectionModel()->selectedIndexes())
+                    if(ok)
+                        for(auto& index : ui->tableView->selectionModel()->selectedIndexes())
                             model->setData(index, val);
                 }
             });
@@ -143,9 +72,9 @@ KdsDialog::KdsDialog(Kds* kds_, QWidget* parent)
 
         float data[5];
 
-        for (int channel = 0; channel < model->columnCount(); ++channel) {
+        for(int channel = 0; channel < model->columnCount(); ++channel) {
             kds->fileRead(data);
-            for (float& f : data)
+            for(float& f : data)
                 model->setData(model->createIndex(std::distance(data, &f), channel), f, Qt::DisplayRole);
         }
     }
@@ -156,7 +85,7 @@ KdsDialog::KdsDialog(Kds* kds_, QWidget* parent)
 
     connect(ui->buttonBox, &QDialogButtonBox::clicked, [this](QAbstractButton* button) {
         qDebug() << ui->buttonBox->buttonRole(button);
-        switch (ui->buttonBox->standardButton(button)) {
+        switch(ui->buttonBox->standardButton(button)) {
         case QDialogButtonBox::Open:
             ui->baudComboBox->setCurrentText(QString::number(kds->port()->baudRate()));
             ui->dataLineEdit->setText(QString("%1").arg(kds->getData(Kds::Data), 16, 2, QChar('0')));
@@ -193,38 +122,32 @@ KdsDialog::KdsDialog(Kds* kds_, QWidget* parent)
     //    connect(ui->baudComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this, &KdsDialog::onBaudComboBoxCurrentIndexChanged);
     //    connect(ui->dataLineEdit, &QLineEdit::returnPressed, this, &KdsDialog::onDataLineEditEditingFinished);
 }
-KdsDialog::~KdsDialog()
-{
+KdsDialog::~KdsDialog() {
     delete ui;
 }
 
-void KdsDialog::onSerNumSpinBoxEditingFinished()
-{
+void KdsDialog::onSerNumSpinBoxEditingFinished() {
     kds->writeSerNum(ui->serNumSpinBox->value());
 }
 
-void KdsDialog::onChCountSpinBoxEditingFinished()
-{
-    kds->writeChCount(ui->chCountSpinBox->value());
-    //model->setColumnCount(ui->chCountSpinBox->value());
+void KdsDialog::onChCountSpinBoxEditingFinished() {
+    if(kds->writeChCount(ui->chCountSpinBox->value()))
+        model->setColumnCount(ui->chCountSpinBox->value());
 }
 
-void KdsDialog::onAddressSpinBoxEditingFinished()
-{
+void KdsDialog::onAddressSpinBoxEditingFinished() {
     kds->setAddress(ui->addressSpinBox->value());
 }
 
-void KdsDialog::onBaudComboBoxCurrentIndexChanged(int index)
-{
+void KdsDialog::onBaudComboBoxCurrentIndexChanged(int index) {
     kds->setBaudRate(Elemer::Baud(index));
 }
 
-void KdsDialog::onDataLineEditEditingFinished()
-{
+void KdsDialog::onDataLineEditEditingFinished() {
     int data {};
     int ctr = 0x8000;
-    for (const auto& c : ui->dataLineEdit->text()) {
-        if (c == '1')
+    for(const auto& c : ui->dataLineEdit->text()) {
+        if(c == '1')
             data |= ctr;
         ctr >>= 1;
     }

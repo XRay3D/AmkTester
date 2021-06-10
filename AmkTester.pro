@@ -1,17 +1,27 @@
 QT += core gui serialport widgets
 
 TARGET = AmkTester
+
 TEMPLATE = app
+
 DESTDIR = $$_PRO_FILE_PWD_/bin
 
-QMAKE_CXXFLAGS += /std:c++latest
-QMAKE_CXXFLAGS += /await
+QMAKE_CXXFLAGS += \
+    /std:c++latest \
+    /await
+
+CONFIG(debug, debug|release) {
+    TARGET = $$TARGET"_D"
+} else {
+    TARGET = $$TARGET"_R"
+}
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
     QT_DISABLE_DEPRECATED_BEFORE=0x060000 \    # disables all the APIs deprecated before Qt 6.0.0
     EL_ALWAYS_OPEN=1 \
     EL_LOG \
+    FORCE_READ \
 
 win32:RC_FILE = main_icon/myapp.rc
 
@@ -26,6 +36,7 @@ SOURCES += \
     devices/kds.cpp \
     devices/resistancematrix.cpp \
     devices/tester.cpp \
+    kdsdatamodel.cpp \
     kdsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -46,6 +57,7 @@ HEADERS += \
     devices/kds.h \
     devices/resistancematrix.h \
     devices/tester.h \
+    kdsdatamodel.h \
     kdsdialog.h \
     mainwindow.h \
     pointedit.h \
@@ -59,10 +71,12 @@ FORMS += \
     kdsdialog.ui \
     mainwindow.ui
 
+RESOURCES += \
+    res/res.qrc
+
 include(MyProtokol/XrProtokol.pri)
 include(ElemerDevice/ElemerDevice.pri)
 
 INCLUDEPATH += range-v3/include
 
-RESOURCES += \
-    res/res.qrc
+
