@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 
     QIcon::setThemeName("breeze");
 
-    [[maybe_unused]] Devices i;
+    [[maybe_unused]] Devices Devices;
 
     std::vector<std::unique_ptr<QTranslator>> translators;
 
