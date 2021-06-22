@@ -5,10 +5,10 @@
 #include "tester.h"
 
 class Devices {
-    static inline Kds* m_kds2;
-    static inline Kds* m_kds1;
-    static inline Tester* m_amkTest;
     static inline AutoTest* m_autoTest;
+    static inline Kds* m_kds1;
+    static inline Kds* m_kds2;
+    static inline Tester* m_amkTest;
 
     static inline QThread thread;
     static inline QSemaphore semafore;
@@ -16,8 +16,9 @@ class Devices {
 public:
     Devices();
     ~Devices();
-    static Tester* tester();
+
+    static AutoTest* autoTest();
     static Kds* kds1();
     static Kds* kds2();
-    static AutoTest* autoTest();
+    static Tester* tester();
 };

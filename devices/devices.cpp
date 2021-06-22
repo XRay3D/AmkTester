@@ -2,7 +2,7 @@
 
 Devices::Devices() {
     if(!semafore.available()) {
-        QObject* objArray[]{
+        QObject* objArray[] {
             m_amkTest = new Tester,
             m_autoTest = new AutoTest,
             m_kds1 = new Kds,
@@ -27,10 +27,10 @@ Devices::~Devices() {
     }
 }
 
-Tester* Devices::tester() { return m_amkTest; }
+AutoTest* Devices::autoTest() { return m_autoTest; }
 
 Kds* Devices::kds1() { return m_kds1; }
 
 Kds* Devices::kds2() { return m_kds2; }
 
-AutoTest* Devices::autoTest() { return m_autoTest; }
+Tester* Devices::tester() { return m_amkTest; }
