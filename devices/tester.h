@@ -42,7 +42,8 @@ class Tester final : public XrProtokol::Device {
         parcel(MeasurePin, static_cast<quint8>(0x7)),
         parcel(MeasurePin, static_cast<quint8>(0x8)),
         parcel(MeasurePin, static_cast<quint8>(0x9)),
-        parcel(MeasurePin, static_cast<quint8>(0xA))};
+        parcel(MeasurePin, static_cast<quint8>(0xA)),
+    };
 
 signals:
     void resistanceReady(const ResistanceMatrix&);

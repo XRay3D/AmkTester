@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
     { // toolBar Connection
         toolBarConnection = addToolBar("Connection");
+        toolBarConnection->setObjectName("toolBarConnection");
         toolBarConnection->addAction(QIcon::fromTheme("network-connect"), "Проверка связи", this, &MainWindow::ping);
         toolBarConnection->addAction(QIcon::fromTheme("view-refresh"), "Обновить списки портов", this, &MainWindow::updatePorts);
         connect(ui->dwCommunication, &QDockWidget::visibilityChanged, toolBarConnection, &QToolBar::setVisible);
@@ -152,6 +153,7 @@ void MainWindow::setupTvAuto() {
 
     { // toolBarAutomatic
         toolBarAutomatic = addToolBar("Automatic");
+        toolBarAutomatic->setObjectName("toolBarAutomatic");
         toolBarAutomatic->addAction(QIcon::fromTheme("list-add"), "Добавить тест", [this] {
             testModel->appendTest(ui->tvPins->pins(), ui->relaySet1->currentPoint(), ui->relaySet2->currentPoint());
             ui->tvAuto->selectRow(testModel->rowCount() - 1);
