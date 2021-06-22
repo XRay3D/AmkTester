@@ -31,13 +31,9 @@ SOURCES += \
     autotest/header.cpp \
     autotest/resultdialog.cpp \
     autotest/tableview.cpp \
-#    connection.cpp \
     devices/devices.cpp \
-    devices/kds.cpp \
     devices/resistancematrix.cpp \
     devices/tester.cpp \
-    kdsdatamodel.cpp \
-    kdsdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     pointedit.cpp \
@@ -52,13 +48,9 @@ HEADERS += \
     autotest/header.h \
     autotest/resultdialog.h \
     autotest/tableview.h \
-#    connection.h \
     devices/devices.h \
-    devices/kds.h \
     devices/resistancematrix.h \
     devices/tester.h \
-    kdsdatamodel.h \
-    kdsdialog.h \
     mainwindow.h \
     pointedit.h \
     relayset.h \
@@ -68,14 +60,14 @@ HEADERS += \
 
 FORMS += \
     autotest/resultdialog.ui \
-    kdsdialog.ui \
     mainwindow.ui
 
 RESOURCES += \
     res/res.qrc
 
-include(MyProtokol/XrProtokol.pri)
+include(XrProtokol/XrProtokol.pri)
 include(ElemerDevice/ElemerDevice.pri)
+include(../kds/kds.pri)
 
 INCLUDEPATH += range-v3/include
 

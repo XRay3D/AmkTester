@@ -71,7 +71,7 @@ QVariant AutoTestModel::headerData(int section, Qt::Orientation orientation, int
     static const auto hd = {
         "Описание 1",
         "Описание 2",
-        "Ручные действия",
+        "Ручные\nдействия",
         "Оп.",
         "Изм.",
     };

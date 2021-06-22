@@ -4,9 +4,9 @@
 [submodule "ElemerDevice"]
 	path = ElemerDevice
 	url = https://github.com/XRay3D/ElemerDevice.git
-[submodule "MyProtokol"]
-	path = MyProtokol
-	url = https://github.com/XRay3D/MyProtokol.git
 [submodule "range-v3"]
 	path = range-v3
 	url = git@github.com:ericniebler/range-v3.git
+[submodule "XrProtokol"]
+	path = XrProtokol
+	url = git@github.com:XRay3D/XrProtokol.git

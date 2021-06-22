@@ -36,7 +36,7 @@ void AutoTest::run() {
         if(isInterruptionRequested())
             break;
 
-        msleep(200);
+        msleep(500);
 
         Devices::tester()->measureAll();
         test.measured = Devices::tester()->resistance();

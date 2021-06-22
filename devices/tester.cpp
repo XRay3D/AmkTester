@@ -69,7 +69,7 @@ void Tester::calcRes() {
     static auto setDataS = [this](const Data& value, const uint8_t row) noexcept {
         enum { NoiseThreshold = 0xF };
         constexpr float RRef = 1000.; // 1000 опорное сопротивление
-        int resistance[ResistanceMatrix::Size]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+        int resistance[ResistanceMatrix::Size] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
         int count = 0;
         for(int column = row - 1, index = row + 1; column > -1 || index < (m_count ? m_count : ResistanceMatrix::Size); --column, ++index) {
             float value1 = value[row];
