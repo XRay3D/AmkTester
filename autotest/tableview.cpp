@@ -7,6 +7,17 @@
 
 TableView::TableView(QWidget* parent)
     : QTableView(parent) {
+
+    setSelectionBehavior(SelectRows);
+    setSelectionMode(SingleSelection);
+
+    setDragEnabled(true);
+    setDropIndicatorShown(true);
+    setAcceptDrops(true);
+    viewport()->setAcceptDrops(true);
+    setDefaultDropAction(Qt::MoveAction);
+    setDragDropMode(QTableView::InternalMove);
+    setDragDropOverwriteMode(false);
 }
 
 TableView::~TableView() { }
@@ -35,7 +46,7 @@ void TableView::createCornerCheckBox(Header* header) {
         checkBox->setFocusPolicy(Qt::NoFocus);
         connect(checkBox, &QCheckBox::clicked, [header](bool checked) { header->setAll(checked); });
         connect(header, &Header::onCheckedV, [checkBox](const QVector<bool>& v) {
-            static const Qt::CheckState chState[]{
+            static const Qt::CheckState chState[] {
                 Qt::Unchecked,
                 Qt::Unchecked,
                 Qt::Checked,

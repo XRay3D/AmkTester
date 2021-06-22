@@ -1,16 +1,19 @@
 #include "autotestmodel.h"
 
 #include <QFile>
+#include <QMimeData>
+
+static const QString mimeType {QStringLiteral("application/AutoTestModelData")};
 
 QDataStream& operator<<(QDataStream& stream, const std::vector<ModelData>& vector) {
-    int size{static_cast<int>(vector.size())};
+    int size {static_cast<int>(vector.size())};
     stream << size;
     for(auto& data : vector)
         stream << data;
     return stream;
 }
 QDataStream& operator>>(QDataStream& stream, std::vector<ModelData>& vector) {
-    int size{};
+    int size {};
     stream >> size;
     vector.resize(size);
     for(auto& data : vector)
@@ -93,29 +96,70 @@ QVariant AutoTestModel::headerData(int section, Qt::Orientation orientation, int
             return hdtt.begin()[section];
         else
             return QString("%1").arg(++section);
-    } else if(role == Qt::TextAlignmentRole)
-        return Qt::AlignCenter;
+    } else if(role == Qt::TextAlignmentRole) {
+        if(orientation == Qt::Horizontal)
+            return Qt::AlignCenter;
+        else
+            return {Qt::AlignVCenter | Qt::AlignRight};
+    }
+
     return QAbstractTableModel::headerData(section, orientation, role);
 }
 
 Qt::ItemFlags AutoTestModel::flags(const QModelIndex& index) const {
+    Qt::ItemFlags flags = Qt::ItemIsEnabled;
+
+    flags |= Qt::ItemIsDragEnabled;
+    if(!index.isValid())
+        flags |= Qt::ItemIsDropEnabled;
+
     if(index.column() == UserActivity)
-        return Qt::ItemIsEnabled | Qt::ItemIsEditable;
-    else if(index.column() == Pattern)
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    return Qt::ItemIsEnabled;
+        flags |= Qt::ItemIsEditable;
+    // else if(index.column() == Pattern)
+    flags |= Qt::ItemIsSelectable;
+
+    return flags;
 }
 
-bool AutoTestModel::removeRows(int row, int, const QModelIndex&) {
-    beginRemoveRows({}, row, row);
-    m_data.erase(m_data.begin() + row);
+bool AutoTestModel::insertRows(int row, int count, const QModelIndex& /*parent*/) {
+    qDebug(__FUNCTION__);
+    qDebug() << row << count;
+    if(row < 0)
+        return inserted = {};
+    beginInsertRows({}, row, row + count - 1);
+    m_data.insert(m_data.begin() + row, *(m_data.begin() + *moveRows.begin()));
+    endInsertRows();
+    return inserted = true;
+}
+
+bool AutoTestModel::removeRows(int row, int count, const QModelIndex& /*parent*/) {
+    qDebug(__FUNCTION__);
+    if(!inserted)
+        return {};
+    inserted = false;
+    beginRemoveRows({}, row, row + count - 1);
+    if(count == 1)
+        m_data.erase(m_data.begin() + row);
+    else
+        m_data.erase(m_data.begin() + row, m_data.begin() + row + count - 1);
     endRemoveRows();
     return true;
 }
 
+QMimeData* AutoTestModel::mimeData(const QModelIndexList& indexes) const {
+    qDebug(__FUNCTION__);
+    qDebug() << indexes;
+    moveRows.clear();
+    for(auto&& index : indexes)
+        moveRows.emplace(index.row());
+    return QAbstractTableModel::mimeData(indexes);
+}
+
+Qt::DropActions AutoTestModel::supportedDropActions() const { return Qt::MoveAction /*| Qt::TargetMoveAction*/; }
+
 void AutoTestModel::appendTest(const ResistanceMatrix& pattern, const Point& setPoint1, const Point& setPoint2) {
     beginInsertRows({}, static_cast<int>(m_data.size()), static_cast<int>(m_data.size()));
-    m_data.emplace_back(pattern, ResistanceMatrix{}, setPoint1, setPoint2);
+    m_data.emplace_back(pattern, ResistanceMatrix {}, setPoint1, setPoint2);
     endInsertRows();
 }
 

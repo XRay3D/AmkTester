@@ -2,6 +2,7 @@
 
 #include <QAbstractTableModel>
 #include <qglobal.h>
+#include <set>
 
 #include "devices/tester.h"
 #include "pointedit.h"
@@ -41,6 +42,8 @@ class AutoTestModel : public QAbstractTableModel {
     Q_OBJECT
 
     std::vector<ModelData> m_data;
+    mutable std::set<int> moveRows;
+    bool inserted {};
 
 signals:
 
@@ -66,7 +69,12 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    bool removeRows(int row, int = {}, const QModelIndex& = {}) override;
+    bool insertRows(int row, int count, const QModelIndex& parent) override;
+    bool removeRows(int row, int count, const QModelIndex& parent) override;
+
+    // Drag & Drop
+    QMimeData* mimeData(const QModelIndexList& indexes) const override;
+    Qt::DropActions supportedDropActions() const override;
 
     Point& point(const QModelIndex& index);
     void appendTest(const ResistanceMatrix& pattern, const Point& setPoint1, const Point& setPoint2);
