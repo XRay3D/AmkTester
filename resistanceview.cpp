@@ -40,7 +40,11 @@ ResistanceModel::ResistanceModel(QObject* parent)
 
 void ResistanceModel::setPins(const ResistanceMatrix& pins) {
     m_data = pins;
-    dataChanged(createIndex(0, 0), createIndex(RowCount - 1, ColumnCount - 1), { Qt::DisplayRole });
+    dataChanged(createIndex(0, 0), createIndex(RowCount - 1, ColumnCount - 1), {Qt::DisplayRole});
+}
+
+void ResistanceModel::setEditable(bool newEditable) {
+    m_editable = newEditable;
 }
 
 int ResistanceModel::rowCount(const QModelIndex&) const { return RowCount; }
@@ -51,6 +55,10 @@ QVariant ResistanceModel::data(const QModelIndex& index, int role) const {
     switch(role) {
     case Qt::DisplayRole:
         if(m_data[index.row()][index.column()] > -1)
+            return m_data[index.row()][index.column()];
+        return QVariant();
+    case Qt::EditRole:
+        if(m_editable)
             return m_data[index.row()][index.column()];
         return QVariant();
     case Qt::TextAlignmentRole:
@@ -69,8 +77,22 @@ QVariant ResistanceModel::data(const QModelIndex& index, int role) const {
     }
 }
 
+bool ResistanceModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    switch(role) {
+    case Qt::EditRole:
+        if(m_editable) {
+            m_data[index.row()][index.column()] = value.toInt();
+            emit dataChanged({}, {}, {});
+            return true;
+        }
+        return {};
+    default:
+        return {};
+    }
+}
+
 QVariant ResistanceModel::headerData(int section, Qt::Orientation /*orientation*/, int role) const {
-    const QStringList header{ "K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V" };
+    const QStringList header {"K1", "K2", "K3", "K4", "-U", "+U", "+I", "-I", "mV", "V", "-V"};
     if(role == Qt::DisplayRole)
         return header.at(section);
     else if(role == Qt::TextAlignmentRole)
@@ -78,4 +100,4 @@ QVariant ResistanceModel::headerData(int section, Qt::Orientation /*orientation*
     return QVariant();
 }
 
-Qt::ItemFlags ResistanceModel::flags(const QModelIndex&) const { return Qt::ItemIsEnabled; }
+Qt::ItemFlags ResistanceModel::flags(const QModelIndex&) const { return Qt::ItemIsEnabled | (m_editable ? (Qt::ItemIsEditable | Qt::ItemIsSelectable) : Qt::NoItemFlags); }
