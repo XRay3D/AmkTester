@@ -71,4 +71,7 @@ include(../kds/kds.pri)
 
 INCLUDEPATH += range-v3/include
 
+DISTFILES += \
+    Window.PNG
+
 
