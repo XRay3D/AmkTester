@@ -248,6 +248,8 @@ void MainWindow::ping() {
     ui->gbxKds1->setEnabled(en[1]);
     ui->gbxKds2->setEnabled(en[2]);
 
+    ui->dwAuto->setEnabled((en[0] && en[1]) || (en[0] && en[2]));
+
     ui->lblPortTester->setText(en[0] ? QString {"Подключено"} : Devices::tester()->port()->errorString());
     ui->lblPortAmk1->setText(en[1] ? QString("Зав. № %1").arg(Devices::kds1()->getData(Kds::SerNum)) : Devices::kds1()->port()->errorString());
     ui->lblPortAmk2->setText(en[2] ? QString("Зав. № %1").arg(Devices::kds2()->getData(Kds::SerNum)) : Devices::kds2()->port()->errorString());

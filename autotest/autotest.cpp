@@ -4,7 +4,11 @@
 #include <QThread>
 #include <devices/devices.h>
 
-static int id = qRegisterMetaType<QVector<int>>("QVector<int>");
+#include "range/v3/view/iota.hpp"
+#include "range/v3/view/zip.hpp"
+namespace rv = ranges::views;
+
+//static int id = qRegisterMetaType<std::vector<int>>("std::vector<int>");
 
 void AutoTest::setModel(AutoTestModel* model) { m_model = model; }
 
@@ -15,18 +19,20 @@ AutoTest::~AutoTest() { }
 
 void AutoTest::run() {
     Devices::tester()->stop();
-    int ctr{};
-    for(auto& test : m_model->data()) {
-        ++ctr;
+
+    QString lastUserActivity;
+    for(auto&& [ctr, test] : rv::zip(rv::iota(0), m_model->data())) {
 
         if(!test.use)
             continue;
 
-        if(test.userActivity.size()) {
+        if(test.userActivity.size() && lastUserActivity != test.userActivity) {
             mutex.lock();
             emit message(test.userActivity);
             QMutexLocker locker(&mutex);
         }
+
+        lastUserActivity = test.userActivity;
 
         if(test.setPoint1.Description.size())
             Devices::kds1()->setRelay(test.setPoint1.Parcel);
@@ -40,9 +46,9 @@ void AutoTest::run() {
 
         Devices::tester()->measureAll();
         test.measured = Devices::tester()->resistance();
-        test.ok = test.pattern == test.measured;
+        test.ok = (test.pattern == test.measured);
 
-        auto index{m_model->index(ctr - 1, AutoTestModel::TestResult)};
+        auto index {m_model->index(ctr, AutoTestModel::TestResult)};
         emit m_model->dataChanged(index, index, {Qt::CheckStateRole, Qt::DecorationRole});
     }
     if(Devices::kds1()->isConnected())
